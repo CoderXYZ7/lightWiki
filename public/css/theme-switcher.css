@@ -170,7 +170,7 @@ body {
     border-color: #dee2e6;
 }
 
-.theme-option[data-theme="HighVisibilty"]::before {
+.theme-option[data-theme="highVisibility"]::before {
     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
 }
 
