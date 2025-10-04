@@ -524,10 +524,35 @@ function showAIModal(selectedText, pageId) {
     closeBtn.style.borderRadius = "4px";
     closeBtn.style.cursor = "pointer";
     closeBtn.style.fontWeight = "600";
+    closeBtn.style.fontSize = "14px";
+    closeBtn.style.transition = "all 0.3s ease";
+    closeBtn.style.boxShadow = "0 2px 4px rgba(0,0,0,0.2)";
+
+    closeBtn.addEventListener("mouseenter", () => {
+      closeBtn.style.backgroundColor = "#c82333";
+      closeBtn.style.transform = "scale(1.05)";
+      closeBtn.style.boxShadow = "0 4px 8px rgba(0,0,0,0.3)";
+    });
+
+    closeBtn.addEventListener("mouseleave", () => {
+      closeBtn.style.backgroundColor = "#dc3545";
+      closeBtn.style.transform = "scale(1)";
+      closeBtn.style.boxShadow = "0 2px 4px rgba(0,0,0,0.2)";
+    });
+
+    closeBtn.addEventListener("mousedown", () => {
+      closeBtn.style.transform = "scale(0.95)";
+    });
+
+    closeBtn.addEventListener("mouseup", () => {
+      closeBtn.style.transform = "scale(1.05)";
+    });
+
     closeBtn.addEventListener("click", () => {
       modal.style.display = "none";
       overlay.style.display = "none";
     });
+
     modal.appendChild(closeBtn);
 
     const overlay = document.createElement("div");
@@ -581,6 +606,7 @@ function showAIModal(selectedText, pageId) {
         '<p style="color: #dc3545;">Error: ' + error.message + "</p>";
     });
 }
+
 
 function addMarkdownStyles() {
   if (document.getElementById('ai-modal-markdown-styles')) return;
