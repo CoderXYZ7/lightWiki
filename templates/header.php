@@ -23,11 +23,8 @@
         "default" => "/css/style.css",
         "dark" => "/css/dark.css",
         "minimal" => "/css/minimal.css",
-        "vibrant" => "/css/vibrant.css",
-        "nature" => "/css/nature.css",
         "corporate" => "/css/corporate.css",
         "retro" => "/css/retro.css",
-        "minimalist" => "/css/minimalist.css",
     ];
     $currentCss = isset($themeCss[$userTheme])
         ? $themeCss[$userTheme]
@@ -71,9 +68,6 @@
                             <div class="theme-option" data-theme="default">Default</div>
                             <div class="theme-option" data-theme="dark">Dark</div>
                             <div class="theme-option" data-theme="minimal">Minimal</div>
-                            <div class="theme-option" data-theme="minimalist">Minimalist</div>
-                            <div class="theme-option" data-theme="vibrant">Vibrant</div>
-                            <div class="theme-option" data-theme="nature">Nature</div>
                             <div class="theme-option" data-theme="corporate">Corporate</div>
                             <div class="theme-option" data-theme="retro">Retro</div>
                         </div>
