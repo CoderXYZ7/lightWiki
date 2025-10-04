@@ -1,14 +1,7 @@
 /* LiteWiki Minimal Theme */
 /* LiteWiki Minimal Theme */
 
-/* Reset */
-* {
-<<<<<<< HEAD
-* { 
-=======
-/* Reset */
-* {
->>>>>>> 6f3d75c (Removing default theme and making Ex-Minimal the new default)
+{ 
     margin: 0;
     padding: 0;
     box-sizing: border-box;
