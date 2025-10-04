@@ -292,111 +292,108 @@ function updateDropdownThemeStyle(theme) {
 }
 
 // Inserisci questa parte in fondo al main.js, prima di eventuali altre chiusure </script>
-document.addEventListener("mouseup", () => {
+document.addEventListener('mouseup', () => {
   const selection = window.getSelection();
   if (!selection.isCollapsed) {
     const range = selection.getRangeAt(0);
     const rect = range.getBoundingClientRect();
 
     // Bottone "Search with AI"
-    let btnSearch = document.getElementById("search-ai-btn");
+    let btnSearch = document.getElementById('search-ai-btn');
     if (!btnSearch) {
-      btnSearch = document.createElement("button");
-      btnSearch.id = "search-ai-btn";
-      btnSearch.textContent = "Search with AI";
-      btnSearch.style.position = "absolute";
-      btnSearch.style.zIndex = "9999";
-      btnSearch.style.padding = "6px 12px";
-      btnSearch.style.backgroundColor = "#0056b3";
-      btnSearch.style.color = "#fff";
-      btnSearch.style.border = "none";
-      btnSearch.style.borderRadius = "6px";
-      btnSearch.style.fontWeight = "600";
-      btnSearch.style.fontSize = "14px";
-      btnSearch.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
-      btnSearch.style.cursor = "pointer";
-      btnSearch.style.transition = "background-color 0.3s ease";
-      btnSearch.style.userSelect = "none";
-      btnSearch.style.whiteSpace = "nowrap";
-      btnSearch.style.marginRight = "8px";
+      btnSearch = document.createElement('button');
+      btnSearch.id = 'search-ai-btn';
+      btnSearch.textContent = 'Search with AI';
+      btnSearch.style.position = 'absolute';
+      btnSearch.style.zIndex = '9999';
+      btnSearch.style.padding = '6px 12px';
+      btnSearch.style.backgroundColor = '#0056b3'; 
+      btnSearch.style.color = '#fff';
+      btnSearch.style.border = 'none';
+      btnSearch.style.borderRadius = '6px';
+      btnSearch.style.fontWeight = '600';
+      btnSearch.style.fontSize = '14px';
+      btnSearch.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+      btnSearch.style.cursor = 'pointer';
+      btnSearch.style.transition = 'background-color 0.3s ease';
+      btnSearch.style.userSelect = 'none'; 
+      btnSearch.style.whiteSpace = 'nowrap';
+      btnSearch.style.marginRight = '8px';
 
-      btnSearch.addEventListener("mouseenter", () => {
-        btnSearch.style.backgroundColor = "#003d80";
+      btnSearch.addEventListener('mouseenter', () => {
+        btnSearch.style.backgroundColor = '#003d80';
       });
 
-      btnSearch.addEventListener("mouseleave", () => {
-        btnSearch.style.backgroundColor = "#0056b3";
+      btnSearch.addEventListener('mouseleave', () => {
+        btnSearch.style.backgroundColor = '#0056b3';
       });
 
       document.body.appendChild(btnSearch);
 
-      btnSearch.addEventListener("click", () => {
+      btnSearch.addEventListener('click', () => {
         const selectedText = selection.toString();
         const encodedText = encodeURIComponent(selectedText);
-        window.open(
-          `http://91.98.199.163/api.php?action=ai-search&text=${encodedText}`,
-          "_blank",
-        );
-        btnSearch.style.display = "none";
-        btnAsk.style.display = "none";
+        window.open(`http://91.98.199.163/api.php?action=ai-search&text=${encodedText}`, '_blank');
+        btnSearch.style.display = 'none';
+        btnAsk.style.display = 'none';
         selection.removeAllRanges();
       });
     }
 
     // Bottone "Ask to AI"
-    let btnAsk = document.getElementById("ask-ai-btn");
+    let btnAsk = document.getElementById('ask-ai-btn');
     if (!btnAsk) {
-      btnAsk = document.createElement("button");
-      btnAsk.id = "ask-ai-btn";
-      btnAsk.textContent = "Ask to AI";
-      btnAsk.style.position = "absolute";
-      btnAsk.style.zIndex = "9999";
-      btnAsk.style.padding = "6px 12px";
-      btnAsk.style.backgroundColor = "#28a745";
-      btnAsk.style.color = "#fff";
-      btnAsk.style.border = "none";
-      btnAsk.style.borderRadius = "6px";
-      btnAsk.style.fontWeight = "600";
-      btnAsk.style.fontSize = "14px";
-      btnAsk.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
-      btnAsk.style.cursor = "pointer";
-      btnAsk.style.transition = "background-color 0.3s ease";
-      btnAsk.style.userSelect = "none";
-      btnAsk.style.whiteSpace = "nowrap";
+      btnAsk = document.createElement('button');
+      btnAsk.id = 'ask-ai-btn';
+      btnAsk.textContent = 'Ask to AI';
+      btnAsk.style.position = 'absolute';
+      btnAsk.style.zIndex = '9999';
+      btnAsk.style.padding = '6px 12px';
+      btnAsk.style.backgroundColor = '#28a745'; 
+      btnAsk.style.color = '#fff';
+      btnAsk.style.border = 'none';
+      btnAsk.style.borderRadius = '6px';
+      btnAsk.style.fontWeight = '600';
+      btnAsk.style.fontSize = '14px';
+      btnAsk.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+      btnAsk.style.cursor = 'pointer';
+      btnAsk.style.transition = 'background-color 0.3s ease';
+      btnAsk.style.userSelect = 'none'; 
+      btnAsk.style.whiteSpace = 'nowrap';
 
-      btnAsk.addEventListener("mouseenter", () => {
-        btnAsk.style.backgroundColor = "#1e7e34";
+      btnAsk.addEventListener('mouseenter', () => {
+        btnAsk.style.backgroundColor = '#1e7e34';
       });
 
-      btnAsk.addEventListener("mouseleave", () => {
-        btnAsk.style.backgroundColor = "#28a745";
+      btnAsk.addEventListener('mouseleave', () => {
+        btnAsk.style.backgroundColor = '#28a745';
       });
 
       document.body.appendChild(btnAsk);
 
-      btnAsk.addEventListener("click", () => {
+      btnAsk.addEventListener('click', () => {
         const selectedText = selection.toString();
-
+        
         const urlParams = new URLSearchParams(window.location.search);
-        const pageId = urlParams.get("page") || "";
+        const pageId = urlParams.get('page') || '';
 
-        btnSearch.style.display = "none";
-        btnAsk.style.display = "none";
+        btnSearch.style.display = 'none';
+        btnAsk.style.display = 'none';
         selection.removeAllRanges();
 
         showAIModal(selectedText, pageId);
       });
     }
 
-    btnSearch.style.display = "block";
-    btnAsk.style.display = "block";
-
+    btnSearch.style.display = 'block';
+    btnAsk.style.display = 'block';
+    
     requestAnimationFrame(() => {
       const scrollTop = window.scrollY || window.pageYOffset;
       const scrollLeft = window.scrollX || window.pageXOffset;
-
+      
       const btnHeight = btnSearch.offsetHeight || 34;
-
+      
       const topPos = scrollTop + rect.top - btnHeight - 12;
       const leftPos = Math.max(scrollLeft + rect.left, 5);
 
@@ -408,121 +405,123 @@ document.addEventListener("mouseup", () => {
       btnAsk.style.left = `${leftPos + btnSearchWidth + 8}px`;
     });
   } else {
-    const btnSearch = document.getElementById("search-ai-btn");
-    const btnAsk = document.getElementById("ask-ai-btn");
-    if (btnSearch) btnSearch.style.display = "none";
-    if (btnAsk) btnAsk.style.display = "none";
+    const btnSearch = document.getElementById('search-ai-btn');
+    const btnAsk = document.getElementById('ask-ai-btn');
+    if (btnSearch) btnSearch.style.display = 'none';
+    if (btnAsk) btnAsk.style.display = 'none';
   }
 });
 
-document.addEventListener("mousedown", (e) => {
-  const btnSearch = document.getElementById("search-ai-btn");
-  const btnAsk = document.getElementById("ask-ai-btn");
+document.addEventListener('mousedown', (e) => {
+  const btnSearch = document.getElementById('search-ai-btn');
+  const btnAsk = document.getElementById('ask-ai-btn');
   if (btnSearch && e.target !== btnSearch && e.target !== btnAsk) {
-    btnSearch.style.display = "none";
+    btnSearch.style.display = 'none';
   }
   if (btnAsk && e.target !== btnAsk && e.target !== btnSearch) {
-    btnAsk.style.display = "none";
+    btnAsk.style.display = 'none';
   }
 });
 
 function showAIModal(selectedText, pageId) {
-  let modal = document.getElementById("ai-modal");
+  let modal = document.getElementById('ai-modal');
   if (!modal) {
-    modal = document.createElement("div");
-    modal.id = "ai-modal";
-    modal.style.position = "fixed";
-    modal.style.top = "50%";
-    modal.style.left = "50%";
-    modal.style.transform = "translate(-50%, -50%)";
-    modal.style.width = "600px";
-    modal.style.maxWidth = "90%";
-    modal.style.maxHeight = "80vh";
-    modal.style.backgroundColor = "#fff";
-    modal.style.borderRadius = "8px";
-    modal.style.boxShadow = "0 4px 20px rgba(0,0,0,0.3)";
-    modal.style.zIndex = "10000";
-    modal.style.padding = "20px";
-    modal.style.display = "none";
-    modal.style.overflow = "hidden";
-    modal.style.flexDirection = "column";
+    modal = document.createElement('div');
+    modal.id = 'ai-modal';
+    modal.style.position = 'fixed';
+    modal.style.top = '50%';
+    modal.style.left = '50%';
+    modal.style.transform = 'translate(-50%, -50%)';
+    modal.style.width = '600px';
+    modal.style.maxWidth = '90%';
+    modal.style.maxHeight = '80vh';
+    modal.style.backgroundColor = '#ffffff';
+    modal.style.borderRadius = '8px';
+    modal.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)';
+    modal.style.zIndex = '10000';
+    modal.style.padding = '20px';
+    modal.style.display = 'none';
+    modal.style.overflow = 'hidden';
+    modal.style.flexDirection = 'column';
 
-    const title = document.createElement("div");
-    title.textContent = "Description";
-    title.style.fontSize = "18px";
-    title.style.fontWeight = "600";
-    title.style.marginBottom = "15px";
-    title.style.color = "#333";
+    const title = document.createElement('div');
+    title.textContent = 'Description';
+    title.style.fontSize = '18px';
+    title.style.fontWeight = '600';
+    title.style.marginBottom = '15px';
+    title.style.color = '#1a1a1a';
     modal.appendChild(title);
 
-    const contentDiv = document.createElement("div");
-    contentDiv.id = "ai-response-text";
-    contentDiv.style.width = "100%";
-    contentDiv.style.flex = "1";
-    contentDiv.style.padding = "15px";
-    contentDiv.style.border = "1px solid #ddd";
-    contentDiv.style.borderRadius = "4px";
-    contentDiv.style.fontSize = "14px";
-    contentDiv.style.fontFamily = "Arial, sans-serif";
-    contentDiv.style.overflowY = "auto";
-    contentDiv.style.backgroundColor = "#f9f9f9";
-    contentDiv.style.lineHeight = "1.6";
+    const contentDiv = document.createElement('div');
+    contentDiv.id = 'ai-response-text';
+    contentDiv.style.width = '100%';
+    contentDiv.style.flex = '1';
+    contentDiv.style.padding = '15px';
+    contentDiv.style.border = '1px solid #e0e0e0';
+    contentDiv.style.borderRadius = '4px';
+    contentDiv.style.fontSize = '14px';
+    contentDiv.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+    contentDiv.style.overflowY = 'auto';
+    contentDiv.style.backgroundColor = '#fafafa';
+    contentDiv.style.lineHeight = '1.6';
+    contentDiv.style.color = '#1a1a1a';
     modal.appendChild(contentDiv);
 
-    const closeBtn = document.createElement("button");
-    closeBtn.textContent = "Close";
-    closeBtn.style.marginTop = "15px";
-    closeBtn.style.padding = "8px 16px";
-    closeBtn.style.backgroundColor = "#dc3545";
-    closeBtn.style.color = "#fff";
-    closeBtn.style.border = "none";
-    closeBtn.style.borderRadius = "4px";
-    closeBtn.style.cursor = "pointer";
-    closeBtn.style.fontWeight = "600";
-    closeBtn.addEventListener("click", () => {
-      modal.style.display = "none";
-      overlay.style.display = "none";
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = 'Close';
+    closeBtn.style.marginTop = '15px';
+    closeBtn.style.padding = '8px 16px';
+    closeBtn.style.backgroundColor = '#dc3545';
+    closeBtn.style.color = '#fff';
+    closeBtn.style.border = 'none';
+    closeBtn.style.borderRadius = '4px';
+    closeBtn.style.cursor = 'pointer';
+    closeBtn.style.fontWeight = '600';
+    closeBtn.addEventListener('click', () => {
+      modal.style.display = 'none';
+      overlay.style.display = 'none';
     });
     modal.appendChild(closeBtn);
 
-    const overlay = document.createElement("div");
-    overlay.id = "ai-modal-overlay";
-    overlay.style.position = "fixed";
-    overlay.style.top = "0";
-    overlay.style.left = "0";
-    overlay.style.width = "100%";
-    overlay.style.height = "100%";
-    overlay.style.backgroundColor = "rgba(0,0,0,0.5)";
-    overlay.style.zIndex = "9999";
-    overlay.style.display = "none";
-    overlay.addEventListener("click", () => {
-      modal.style.display = "none";
-      overlay.style.display = "none";
+    const overlay = document.createElement('div');
+    overlay.id = 'ai-modal-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0,0,0,0.6)';
+    overlay.style.zIndex = '9999';
+    overlay.style.display = 'none';
+    overlay.addEventListener('click', () => {
+      modal.style.display = 'none';
+      overlay.style.display = 'none';
     });
 
     document.body.appendChild(overlay);
     document.body.appendChild(modal);
+
+    // Aggiungi stili CSS per il contenuto Markdown
+    addMarkdownStyles();
   }
 
-  const contentDiv = document.getElementById("ai-response-text");
-  const overlay = document.getElementById("ai-modal-overlay");
+  const contentDiv = document.getElementById('ai-response-text');
+  const overlay = document.getElementById('ai-modal-overlay');
 
-  contentDiv.innerHTML = "<p>Loading...</p>";
-  modal.style.display = "flex";
-  overlay.style.display = "block";
+  contentDiv.innerHTML = '<p>Loading...</p>';
+  modal.style.display = 'flex';
+  overlay.style.display = 'block';
 
   const encodedText = encodeURIComponent(selectedText);
   const apiUrl = `test-api.php?text=${encodedText}&page_id=${pageId}`;
 
   fetch(apiUrl)
-    .then((response) => response.json())
-    .then((data) => {
-      const markdownText =
-        data.response || data.text || "Nessuna risposta disponibile";
-
-      // Attendi che marked.js sia caricato
+    .then(response => response.json())
+    .then(data => {
+      const markdownText = data.response || data.text || 'Nessuna risposta disponibile';
+      
       const renderMarkdown = () => {
-        if (typeof marked !== "undefined") {
+        if (typeof marked !== 'undefined') {
           contentDiv.innerHTML = marked.parse(markdownText);
         } else {
           setTimeout(renderMarkdown, 100);
@@ -530,8 +529,124 @@ function showAIModal(selectedText, pageId) {
       };
       renderMarkdown();
     })
-    .catch((error) => {
-      contentDiv.innerHTML =
-        '<p style="color: red;">Error: ' + error.message + "</p>";
+    .catch(error => {
+      contentDiv.innerHTML = '<p style="color: #dc3545;">Error: ' + error.message + '</p>';
     });
+}
+
+// Funzione per aggiungere stili CSS per il Markdown
+function addMarkdownStyles() {
+  if (document.getElementById('ai-modal-markdown-styles')) return;
+
+  const style = document.createElement('style');
+  style.id = 'ai-modal-markdown-styles';
+  style.textContent = `
+    #ai-response-text h1,
+    #ai-response-text h2,
+    #ai-response-text h3,
+    #ai-response-text h4,
+    #ai-response-text h5,
+    #ai-response-text h6 {
+      color: #1a1a1a !important;
+      margin-top: 16px !important;
+      margin-bottom: 8px !important;
+      font-weight: 600 !important;
+    }
+
+    #ai-response-text h1 { font-size: 24px !important; }
+    #ai-response-text h2 { font-size: 20px !important; }
+    #ai-response-text h3 { font-size: 18px !important; }
+    #ai-response-text h4 { font-size: 16px !important; }
+
+    #ai-response-text p {
+      color: #1a1a1a !important;
+      margin: 8px 0 !important;
+    }
+
+    #ai-response-text a {
+      color: #0056b3 !important;
+      text-decoration: underline !important;
+    }
+
+    #ai-response-text a:hover {
+      color: #003d80 !important;
+    }
+
+    #ai-response-text ul,
+    #ai-response-text ol {
+      color: #1a1a1a !important;
+      margin: 8px 0 !important;
+      padding-left: 24px !important;
+    }
+
+    #ai-response-text li {
+      color: #1a1a1a !important;
+      margin: 4px 0 !important;
+    }
+
+    #ai-response-text code {
+      background-color: #e8e8e8 !important;
+      color: #c7254e !important;
+      padding: 2px 6px !important;
+      border-radius: 3px !important;
+      font-family: 'Courier New', Courier, monospace !important;
+      font-size: 13px !important;
+    }
+
+    #ai-response-text pre {
+      background-color: #2d2d2d !important;
+      color: #f8f8f2 !important;
+      padding: 12px !important;
+      border-radius: 4px !important;
+      overflow-x: auto !important;
+      margin: 12px 0 !important;
+    }
+
+    #ai-response-text pre code {
+      background-color: transparent !important;
+      color: #f8f8f2 !important;
+      padding: 0 !important;
+    }
+
+    #ai-response-text blockquote {
+      border-left: 4px solid #0056b3 !important;
+      padding-left: 12px !important;
+      margin: 12px 0 !important;
+      color: #4a4a4a !important;
+      font-style: italic !important;
+    }
+
+    #ai-response-text table {
+      border-collapse: collapse !important;
+      width: 100% !important;
+      margin: 12px 0 !important;
+    }
+
+    #ai-response-text table th,
+    #ai-response-text table td {
+      border: 1px solid #d0d0d0 !important;
+      padding: 8px !important;
+      text-align: left !important;
+      color: #1a1a1a !important;
+    }
+
+    #ai-response-text table th {
+      background-color: #e8e8e8 !important;
+      font-weight: 600 !important;
+    }
+
+    #ai-response-text table tr:nth-child(even) {
+      background-color: #f5f5f5 !important;
+    }
+
+    #ai-response-text strong {
+      color: #1a1a1a !important;
+      font-weight: 600 !important;
+    }
+
+    #ai-response-text em {
+      color: #1a1a1a !important;
+    }
+  `;
+  document.head.appendChild(style);
 }
