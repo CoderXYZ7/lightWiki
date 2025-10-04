@@ -1,6 +1,6 @@
 # LiteWiki
 
-LiteWiki is a lightweight wiki framework built with **PHP**, **SQLite**, **HTML**, **CSS**, and **JavaScript**.  
+LiteWiki is a lightweight wiki framework built with **PHP**, **SQLite**, **HTML**, **CSS**, and **JavaScript**.
 It is designed to be fast, portable, and extensible — with support for **extended Markdown**, **Mermaid diagrams**, and a **REST-like API** for external automation.
 
 ---
@@ -163,3 +163,5 @@ MIT License
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a pull request or open an issue.
+
+NICE PROJECT PEZEEE
