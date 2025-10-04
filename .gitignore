@@ -5,7 +5,7 @@ storage/*.db
 storage/*.db-*
 
 # Vendor dependencies
-vendor/
+#vendor/
 
 
 # OS generated files
