@@ -583,11 +583,21 @@ function showAIModal(selectedText, pageId) {
 }
 
 function addMarkdownStyles() {
-  if (document.getElementById("ai-modal-markdown-styles")) return;
+  if (document.getElementById('ai-modal-markdown-styles')) return;
 
-  const style = document.createElement("style");
-  style.id = "ai-modal-markdown-styles";
+  const style = document.createElement('style');
+  style.id = 'ai-modal-markdown-styles';
   style.textContent = `
+    /* Nascondi scrollbar del contenuto AI mantenendolo scrollabile */
+    #ai-response-text::-webkit-scrollbar {
+      display: none;
+    }
+    
+    #ai-response-text {
+      -ms-overflow-style: none;  /* IE e Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+
     #ai-response-text h1,
     #ai-response-text h2,
     #ai-response-text h3,
@@ -697,3 +707,4 @@ function addMarkdownStyles() {
   `;
   document.head.appendChild(style);
 }
+
