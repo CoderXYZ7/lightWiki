@@ -1,5 +1,14 @@
 // LiteWiki Main JavaScript
 
+// Carica marked.js dinamicamente se non è già presente
+if (typeof marked === 'undefined') {
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+  script.async = false;
+  document.head.appendChild(script);
+}
+
+
 document.addEventListener("DOMContentLoaded", function () {
   // Auto-resize textareas
   const textareas = document.querySelectorAll("textarea");
@@ -374,16 +383,13 @@ document.addEventListener('mouseup', () => {
       btnAsk.addEventListener('click', () => {
         const selectedText = selection.toString();
         
-        // Estrai l'ID della pagina dall'URL
         const urlParams = new URLSearchParams(window.location.search);
         const pageId = urlParams.get('page') || '';
 
-        // Nascondi i bottoni
         btnSearch.style.display = 'none';
         btnAsk.style.display = 'none';
         selection.removeAllRanges();
 
-        // Mostra la modale
         showAIModal(selectedText, pageId);
       });
     }
@@ -400,11 +406,9 @@ document.addEventListener('mouseup', () => {
       const topPos = scrollTop + rect.top - btnHeight - 12;
       const leftPos = Math.max(scrollLeft + rect.left, 5);
 
-      // Posiziona il primo bottone
       btnSearch.style.top = `${topPos}px`;
       btnSearch.style.left = `${leftPos}px`;
 
-      // Posiziona il secondo bottone accanto al primo
       const btnSearchWidth = btnSearch.offsetWidth || 120;
       btnAsk.style.top = `${topPos}px`;
       btnAsk.style.left = `${leftPos + btnSearchWidth + 8}px`;
@@ -417,7 +421,6 @@ document.addEventListener('mouseup', () => {
   }
 });
 
-// Nascondi i bottoni quando l'utente clicca da qualche parte
 document.addEventListener('mousedown', (e) => {
   const btnSearch = document.getElementById('search-ai-btn');
   const btnAsk = document.getElementById('ask-ai-btn');
@@ -429,9 +432,7 @@ document.addEventListener('mousedown', (e) => {
   }
 });
 
-// Funzione per mostrare la modale con la risposta AI
 function showAIModal(selectedText, pageId) {
-  // Crea la modale se non esiste
   let modal = document.getElementById('ai-modal');
   if (!modal) {
     modal = document.createElement('div');
@@ -440,16 +441,18 @@ function showAIModal(selectedText, pageId) {
     modal.style.top = '50%';
     modal.style.left = '50%';
     modal.style.transform = 'translate(-50%, -50%)';
-    modal.style.width = '500px';
+    modal.style.width = '600px';
     modal.style.maxWidth = '90%';
+    modal.style.maxHeight = '80vh';
     modal.style.backgroundColor = '#fff';
     modal.style.borderRadius = '8px';
     modal.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)';
     modal.style.zIndex = '10000';
     modal.style.padding = '20px';
     modal.style.display = 'none';
+    modal.style.overflow = 'hidden';
+    modal.style.flexDirection = 'column';
 
-    // Titolo
     const title = document.createElement('div');
     title.textContent = 'Description';
     title.style.fontSize = '18px';
@@ -458,23 +461,20 @@ function showAIModal(selectedText, pageId) {
     title.style.color = '#333';
     modal.appendChild(title);
 
-    // Campo di testo (textarea readonly)
-    const textarea = document.createElement('textarea');
-    textarea.id = 'ai-response-text';
-    textarea.readOnly = true;
-    textarea.style.width = '100%';
-    textarea.style.height = '300px';
-    textarea.style.padding = '10px';
-    textarea.style.border = '1px solid #ddd';
-    textarea.style.borderRadius = '4px';
-    textarea.style.fontSize = '14px';
-    textarea.style.fontFamily = 'Arial, sans-serif';
-    textarea.style.resize = 'none';
-    textarea.style.overflowY = 'scroll';
-    textarea.style.backgroundColor = '#f9f9f9';
-    modal.appendChild(textarea);
+    const contentDiv = document.createElement('div');
+    contentDiv.id = 'ai-response-text';
+    contentDiv.style.width = '100%';
+    contentDiv.style.flex = '1';
+    contentDiv.style.padding = '15px';
+    contentDiv.style.border = '1px solid #ddd';
+    contentDiv.style.borderRadius = '4px';
+    contentDiv.style.fontSize = '14px';
+    contentDiv.style.fontFamily = 'Arial, sans-serif';
+    contentDiv.style.overflowY = 'auto';
+    contentDiv.style.backgroundColor = '#f9f9f9';
+    contentDiv.style.lineHeight = '1.6';
+    modal.appendChild(contentDiv);
 
-    // Bottone chiudi
     const closeBtn = document.createElement('button');
     closeBtn.textContent = 'Close';
     closeBtn.style.marginTop = '15px';
@@ -487,10 +487,10 @@ function showAIModal(selectedText, pageId) {
     closeBtn.style.fontWeight = '600';
     closeBtn.addEventListener('click', () => {
       modal.style.display = 'none';
+      overlay.style.display = 'none';
     });
     modal.appendChild(closeBtn);
 
-    // Overlay
     const overlay = document.createElement('div');
     overlay.id = 'ai-modal-overlay';
     overlay.style.position = 'fixed';
@@ -510,26 +510,33 @@ function showAIModal(selectedText, pageId) {
     document.body.appendChild(modal);
   }
 
-  const textarea = document.getElementById('ai-response-text');
+  const contentDiv = document.getElementById('ai-response-text');
   const overlay = document.getElementById('ai-modal-overlay');
 
-  // Mostra la modale con loading
-  textarea.value = 'Loading...';
-  modal.style.display = 'block';
+  contentDiv.innerHTML = '<p>Loading...</p>';
+  modal.style.display = 'flex';
   overlay.style.display = 'block';
 
-  // Chiamata API
   const encodedText = encodeURIComponent(selectedText);
-  const apiUrl = `http://91.98.199.163/api.php?action=ai-ask&text=${encodedText}&page_id=${pageId}`;
+  const apiUrl = `test-api.php?text=${encodedText}&page_id=${pageId}`;
 
   fetch(apiUrl)
     .then(response => response.json())
     .then(data => {
-      // Mostra la risposta (modifica in base alla struttura della risposta API)
-      textarea.value = data.response || data.text || JSON.stringify(data, null, 2);
+      const markdownText = data.response || data.text || 'Nessuna risposta disponibile';
+      
+      // Attendi che marked.js sia caricato
+      const renderMarkdown = () => {
+        if (typeof marked !== 'undefined') {
+          contentDiv.innerHTML = marked.parse(markdownText);
+        } else {
+          setTimeout(renderMarkdown, 100);
+        }
+      };
+      renderMarkdown();
     })
     .catch(error => {
-      textarea.value = 'Error: ' + error.message;
+      contentDiv.innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>';
     });
 }
 
