@@ -301,16 +301,22 @@ document.addEventListener('mouseup', () => {
     const range = selection.getRangeAt(0);
     const rect = range.getBoundingClientRect();
     
-    // Controlla se la selezione è all'interno di header o footer
-    const container = range.commonAncestorContainer;
-    const parentElement = container.nodeType === 3 ? container.parentElement : container;
+    // Controlla TUTTI i container della selezione (inizio, fine, e comune)
+    const startContainer = range.startContainer;
+    const endContainer = range.endContainer;
+    const commonContainer = range.commonAncestorContainer;
     
-    // Escludi selezioni dentro header o footer
-    const isInHeader = parentElement.closest('header');
-    const isInFooter = parentElement.closest('footer');
+    const startElement = startContainer.nodeType === 3 ? startContainer.parentElement : startContainer;
+    const endElement = endContainer.nodeType === 3 ? endContainer.parentElement : endContainer;
+    const commonElement = commonContainer.nodeType === 3 ? commonContainer.parentElement : commonContainer;
     
-    // Se la selezione è in header o footer, nascondi i bottoni e esci
-    if (isInHeader || isInFooter) {
+    // Verifica se qualsiasi parte della selezione è dentro header o footer
+    const isStartInHeaderOrFooter = startElement.closest('header') || startElement.closest('footer');
+    const isEndInHeaderOrFooter = endElement.closest('header') || endElement.closest('footer');
+    const isCommonInHeaderOrFooter = commonElement.closest('header') || commonElement.closest('footer');
+    
+    // Se qualsiasi parte della selezione tocca header o footer, nascondi i bottoni
+    if (isStartInHeaderOrFooter || isEndInHeaderOrFooter || isCommonInHeaderOrFooter) {
       const btnSearch = document.getElementById('search-ai-btn');
       const btnAsk = document.getElementById('ask-ai-btn');
       if (btnSearch) btnSearch.style.display = 'none';
