@@ -358,12 +358,27 @@ document.addEventListener('mouseup', () => {
       btn.textContent = 'Chiedi all\'AI';
       btn.style.position = 'absolute';
       btn.style.zIndex = '9999';
-      btn.style.padding = '5px 10px';
-      btn.style.backgroundColor = '#007bff';
+      btn.style.padding = '6px 12px';
+      btn.style.backgroundColor = '#0056b3'; 
       btn.style.color = '#fff';
       btn.style.border = 'none';
-      btn.style.borderRadius = '4px';
+      btn.style.borderRadius = '6px';
+      btn.style.fontWeight = '600';
+      btn.style.fontSize = '14px';
+      btn.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
       btn.style.cursor = 'pointer';
+      btn.style.transition = 'background-color 0.3s ease';
+      btn.style.userSelect = 'none'; 
+      btn.style.whiteSpace = 'nowrap';
+
+      btn.addEventListener('mouseenter', () => {
+        btn.style.backgroundColor = '#003d80';
+      });
+
+      btn.addEventListener('mouseleave', () => {
+        btn.style.backgroundColor = '#0056b3';
+      });
+
       document.body.appendChild(btn);
 
       btn.addEventListener('click', () => {
@@ -371,16 +386,26 @@ document.addEventListener('mouseup', () => {
         alert('Testo selezionato da inviare all\'AI: ' + selectedText);
         btn.style.display = 'none';
         selection.removeAllRanges();
-        // Qui puoi chiamare API AI con 'selectedText'
       });
     }
 
-    // Posizionare il pulsante sopra la selezione
-    btn.style.top = `${window.scrollY + rect.top - btn.offsetHeight - 8}px`;
-    btn.style.left = `${window.scrollX + rect.left}px`;
+    // Calcoliamo posizione per garantire che il bottone sia sempre fuori e sopra la selezione:
+    const scrollTop = window.scrollY || window.pageYOffset;
+    const scrollLeft = window.scrollX || window.pageXOffset;
+
+    // Posizione top leggermente sopra la parte superiore della selezione (con margine 10px)
+    const topPos = scrollTop + rect.top - btn.offsetHeight - 10;
+
+    // Posizione left leggermente più a sinistra della selezione (con margine 5px)
+    // evitando di farlo uscire dal bordo sinistro della pagina
+    const leftPos = Math.max(scrollLeft + rect.left - 5, 5);
+
+    btn.style.top = `${topPos}px`;
+    btn.style.left = `${leftPos}px`;
     btn.style.display = 'block';
   } else {
     const btn = document.getElementById('ask-ai-btn');
     if (btn) btn.style.display = 'none';
   }
 });
+
