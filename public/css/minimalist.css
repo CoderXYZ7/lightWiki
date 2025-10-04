@@ -1,6 +1,6 @@
 /* LiteWiki Minimalist Theme */
 
-/* Reset */ 
+/* Reset */
 * {
     margin: 0;
     padding: 0;
@@ -24,7 +24,7 @@
 }
 
 body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     line-height: 1.6;
     color: var(--text-color);
     background: var(--light-bg);
@@ -179,7 +179,8 @@ main {
 .page-content code {
     background: var(--dark-bg);
     padding: 2px 4px;
-    font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    font-family:
+        "SFMono-Regular", "Monaco", "Inconsolata", "Roboto Mono", monospace;
     font-size: 0.875rem;
 }
 
@@ -194,7 +195,8 @@ main {
 .page-content pre code {
     background-color: transparent;
     padding: 0;
-    font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    font-family:
+        "SFMono-Regular", "Monaco", "Inconsolata", "Roboto Mono", monospace;
     font-size: 14px;
     line-height: 1.45;
 }
