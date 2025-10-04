@@ -76,14 +76,14 @@ if ($result['success']) {
     echo "  This might be because the user already exists.\n";
 }
 
-// Create a sample page
-echo "\nCreating sample page...\n";
-require_once 'core/wiki.php';
-$wiki = new Wiki();
+    // Create a sample page
+    echo "\nCreating sample page...\n";
+    require_once 'core/wiki.php';
+    $wiki = new Wiki();
 
-// Login as admin to create the page
-if ($auth->login($adminUsername, $adminPassword)) {
-    $sampleContent = "# Welcome to LiteWiki
+    // Login as admin to create the page
+    if ($auth->login($adminUsername, $adminPassword)) {
+        $sampleContent = "# Welcome to LiteWiki
 
 This is your first wiki page! LiteWiki is a lightweight wiki framework built with PHP and SQLite.
 
@@ -94,6 +94,8 @@ This is your first wiki page! LiteWiki is a lightweight wiki framework built wit
 - **Search**: Full-text search across all pages
 - **API**: REST API for external integrations
 - **Revisions**: Track changes and restore previous versions
+- **Multiple Authors**: Pages can have multiple authors
+- **Discoverable Control**: Pages can be hidden from search
 
 ## Getting Started
 
@@ -119,15 +121,15 @@ graph TD
 
 Enjoy using LiteWiki! <i class=\"fas fa-rocket\"></i>";
 
-    $result = $wiki->createPage('Home', $sampleContent);
-    if ($result['success']) {
-        echo "✓ Sample page 'Home' created\n";
+        $result = $wiki->createPage('Home', $sampleContent, [], ['Admin'], true);
+        if ($result['success']) {
+            echo "✓ Sample page 'Home' created\n";
+        } else {
+            echo "⚠ Sample page creation failed: " . $result['message'] . "\n";
+        }
     } else {
-        echo "⚠ Sample page creation failed: " . $result['message'] . "\n";
+        echo "⚠ Could not login as admin to create sample page\n";
     }
-} else {
-    echo "⚠ Could not login as admin to create sample page\n";
-}
 
 // Setup complete
 echo "\n<i class=\"fas fa-check-circle\"></i> Setup complete!\n\n";

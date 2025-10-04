@@ -17,7 +17,7 @@ class Wiki {
         $this->markdown = new MarkdownProcessor();
     }
 
-    public function createPage($title, $content, $tags = []) {
+    public function createPage($title, $content, $tags = [], $authors = [], $discoverable = true) {
         if (!$this->auth->isLoggedIn()) {
             return ['success' => false, 'message' => 'Authentication required'];
         }
@@ -28,11 +28,22 @@ class Wiki {
             $pageId = $this->db->insert('pages', [
                 'title' => $title,
                 'content' => $content,
-                'author_id' => $user['id']
+                'created_by' => $user['id'],
+                'discoverable' => $discoverable ? 1 : 0
             ]);
 
             // Create initial revision
             $this->createRevision($pageId, $content, $user['id']);
+
+            // Add authors if provided
+            if (!empty($authors)) {
+                foreach ($authors as $authorName) {
+                    $authorName = trim($authorName);
+                    if (!empty($authorName)) {
+                        $this->db->addAuthorToPage($pageId, $authorName);
+                    }
+                }
+            }
 
             // Add tags if provided
             if (!empty($tags)) {
@@ -51,10 +62,11 @@ class Wiki {
     }
 
     public function getPage($title): ?array {
-        $page = $this->db->fetch("SELECT p.*, u.username as author FROM pages p LEFT JOIN users u ON p.author_id = u.id WHERE p.title = ?", [$title]);
+        $page = $this->db->fetch("SELECT p.*, u.username as created_by FROM pages p LEFT JOIN users u ON p.created_by = u.id WHERE p.title = ?", [$title]);
 
         if ($page) {
             $page['rendered_content'] = $this->markdown->process($page['content']);
+            $page['authors'] = $this->getAuthorsForPage($page['id']);
             return $page;
         }
 
@@ -62,10 +74,11 @@ class Wiki {
     }
 
     public function getPageById($id): ?array {
-        $page = $this->db->fetch("SELECT p.*, u.username as author FROM pages p LEFT JOIN users u ON p.author_id = u.id WHERE p.id = ?", [$id]);
+        $page = $this->db->fetch("SELECT p.*, u.username as created_by FROM pages p LEFT JOIN users u ON p.created_by = u.id WHERE p.id = ?", [$id]);
 
         if ($page) {
             $page['rendered_content'] = $this->markdown->process($page['content']);
+            $page['authors'] = $this->getAuthorsForPage($page['id']);
             return $page;
         }
 
@@ -115,7 +128,14 @@ class Wiki {
     }
 
     public function listPages($limit = 50, $offset = 0) {
-        return $this->db->fetchAll("SELECT p.title, p.updated_at, u.username as author FROM pages p LEFT JOIN users u ON p.author_id = u.id ORDER BY p.updated_at DESC LIMIT ? OFFSET ?", [$limit, $offset]);
+        $sql = "SELECT p.title, p.updated_at, GROUP_CONCAT(a.name) as authors
+                FROM pages p
+                LEFT JOIN page_authors pa ON p.id = pa.page_id
+                LEFT JOIN authors a ON pa.author_id = a.id
+                WHERE p.discoverable = 1
+                GROUP BY p.id
+                ORDER BY p.updated_at DESC LIMIT ? OFFSET ?";
+        return $this->db->fetchAll($sql, [$limit, $offset]);
     }
 
     public function searchPages($query = '', $filters = []) {
@@ -177,7 +197,62 @@ class Wiki {
     }
 
     public function getAllAuthors() {
-        return $this->db->fetchAll("SELECT DISTINCT u.username FROM users u JOIN pages p ON u.id = p.author_id ORDER BY u.username");
+        return $this->db->getAllAuthors();
+    }
+
+    // Author management methods
+    public function getAuthorsForPage($pageId) {
+        return $this->db->getAuthorsForPage($pageId);
+    }
+
+    public function getAuthorsForPageByTitle($title) {
+        $page = $this->getPage($title);
+        if (!$page) return [];
+
+        return $this->getAuthorsForPage($page['id']);
+    }
+
+    public function updatePageAuthors($title, $authors) {
+        if (!$this->auth->isLoggedIn()) {
+            return ['success' => false, 'message' => 'Authentication required'];
+        }
+
+        $page = $this->getPage($title);
+        if (!$page) {
+            return ['success' => false, 'message' => 'Page not found'];
+        }
+
+        // Remove all existing authors
+        $existingAuthors = $this->getAuthorsForPage($page['id']);
+        foreach ($existingAuthors as $author) {
+            $this->db->removeAuthorFromPage($page['id'], $author['id']);
+        }
+
+        // Add new authors
+        if (!empty($authors)) {
+            foreach ($authors as $authorName) {
+                $authorName = trim($authorName);
+                if (!empty($authorName)) {
+                    $this->db->addAuthorToPage($page['id'], $authorName);
+                }
+            }
+        }
+
+        return ['success' => true];
+    }
+
+    public function updatePageDiscoverable($title, $discoverable) {
+        if (!$this->auth->isLoggedIn()) {
+            return ['success' => false, 'message' => 'Authentication required'];
+        }
+
+        $page = $this->getPage($title);
+        if (!$page) {
+            return ['success' => false, 'message' => 'Page not found'];
+        }
+
+        $this->db->updatePageDiscoverable($page['id'], $discoverable);
+        return ['success' => true];
     }
 
     // Tag management methods
