@@ -316,10 +316,20 @@ function switchTheme(theme) {
 
   // Update CSS immediately for smooth transition
   const themeCSS = document.getElementById("theme-css");
+  const prismCSS = document.getElementById("prism-css");
   const themePaths = {
     white: "/css/white.css",
     dark: "/css/dark.css",
     highVisibility: "/css/highVisibility.css",
+  };
+
+  // Define Prism.js theme paths
+  const prismThemePaths = {
+    white:
+      "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css",
+    dark: "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css",
+    highVisibility:
+      "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css",
   };
 
   if (themePaths[theme] && themeCSS) {
@@ -335,6 +345,11 @@ function switchTheme(theme) {
         themeCSS.href = themePaths[theme];
         document.body.setAttribute("data-theme", theme);
       });
+  }
+
+  // Update Prism.js theme
+  if (prismThemePaths[theme] && prismCSS) {
+    prismCSS.href = prismThemePaths[theme];
   }
 
   // Send AJAX request to save preference

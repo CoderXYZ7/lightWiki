@@ -27,13 +27,26 @@
     $currentCss = isset($themeCss[$userTheme])
         ? $themeCss[$userTheme]
         : "/css/white.css";
+
+    // Dynamically set Prism.js theme based on user theme
+    $prismThemes = [
+        "white" =>
+            "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css",
+        "dark" =>
+            "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css",
+        "highVisibility" =>
+            "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css",
+    ];
+    $currentPrismCss = isset($prismThemes[$userTheme])
+        ? $prismThemes[$userTheme]
+        : "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css";
     ?>
     <link rel="stylesheet" href="<?php echo $currentCss; ?>" id="theme-css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+    <link rel="stylesheet" href="<?php echo $currentPrismCss; ?>" id="prism-css"></link>
     <link rel="stylesheet" href="/css/theme-switcher.css">
     <script src="/js/theme-switcher.js" defer></script>
 </head>
