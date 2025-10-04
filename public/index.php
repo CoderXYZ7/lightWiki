@@ -520,7 +520,9 @@ function showAISearchForm()
             </div>
         `;
         
-        const apiUrl = `http://91.98.199.163/api.php?action=ai-search&text=${encodeURIComponent(searchQuery)}`;
+        const apiUrl = `test-api2.php`;
+
+        // const apiUrl = `http://91.98.199.163/api.php?action=ai-search&text=${encodeURIComponent(searchQuery)}`;
         
         fetch(apiUrl)
             .then(response => response.json())
