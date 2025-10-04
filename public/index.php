@@ -486,163 +486,181 @@ function showAISearchForm()
     echo '<div id="ai-results-container"></div>';
     
     // Script JavaScript per gestire la ricerca
-    echo '<script>';
-    echo 'document.addEventListener("DOMContentLoaded", function() {';
-    echo '  const form = document.getElementById("ai-search-form");';
-    echo '  const input = document.getElementById("ai-q");';
-    echo '  const container = document.getElementById("ai-results-container");';
-    echo '  const query = "' . addslashes($query) . '";';
-    echo '  
-    if (query) {
-        performAISearch(query);
-    }
-    
-    form.addEventListener("submit", function(e) {
-        e.preventDefault();
-        const searchQuery = input.value.trim();
-        if (searchQuery) {
-            const url = new URL(window.location);
-            url.searchParams.set("q", searchQuery);
-            window.history.pushState({}, "", url);
-            performAISearch(searchQuery);
+    ?>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        console.log("AI Search initialized");
+        
+        const form = document.getElementById("ai-search-form");
+        const input = document.getElementById("ai-q");
+        const container = document.getElementById("ai-results-container");
+        const query = "<?php echo addslashes($query); ?>";
+        
+        console.log("Query:", query);
+        
+        if (query) {
+            console.log("Performing auto-search for:", query);
+            performAISearch(query);
         }
-    });
-    
-    function performAISearch(searchQuery) {
-        container.innerHTML = `
-            <div class="search-results">
-                <div class="container">
-                    <div class="loading-spinner" style="text-align: center; padding: 40px;">
-                        <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: #0056b3;"></i>
-                        <p style="margin-top: 20px; font-size: 18px;">Searching with AI...</p>
+        
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();
+            const searchQuery = input.value.trim();
+            console.log("Form submitted with query:", searchQuery);
+            if (searchQuery) {
+                const url = new URL(window.location);
+                url.searchParams.set("q", searchQuery);
+                window.history.pushState({}, "", url);
+                performAISearch(searchQuery);
+            }
+        });
+        
+        function performAISearch(searchQuery) {
+            console.log("Starting AI search for:", searchQuery);
+            
+            container.innerHTML = `
+                <div class="search-results">
+                    <div class="container">
+                        <div class="loading-spinner" style="text-align: center; padding: 40px;">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: #0056b3;"></i>
+                            <p style="margin-top: 20px; font-size: 18px;">Searching with AI...</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `;
+            `;
+            
+            const apiUrl = `/test-api2.php`;
+            console.log("Calling API:", apiUrl);
+            
+            fetch(apiUrl)
+                .then(response => {
+                    console.log("API Response status:", response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("API Data received:", data);
+                    let results = [];
+                    if (data.results && Array.isArray(data.results)) {
+                        results = data.results;
+                    } else if (Array.isArray(data)) {
+                        results = data;
+                    }
+                    console.log("Results count:", results.length);
+                    displayResults(results, searchQuery);
+                })
+                .catch(error => {
+                    console.error("API Error:", error);
+                    container.innerHTML = `
+                        <div class="no-results">
+                            <div class="container">
+                                <div class="no-results-content">
+                                    <div class="no-results-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                                    <h3>Error</h3>
+                                    <p>Failed to connect to AI service: ${error.message}</p>
+                                    <a href="/?action=ai-search" class="btn btn-primary">Try Again</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+        }
         
-        const apiUrl = `test-api2.php`;
-
-        // const apiUrl = `http://91.98.199.163/api.php?action=ai-search&text=${encodeURIComponent(searchQuery)}`;
-        
-        fetch(apiUrl)
-            .then(response => response.json())
-            .then(data => {
-                let results = [];
-                if (data.results && Array.isArray(data.results)) {
-                    results = data.results;
-                } else if (Array.isArray(data)) {
-                    results = data;
-                }
+        function displayResults(results, query) {
+            console.log("Displaying results:", results.length);
+            
+            if (results.length > 0) {
+                let html = `
+                    <div class="search-results">
+                        <div class="container">
+                            <div class="results-header">
+                                <h2>Search Results</h2>
+                                <span class="results-count">${results.length} pages found</span>
+                            </div>
+                            <div class="results-grid">
+                `;
                 
-                displayResults(results, searchQuery);
-            })
-            .catch(error => {
+                results.forEach(result => {
+                    html += `
+                        <div class="result-card">
+                            <div class="result-header">
+                                <h3><a href="/?action=view&page=${encodeURIComponent(result.title)}">${escapeHtml(result.title)}</a></h3>
+                                <div class="result-meta">
+                    `;
+                    
+                    if (result.created_by) {
+                        html += `<span class="result-created-by"><i class="fas fa-user-plus"></i> Created by: ${escapeHtml(result.created_by)}</span>`;
+                    }
+                    
+                    if (result.authors) {
+                        html += `<span class="result-authors"><i class="fas fa-pen"></i> Written by: ${escapeHtml(result.authors)}</span>`;
+                    }
+                    
+                    if (result.updated_at) {
+                        const date = new Date(result.updated_at);
+                        html += `<span class="result-date"><i class="fas fa-calendar"></i> ${date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</span>`;
+                    }
+                    
+                    html += `
+                                </div>
+                            </div>
+                    `;
+                    
+                    if (result.content) {
+                        const stripped = result.content.replace(/<[^>]*>/g, "");
+                        const preview = stripped.substring(0, 200) + (stripped.length > 200 ? "..." : "");
+                        html += `<div class="result-preview">${escapeHtml(preview)}</div>`;
+                    }
+                    
+                    html += `
+                            <div class="result-actions">
+                                <a href="/?action=view&page=${encodeURIComponent(result.title)}" class="btn btn-sm">View Page</a>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.innerHTML = html;
+            } else {
                 container.innerHTML = `
                     <div class="no-results">
                         <div class="container">
                             <div class="no-results-content">
-                                <div class="no-results-icon"><i class="fas fa-exclamation-triangle"></i></div>
-                                <h3>Error</h3>
-                                <p>Failed to connect to AI service: ${error.message}</p>
-                                <a href="/?action=ai-search" class="btn btn-primary">Try Again</a>
+                                <div class="no-results-icon"><i class="fas fa-robot"></i></div>
+                                <h3>No results found</h3>
+                                <p>The AI couldn't find any pages matching your search.</p>
+                                <div class="no-results-suggestions">
+                                    <h4>Try:</h4>
+                                    <ul>
+                                        <li>Using different keywords</li>
+                                        <li>Rephrasing your question</li>
+                                        <li>Being more specific or more general</li>
+                                    </ul>
+                                </div>
+                                <a href="/?action=ai-search" class="btn btn-primary">Try Another Search</a>
                             </div>
                         </div>
                     </div>
                 `;
-            });
-    }
-    
-    function displayResults(results, query) {
-        if (results.length > 0) {
-            let html = `
-                <div class="search-results">
-                    <div class="container">
-                        <div class="results-header">
-                            <h2>Search Results</h2>
-                            <span class="results-count">${results.length} pages found</span>
-                        </div>
-                        <div class="results-grid">
-            `;
-            
-            results.forEach(result => {
-                html += `
-                    <div class="result-card">
-                        <div class="result-header">
-                            <h3><a href="/?action=view&page=${encodeURIComponent(result.title)}">${escapeHtml(result.title)}</a></h3>
-                            <div class="result-meta">
-                `;
-                
-                if (result.created_by) {
-                    html += `<span class="result-created-by"><i class="fas fa-user-plus"></i> Created by: ${escapeHtml(result.created_by)}</span>`;
-                }
-                
-                if (result.authors) {
-                    html += `<span class="result-authors"><i class="fas fa-pen"></i> Written by: ${escapeHtml(result.authors)}</span>`;
-                }
-                
-                if (result.updated_at) {
-                    const date = new Date(result.updated_at);
-                    html += `<span class="result-date"><i class="fas fa-calendar"></i> ${date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</span>`;
-                }
-                
-                html += `
-                            </div>
-                        </div>
-                `;
-                
-                if (result.content) {
-                    const stripped = result.content.replace(/<[^>]*>/g, "");
-                    const preview = stripped.substring(0, 200) + (stripped.length > 200 ? "..." : "");
-                    html += `<div class="result-preview">${escapeHtml(preview)}</div>`;
-                }
-                
-                html += `
-                        <div class="result-actions">
-                            <a href="/?action=view&page=${encodeURIComponent(result.title)}" class="btn btn-sm">View Page</a>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            html += `
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            container.innerHTML = html;
-        } else {
-            container.innerHTML = `
-                <div class="no-results">
-                    <div class="container">
-                        <div class="no-results-content">
-                            <div class="no-results-icon"><i class="fas fa-robot"></i></div>
-                            <h3>No results found</h3>
-                            <p>The AI couldn\'t find any pages matching your search.</p>
-                            <div class="no-results-suggestions">
-                                <h4>Try:</h4>
-                                <ul>
-                                    <li>Using different keywords</li>
-                                    <li>Rephrasing your question</li>
-                                    <li>Being more specific or more general</li>
-                                </ul>
-                            </div>
-                            <a href="/?action=ai-search" class="btn btn-primary">Try Another Search</a>
-                        </div>
-                    </div>
-                </div>
-            `;
+            }
         }
-    }
-    
-    function escapeHtml(text) {
-        const div = document.createElement("div");
-        div.textContent = text;
-        return div.innerHTML;
-    }';
-    echo '});';
-    echo '</script>';
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement("div");
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    });
+    </script>
+    <?php
 }
+
 
 
 
