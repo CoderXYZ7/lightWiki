@@ -461,31 +461,6 @@ function showAISearchForm()
     $pageTitle = "AI Search";
 
     $query = $_GET["q"] ?? "";
-    $results = [];
-
-    // Se c'è una query, chiama l'API
-    if ($query) {
-        $apiUrl = "http://91.98.199.163/api.php?action=ai-search&text=" . urlencode($query);
-        
-        // Chiamata all'API usando file_get_contents
-        $context = stream_context_create([
-            'http' => [
-                'timeout' => 30,
-                'ignore_errors' => true
-            ]
-        ]);
-        
-        $response = @file_get_contents($apiUrl, false, $context);
-
-        if ($response !== false) {
-            $data = json_decode($response, true);
-            if (isset($data['results']) && is_array($data['results'])) {
-                $results = $data['results'];
-            } elseif (is_array($data)) {
-                $results = $data;
-            }
-        }
-    }
 
     // Hero section con search
     echo '<div class="search-hero">';
@@ -507,89 +482,164 @@ function showAISearchForm()
     echo "</div>";
     echo "</div>";
 
-    // Search results
-    if ($query && !empty($results)) {
-        echo '<div class="search-results">';
-        echo '<div class="container">';
-        echo '<div class="results-header">';
-        echo "<h2>Search Results</h2>";
-        echo '<span class="results-count">' .
-            count($results) .
-            " pages found</span>";
-        echo "</div>";
-
-        echo '<div class="results-grid">';
-        foreach ($results as $result) {
-            echo '<div class="result-card">';
-            echo '<div class="result-header">';
-            echo '<h3><a href="/?action=view&page=' .
-                urlencode($result["title"]) .
-                '">' .
-                htmlspecialchars($result["title"]) .
-                "</a></h3>";
-            echo '<div class="result-meta">';
-            
-            if (isset($result["created_by"])) {
-                echo '<span class="result-created-by"><i class="fas fa-user-plus"></i> Created by: ' .
-                    htmlspecialchars($result["created_by"]) .
-                    "</span>";
-            }
-            
-            if (isset($result["authors"])) {
-                echo '<span class="result-authors"><i class="fas fa-pen"></i> Written by: ' .
-                    htmlspecialchars($result["authors"]) .
-                    "</span>";
-            }
-            
-            if (isset($result["updated_at"])) {
-                echo '<span class="result-date"><i class="fas fa-calendar"></i> ' .
-                    date("M j, Y", strtotime($result["updated_at"])) .
-                    "</span>";
-            }
-            
-            echo "</div>";
-            echo "</div>";
-
-            if (!empty($result["content"])) {
-                $preview = substr(strip_tags($result["content"]), 0, 200);
-                if (strlen(strip_tags($result["content"])) > 200) {
-                    $preview .= "...";
-                }
-                echo '<div class="result-preview">' .
-                    htmlspecialchars($preview) .
-                    "</div>";
-            }
-
-            echo '<div class="result-actions">';
-            echo '<a href="/?action=view&page=' .
-                urlencode($result["title"]) .
-                '" class="btn btn-sm">View Page</a>';
-            echo "</div>";
-            echo "</div>";
-        }
-        echo "</div>";
-        echo "</div>";
-        echo "</div>";
-    } elseif ($query) {
-        echo '<div class="no-results">';
-        echo '<div class="container">';
-        echo '<div class="no-results-content">';
-        echo '<div class="no-results-icon"><i class="fas fa-robot"></i></div>';
-        echo "<h3>No results found</h3>";
-        echo '<p>The AI couldn\'t find any pages matching your search.</p>';
-        echo '<div class="no-results-suggestions">';
-        echo "<h4>Try:</h4>";
-        echo "<ul>";
-        echo "<li>Using different keywords</li>";
-        echo "<li>Rephrasing your question</li>";
-        echo "<li>Being more specific or more general</li>";
-        echo "</ul>";
-        echo "</div>";
-        echo '<a href="/?action=ai-search" class="btn btn-primary">Try Another Search</a>';
-        echo "</div>";
-        echo "</div>";
-        echo "</div>";
+    // Container per i risultati (riempito da JavaScript)
+    echo '<div id="ai-results-container"></div>';
+    
+    // Script JavaScript per gestire la ricerca
+    echo '<script>';
+    echo 'document.addEventListener("DOMContentLoaded", function() {';
+    echo '  const form = document.getElementById("ai-search-form");';
+    echo '  const input = document.getElementById("ai-q");';
+    echo '  const container = document.getElementById("ai-results-container");';
+    echo '  const query = "' . addslashes($query) . '";';
+    echo '  
+    if (query) {
+        performAISearch(query);
     }
+    
+    form.addEventListener("submit", function(e) {
+        e.preventDefault();
+        const searchQuery = input.value.trim();
+        if (searchQuery) {
+            const url = new URL(window.location);
+            url.searchParams.set("q", searchQuery);
+            window.history.pushState({}, "", url);
+            performAISearch(searchQuery);
+        }
+    });
+    
+    function performAISearch(searchQuery) {
+        container.innerHTML = `
+            <div class="search-results">
+                <div class="container">
+                    <div class="loading-spinner" style="text-align: center; padding: 40px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: #0056b3;"></i>
+                        <p style="margin-top: 20px; font-size: 18px;">Searching with AI...</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        const apiUrl = `http://91.98.199.163/api.php?action=ai-search&text=${encodeURIComponent(searchQuery)}`;
+        
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                let results = [];
+                if (data.results && Array.isArray(data.results)) {
+                    results = data.results;
+                } else if (Array.isArray(data)) {
+                    results = data;
+                }
+                
+                displayResults(results, searchQuery);
+            })
+            .catch(error => {
+                container.innerHTML = `
+                    <div class="no-results">
+                        <div class="container">
+                            <div class="no-results-content">
+                                <div class="no-results-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                                <h3>Error</h3>
+                                <p>Failed to connect to AI service: ${error.message}</p>
+                                <a href="/?action=ai-search" class="btn btn-primary">Try Again</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+    }
+    
+    function displayResults(results, query) {
+        if (results.length > 0) {
+            let html = `
+                <div class="search-results">
+                    <div class="container">
+                        <div class="results-header">
+                            <h2>Search Results</h2>
+                            <span class="results-count">${results.length} pages found</span>
+                        </div>
+                        <div class="results-grid">
+            `;
+            
+            results.forEach(result => {
+                html += `
+                    <div class="result-card">
+                        <div class="result-header">
+                            <h3><a href="/?action=view&page=${encodeURIComponent(result.title)}">${escapeHtml(result.title)}</a></h3>
+                            <div class="result-meta">
+                `;
+                
+                if (result.created_by) {
+                    html += `<span class="result-created-by"><i class="fas fa-user-plus"></i> Created by: ${escapeHtml(result.created_by)}</span>`;
+                }
+                
+                if (result.authors) {
+                    html += `<span class="result-authors"><i class="fas fa-pen"></i> Written by: ${escapeHtml(result.authors)}</span>`;
+                }
+                
+                if (result.updated_at) {
+                    const date = new Date(result.updated_at);
+                    html += `<span class="result-date"><i class="fas fa-calendar"></i> ${date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</span>`;
+                }
+                
+                html += `
+                            </div>
+                        </div>
+                `;
+                
+                if (result.content) {
+                    const stripped = result.content.replace(/<[^>]*>/g, "");
+                    const preview = stripped.substring(0, 200) + (stripped.length > 200 ? "..." : "");
+                    html += `<div class="result-preview">${escapeHtml(preview)}</div>`;
+                }
+                
+                html += `
+                        <div class="result-actions">
+                            <a href="/?action=view&page=${encodeURIComponent(result.title)}" class="btn btn-sm">View Page</a>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        } else {
+            container.innerHTML = `
+                <div class="no-results">
+                    <div class="container">
+                        <div class="no-results-content">
+                            <div class="no-results-icon"><i class="fas fa-robot"></i></div>
+                            <h3>No results found</h3>
+                            <p>The AI couldn\'t find any pages matching your search.</p>
+                            <div class="no-results-suggestions">
+                                <h4>Try:</h4>
+                                <ul>
+                                    <li>Using different keywords</li>
+                                    <li>Rephrasing your question</li>
+                                    <li>Being more specific or more general</li>
+                                </ul>
+                            </div>
+                            <a href="/?action=ai-search" class="btn btn-primary">Try Another Search</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+    }';
+    echo '});';
+    echo '</script>';
 }
 
 
