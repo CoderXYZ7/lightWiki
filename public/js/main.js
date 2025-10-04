@@ -293,6 +293,7 @@ function switchTheme(theme) {
     });
 }
 
+<<<<<<< HEAD
 function toggleThemeDropdown() {
   const themeDropdown = document.getElementById("theme-dropdown");
   if (!themeDropdown) return;
@@ -348,3 +349,46 @@ function updateDropdownThemeStyle(theme) {
   // Set data attribute for CSS targeting
   document.body.setAttribute("data-current-theme", theme);
 }
+=======
+// Inserisci questa parte in fondo al main.js, prima di eventuali altre chiusure </script>
+document.addEventListener('mouseup', () => {
+  const selection = window.getSelection();
+  if (!selection.isCollapsed) {
+    const range = selection.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
+
+    let btn = document.getElementById('ask-ai-btn');
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.id = 'ask-ai-btn';
+      btn.textContent = 'Chiedi all\'AI';
+      btn.style.position = 'absolute';
+      btn.style.zIndex = '9999';
+      btn.style.padding = '5px 10px';
+      btn.style.backgroundColor = '#007bff';
+      btn.style.color = '#fff';
+      btn.style.border = 'none';
+      btn.style.borderRadius = '4px';
+      btn.style.cursor = 'pointer';
+      document.body.appendChild(btn);
+
+      btn.addEventListener('click', () => {
+        const selectedText = selection.toString();
+        alert('Testo selezionato da inviare all\'AI: ' + selectedText);
+        btn.style.display = 'none';
+        selection.removeAllRanges();
+        // Qui puoi chiamare API AI con 'selectedText'
+      });
+    }
+
+    // Posizionare il pulsante sopra la selezione
+    btn.style.top = `${window.scrollY + rect.top - btn.offsetHeight - 8}px`;
+    btn.style.left = `${window.scrollX + rect.left}px`;
+    btn.style.display = 'block';
+  } else {
+    const btn = document.getElementById('ask-ai-btn');
+    if (btn) btn.style.display = 'none';
+  }
+});
+
+>>>>>>> 98d2d23a9c4798472dbfa8eaf702d2b1b0eda919
