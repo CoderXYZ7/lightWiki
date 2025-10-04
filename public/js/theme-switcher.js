@@ -292,9 +292,8 @@ function positionDropdown(button, dropdown) {
  */
 function getCurrentThemeFromCSS(cssHref) {
   const themePaths = {
-    "/css/style.css": "default",
+    "/css/style.css": "minimal",
     "/css/dark.css": "dark",
-    "/css/minimal.css": "minimal",
     "/css/corporate.css": "corporate",
     "/css/retro.css": "retro",
   };
@@ -319,9 +318,8 @@ function switchTheme(theme) {
   // Update CSS immediately for smooth transition
   const themeCSS = document.getElementById("theme-css");
   const themePaths = {
-    default: "/css/style.css",
+    minimal: "/css/style.css",
     dark: "/css/dark.css",
-    minimal: "/css/minimal.css",
     corporate: "/css/corporate.css",
     retro: "/css/retro.css",
   };

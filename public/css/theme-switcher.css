@@ -161,10 +161,6 @@ body {
     transition: all 0.2s ease;
 }
 
-.theme-option[data-theme="default"]::before {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
 .theme-option[data-theme="dark"]::before {
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
 }

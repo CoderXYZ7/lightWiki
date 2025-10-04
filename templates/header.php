@@ -20,9 +20,8 @@
 
     // Dynamically set CSS path based on theme
     $themeCss = [
-        "default" => "/css/style.css",
+        "minimal" => "/css/style.css",
         "dark" => "/css/dark.css",
-        "minimal" => "/css/minimal.css",
         "corporate" => "/css/corporate.css",
         "retro" => "/css/retro.css",
     ];
@@ -65,9 +64,8 @@
                             <i class="fas fa-palette"></i>
                         </button>
                         <div class="theme-dropdown" id="theme-dropdown">
-                            <div class="theme-option" data-theme="default">Default</div>
-                            <div class="theme-option" data-theme="dark">Dark</div>
                             <div class="theme-option" data-theme="minimal">Minimal</div>
+                            <div class="theme-option" data-theme="dark">Dark</div>
                             <div class="theme-option" data-theme="corporate">Corporate</div>
                             <div class="theme-option" data-theme="retro">Retro</div>
                         </div>

@@ -983,7 +983,7 @@ function handleThemeSwitch()
         $theme = $input["theme"] ?? "";
 
         // Validate theme
-        $validThemes = ["default", "dark", "minimal", "corporate", "retro"];
+        $validThemes = ["minimal", "dark", "corporate", "retro"];
 
         if (!in_array($theme, $validThemes)) {
             http_response_code(400);
