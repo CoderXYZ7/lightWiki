@@ -266,7 +266,7 @@ function showPage($wiki, $title)
     }
 
     echo '<div class="page-content">' . $page["rendered_content"] . "</div>";
-
+/*
     if ($auth->isLoggedIn()) {
         echo '<div class="page-actions">';
         echo '<a href="/?action=edit&page=' .
@@ -280,6 +280,7 @@ function showPage($wiki, $title)
             '\'">Delete Page</a>';
         echo "</div>";
     }
+*/
 }
 
 function showEditForm($wiki, $auth, $title)
