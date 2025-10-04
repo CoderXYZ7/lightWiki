@@ -295,9 +295,6 @@ function getCurrentThemeFromCSS(cssHref) {
     "/css/style.css": "default",
     "/css/dark.css": "dark",
     "/css/minimal.css": "minimal",
-    "/css/minimalist.css": "minimalist",
-    "/css/vibrant.css": "vibrant",
-    "/css/nature.css": "nature",
     "/css/corporate.css": "corporate",
     "/css/retro.css": "retro",
   };
@@ -325,9 +322,6 @@ function switchTheme(theme) {
     default: "/css/style.css",
     dark: "/css/dark.css",
     minimal: "/css/minimal.css",
-    minimalist: "/css/minimalist.css",
-    vibrant: "/css/vibrant.css",
-    nature: "/css/nature.css",
     corporate: "/css/corporate.css",
     retro: "/css/retro.css",
   };

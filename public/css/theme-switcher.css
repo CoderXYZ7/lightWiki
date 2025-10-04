@@ -174,18 +174,6 @@ body {
     border: 1px solid #ccc;
 }
 
-.theme-option[data-theme="minimalist"]::before {
-    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-}
-
-.theme-option[data-theme="vibrant"]::before {
-    background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
-}
-
-.theme-option[data-theme="nature"]::before {
-    background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
-}
-
 .theme-option[data-theme="corporate"]::before {
     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
 }
