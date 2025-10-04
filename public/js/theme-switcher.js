@@ -137,7 +137,8 @@ function setupKeyboardNavigation(themeToggle, themeDropdown, themeOptions) {
           break;
         case "ArrowUp":
           e.preventDefault();
-          const prevIndex = (index - 1 + themeOptions.length) % themeOptions.length;
+          const prevIndex =
+            (index - 1 + themeOptions.length) % themeOptions.length;
           themeOptions[prevIndex].focus();
           break;
       }
@@ -152,6 +153,9 @@ function setupKeyboardNavigation(themeToggle, themeDropdown, themeOptions) {
  * Open dropdown with proper positioning
  */
 function openDropdown(themeToggle, themeDropdown) {
+  // Create and use portal container to escape all stacking contexts
+  createDropdownPortal(themeDropdown);
+
   // Position dropdown before showing
   positionDropdown(themeToggle, themeDropdown);
 
@@ -170,6 +174,64 @@ function openDropdown(themeToggle, themeDropdown) {
  */
 function closeDropdown(themeDropdown) {
   themeDropdown.classList.remove("show");
+  // Return dropdown to original location after animation
+  setTimeout(() => {
+    returnDropdownFromPortal(themeDropdown);
+  }, 200);
+}
+
+/**
+ * Create portal container to completely escape all stacking contexts
+ */
+function createDropdownPortal(dropdown) {
+  let portal = document.getElementById("theme-dropdown-portal");
+
+  if (!portal) {
+    portal = document.createElement("div");
+    portal.id = "theme-dropdown-portal";
+    portal.className = "theme-dropdown-portal";
+    portal.style.cssText = `
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      pointer-events: none !important;
+      z-index: 2147483647 !important;
+      isolation: isolate !important;
+      contain: layout style paint !important;
+    `;
+    document.body.appendChild(portal);
+  }
+
+  // Move dropdown to portal
+  if (dropdown.parentElement !== portal) {
+    // Store original parent for restoration
+    dropdown.originalParent = dropdown.parentElement;
+    dropdown.originalNextSibling = dropdown.nextElementSibling;
+    portal.appendChild(dropdown);
+  }
+
+  dropdown.style.pointerEvents = "auto";
+}
+
+/**
+ * Return dropdown from portal to original location
+ */
+function returnDropdownFromPortal(dropdown) {
+  if (dropdown.originalParent && !dropdown.classList.contains("show")) {
+    if (dropdown.originalNextSibling) {
+      dropdown.originalParent.insertBefore(
+        dropdown,
+        dropdown.originalNextSibling,
+      );
+    } else {
+      dropdown.originalParent.appendChild(dropdown);
+    }
+    dropdown.style.pointerEvents = "";
+    dropdown.originalParent = null;
+    dropdown.originalNextSibling = null;
+  }
 }
 
 /**
@@ -207,13 +269,17 @@ function positionDropdown(button, dropdown) {
     }
   }
 
-  // Apply positioning with very high z-index
+  // Apply positioning with maximum z-index to ensure it's above everything
   dropdown.style.position = "fixed";
   dropdown.style.left = left + "px";
   dropdown.style.top = top + "px";
-  dropdown.style.zIndex = "999999";
+  dropdown.style.zIndex = "2147483647";
   dropdown.style.maxHeight = "300px";
   dropdown.style.overflowY = "auto";
+  dropdown.style.isolation = "isolate";
+  dropdown.style.contain = "layout style paint";
+  dropdown.style.transform = "translateZ(0)";
+  dropdown.style.webkitTransform = "translateZ(0)";
 
   // Add backdrop blur effect if supported
   if (CSS.supports("backdrop-filter", "blur(8px)")) {
@@ -363,10 +429,12 @@ function showThemeChangeConfirmation(theme) {
     padding: "12px 20px",
     borderRadius: "6px",
     fontSize: "14px",
-    zIndex: "1000000",
+    zIndex: "2147483646",
     opacity: "0",
     transition: "opacity 0.3s ease",
     pointerEvents: "none",
+    isolation: "isolate",
+    contain: "layout style paint",
   });
 
   document.body.appendChild(toast);
@@ -394,7 +462,11 @@ window.addEventListener("resize", function () {
   const themeDropdown = document.getElementById("theme-dropdown");
   const themeToggle = document.getElementById("theme-toggle");
 
-  if (themeDropdown && themeToggle && themeDropdown.classList.contains("show")) {
+  if (
+    themeDropdown &&
+    themeToggle &&
+    themeDropdown.classList.contains("show")
+  ) {
     positionDropdown(themeToggle, themeDropdown);
   }
 });
@@ -406,7 +478,11 @@ window.addEventListener("scroll", function () {
   const themeDropdown = document.getElementById("theme-dropdown");
   const themeToggle = document.getElementById("theme-toggle");
 
-  if (themeDropdown && themeToggle && themeDropdown.classList.contains("show")) {
+  if (
+    themeDropdown &&
+    themeToggle &&
+    themeDropdown.classList.contains("show")
+  ) {
     // Debounce scroll repositioning
     clearTimeout(window.themeScrollTimeout);
     window.themeScrollTimeout = setTimeout(() => {

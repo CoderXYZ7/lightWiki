@@ -1,9 +1,16 @@
 /* LiteWiki Theme Switcher Styles */
 /* Dedicated CSS for theme switching component */
 
+/* Force theme dropdown to escape any stacking context */
+body {
+    position: relative;
+    z-index: auto;
+}
+
 .theme-switcher {
     position: relative;
     display: inline-block;
+    z-index: auto;
 }
 
 .theme-button {
@@ -48,7 +55,7 @@
         0 12px 40px rgba(0, 0, 0, 0.15),
         0 4px 16px rgba(0, 0, 0, 0.1),
         0 0 0 1px rgba(0, 0, 0, 0.05);
-    z-index: 999999 !important;
+    z-index: 2147483647 !important;
     min-width: 200px;
     max-width: 280px;
     display: none;
@@ -58,6 +65,10 @@
     animation: dropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     transform-origin: top right;
     will-change: transform, opacity;
+    isolation: isolate;
+    contain: layout style paint;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
 }
 
 .theme-dropdown.show {
@@ -132,7 +143,7 @@
 }
 
 .theme-option.active::after {
-    content: '✓';
+    content: "✓";
     font-weight: bold;
     font-size: 16px;
     color: currentColor;
@@ -141,7 +152,7 @@
 
 /* Theme Icons (optional enhancement) */
 .theme-option::before {
-    content: '';
+    content: "";
     width: 12px;
     height: 12px;
     border-radius: 50%;
@@ -256,7 +267,7 @@ body[class*="dark"] .theme-dropdown {
 }
 
 .theme-switcher.loading .theme-button::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 50%;
     left: 50%;
@@ -282,7 +293,7 @@ body[class*="dark"] .theme-dropdown {
 }
 
 .theme-option.success::after {
-    content: '✓';
+    content: "✓";
     animation: checkmark 0.3s ease-in-out;
 }
 
@@ -309,7 +320,7 @@ body[class*="dark"] .theme-dropdown {
     border-radius: 8px;
     font-size: 14px;
     font-weight: 500;
-    z-index: 1000000;
+    z-index: 2147483646;
     opacity: 0;
     transform: translateX(100%);
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -317,6 +328,8 @@ body[class*="dark"] .theme-dropdown {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    isolation: isolate;
+    contain: layout style paint;
 }
 
 .theme-change-toast.show {
@@ -358,4 +371,60 @@ body[class*="dark"] .theme-dropdown {
 
 [dir="rtl"] .theme-change-toast.show {
     transform: translateX(0);
+}
+
+/* Force theme dropdown to be above all possible stacking contexts */
+nav,
+header,
+main,
+body > *,
+body > * * {
+    position: relative;
+}
+
+/* Ensure theme dropdown portal container is above everything */
+.theme-dropdown-portal {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 2147483647 !important;
+    isolation: isolate;
+    contain: layout style paint;
+}
+
+.theme-dropdown-portal .theme-dropdown {
+    pointer-events: auto;
+}
+
+/* Override any parent transform that could create stacking context */
+.theme-switcher .theme-dropdown {
+    position: fixed !important;
+    transform: translateZ(0) !important;
+    -webkit-transform: translateZ(0) !important;
+}
+
+/* Final safety measures to override any inline styles */
+.theme-dropdown[style] {
+    z-index: 2147483647 !important;
+    position: fixed !important;
+    isolation: isolate !important;
+    contain: layout style paint !important;
+    transform: translateZ(0) !important;
+    -webkit-transform: translateZ(0) !important;
+}
+
+/* Ensure dropdown is above Ask AI button and any other overlay */
+.theme-dropdown,
+.theme-dropdown.show {
+    z-index: 2147483647 !important;
+}
+
+/* Force maximum specificity for z-index */
+body .theme-dropdown,
+html body .theme-dropdown,
+* .theme-dropdown {
+    z-index: 2147483647 !important;
 }
