@@ -191,6 +191,9 @@ function initializeThemeSwitcher() {
   const themeCSS = document.getElementById("theme-css");
   const currentTheme = getCurrentThemeFromCSS(themeCSS.href);
 
+  // Apply theme-specific dropdown styling
+  updateDropdownThemeStyle(currentTheme);
+
   // Set active theme option
   themeOptions.forEach((option) => {
     if (option.dataset.theme === currentTheme) {
@@ -201,12 +204,12 @@ function initializeThemeSwitcher() {
   // Toggle dropdown
   themeToggle.addEventListener("click", function (e) {
     e.stopPropagation();
-    themeDropdown.classList.toggle("show");
+    toggleThemeDropdown();
   });
 
   // Close dropdown when clicking outside
   document.addEventListener("click", function () {
-    themeDropdown.classList.remove("show");
+    closeThemeDropdown();
   });
 
   // Handle theme selection
@@ -222,7 +225,7 @@ function initializeThemeSwitcher() {
       switchTheme(selectedTheme);
 
       // Close dropdown
-      themeDropdown.classList.remove("show");
+      closeThemeDropdown();
     });
   });
 }
@@ -265,6 +268,8 @@ function switchTheme(theme) {
 
   if (themePaths[theme] && themeCSS) {
     themeCSS.href = themePaths[theme];
+    // Update dropdown styling for new theme
+    updateDropdownThemeStyle(theme);
   }
 
   // Send AJAX request to save preference
@@ -286,4 +291,60 @@ function switchTheme(theme) {
       console.error("Error switching theme:", error);
       // Still allow theme change locally even if server request fails
     });
+}
+
+function toggleThemeDropdown() {
+  const themeDropdown = document.getElementById("theme-dropdown");
+  if (!themeDropdown) return;
+
+  if (themeDropdown.classList.contains("show")) {
+    closeThemeDropdown();
+  } else {
+    openThemeDropdown();
+  }
+}
+
+function openThemeDropdown() {
+  const themeDropdown = document.getElementById("theme-dropdown");
+  if (!themeDropdown) return;
+
+  // Force display first for animation
+  themeDropdown.style.display = "block";
+
+  // Small delay to ensure display change is processed
+  requestAnimationFrame(() => {
+    themeDropdown.classList.add("show");
+  });
+}
+
+function closeThemeDropdown() {
+  const themeDropdown = document.getElementById("theme-dropdown");
+  if (!themeDropdown) return;
+
+  themeDropdown.classList.remove("show");
+
+  // Hide after animation completes
+  setTimeout(() => {
+    if (!themeDropdown.classList.contains("show")) {
+      themeDropdown.style.display = "none";
+    }
+  }, 200); // Match CSS transition duration
+}
+
+function updateDropdownThemeStyle(theme) {
+  const themeDropdown = document.getElementById("theme-dropdown");
+  if (!themeDropdown) return;
+
+  // Remove existing theme classes
+  themeDropdown.classList.remove("theme-dark", "theme-light");
+
+  // Add appropriate theme class based on current theme
+  if (theme === "dark") {
+    themeDropdown.classList.add("theme-dark");
+  } else {
+    themeDropdown.classList.add("theme-light");
+  }
+
+  // Set data attribute for CSS targeting
+  document.body.setAttribute("data-current-theme", theme);
 }

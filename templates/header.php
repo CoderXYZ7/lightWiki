@@ -43,6 +43,7 @@
         .theme-switcher {
             position: relative;
             display: inline-block;
+            z-index: 10000;
         }
         .theme-button {
             background: none;
@@ -52,6 +53,8 @@
             padding: 8px;
             border-radius: 4px;
             transition: background-color 0.3s;
+            position: relative;
+            z-index: 10001;
         }
         .theme-button:hover {
             background-color: rgba(0, 0, 0, 0.1);
@@ -60,32 +63,123 @@
             position: absolute;
             top: 100%;
             right: 0;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            min-width: 150px;
+            background: var(--dropdown-bg, white);
+            border: 1px solid var(--dropdown-border, #ddd);
+            border-radius: 6px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 10002;
+            min-width: 160px;
             display: none;
+            margin-top: 5px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .theme-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            right: 12px;
+            width: 12px;
+            height: 12px;
+            background: var(--dropdown-bg, white);
+            border: 1px solid var(--dropdown-border, #ddd);
+            border-right: none;
+            border-bottom: none;
+            transform: rotate(45deg);
+            z-index: 10003;
         }
         .theme-dropdown.show {
             display: block;
+            opacity: 1;
+            transform: translateY(0);
         }
         .theme-option {
-            padding: 10px 15px;
+            padding: 12px 16px;
             cursor: pointer;
-            border-bottom: 1px solid #eee;
-            transition: background-color 0.2s;
+            border-bottom: 1px solid var(--option-border, #f0f0f0);
+            transition: all 0.2s ease;
+            position: relative;
+            z-index: 10004;
+            color: var(--option-text, inherit);
         }
         .theme-option:last-child {
             border-bottom: none;
         }
         .theme-option:hover {
-            background-color: #f5f5f5;
+            background-color: var(--option-hover, #f8f9fa);
+            transform: translateX(2px);
         }
         .theme-option.active {
             background-color: #007cba;
             color: white;
+            font-weight: 500;
+        }
+        .theme-option.active:hover {
+            background-color: #0056b3;
+        }
+
+        /* Enhanced dropdown visibility */
+        .theme-dropdown {
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        /* Cross-theme compatibility */
+        .theme-dropdown {
+            color: #333;
+            background: rgba(255, 255, 255, 0.95) !important;
+            border: 1px solid rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .theme-dropdown::before {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border: 1px solid rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .theme-option {
+            color: #333 !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .theme-option:hover {
+            background-color: rgba(0, 0, 0, 0.05) !important;
+        }
+
+        /* Dark theme adjustments */
+        [data-current-theme="dark"] .theme-dropdown,
+        .theme-dropdown.theme-dark {
+            background: rgba(40, 44, 52, 0.95) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: #f8f9fa !important;
+        }
+
+        [data-current-theme="dark"] .theme-dropdown::before,
+        .theme-dropdown.theme-dark::before {
+            background: rgba(40, 44, 52, 0.95) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        [data-current-theme="dark"] .theme-option,
+        .theme-dropdown.theme-dark .theme-option {
+            color: #f8f9fa !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        [data-current-theme="dark"] .theme-option:hover,
+        .theme-dropdown.theme-dark .theme-option:hover {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        /* Ensure dropdown appears above common elements */
+        nav {
+            position: relative;
+            z-index: 1000;
+        }
+        header {
+            position: relative;
+            z-index: 1000;
         }
     </style>
 </head>
