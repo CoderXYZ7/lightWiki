@@ -1,11 +1,12 @@
 # LiteWiki .gitignore
 
 # Database files
-#storage/*.db
-#storage/*.db-*
+storage/*.db
+storage/*.db-*
 
 # Vendor dependencies
 vendor/
+
 
 # OS generated files
 .DS_Store
