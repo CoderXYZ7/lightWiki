@@ -19,11 +19,11 @@ Ecco una lista:
 
 Ecco un esempio di codice:
 
-```javascript
+\`\`\`javascript
 function hello() {
     console.log("Hello World!");
 }
-```
+\`\`\`
 
 ### Link e altro
 
