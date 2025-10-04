@@ -1,0 +1,3 @@
+[submodule "lightWikiBackEnd"]
+	path = lightWikiBackEnd
+	url = https://github.com/Zeenyk/lightWikiBackEnd
