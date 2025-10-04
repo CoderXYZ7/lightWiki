@@ -190,7 +190,7 @@ function createDropdownPortal(dropdown) {
     portal = document.createElement("div");
     portal.id = "theme-dropdown-portal";
     portal.className = "theme-dropdown-portal";
-    portal.style.cssText = `
+    portal.white.cssText = `
       position: fixed !important;
       top: 0 !important;
       left: 0 !important;

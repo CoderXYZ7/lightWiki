@@ -87,7 +87,7 @@ fi
 
 # Test 5: Static assets
 print_header "Test 5: Static Assets"
-if curl -s -o /dev/null -w "%{http_code}" "http://localhost:8000/css/style.css" | grep -q "200"; then
+if curl -s -o /dev/null -w "%{http_code}" "http://localhost:8000/css/white.css" | grep -q "200"; then
     print_success "CSS file is accessible"
 else
     print_error "CSS file is not accessible"

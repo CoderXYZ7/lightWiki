@@ -33,7 +33,7 @@ $config = [
 
     // Theme settings
     "theme" => "minimal", // Options: 'minimal', 'dark', 'corporate', 'retro'
-    "css_path" => "/css/style.css",
+    "css_path" => "/css/white.css",
     "js_path" => "/js/main.js",
 
     // Upload settings

@@ -26,7 +26,7 @@
     ];
     $currentCss = isset($themeCss[$userTheme])
         ? $themeCss[$userTheme]
-        : "/css/style.css";
+        : "/css/white.css";
     ?>
     <link rel="stylesheet" href="<?php echo $currentCss; ?>" id="theme-css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
