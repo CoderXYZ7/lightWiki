@@ -109,9 +109,6 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Initialize theme switcher
-initializeThemeSwitcher();
-
 // Search filter functionality
 function initializeSearchFilters() {
   // Tag search functionality
