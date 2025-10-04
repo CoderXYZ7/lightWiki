@@ -32,7 +32,7 @@ $config = [
     ],
 
     // Theme settings
-    "theme" => "default", // Options: 'default', 'dark', 'minimal', 'corporate', 'retro'
+    "theme" => "minimal", // Options: 'minimal', 'dark', 'corporate', 'retro'
     "css_path" => "/css/style.css",
     "js_path" => "/js/main.js",
 
