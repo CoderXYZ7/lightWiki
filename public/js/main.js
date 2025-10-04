@@ -389,21 +389,15 @@ document.addEventListener('mouseup', () => {
       });
     }
 
-    // Rendi visibile il bottone prima di calcolare la posizione
     btn.style.display = 'block';
     
-    // Usa requestAnimationFrame per assicurarti che il browser abbia renderizzato il bottone
     requestAnimationFrame(() => {
       const scrollTop = window.scrollY || window.pageYOffset;
       const scrollLeft = window.scrollX || window.pageXOffset;
       
-      // Usa l'altezza effettiva del bottone dopo il rendering
-      const btnHeight = btn.offsetHeight || 34; // fallback a 34px se offsetHeight è 0
+      const btnHeight = btn.offsetHeight || 34;
       
-      // Posizione sopra la selezione con margine di 12px
       const topPos = scrollTop + rect.top - btnHeight - 12;
-      
-      // Posizione a sinistra della selezione
       const leftPos = Math.max(scrollLeft + rect.left, 5);
 
       btn.style.top = `${topPos}px`;
@@ -414,3 +408,13 @@ document.addEventListener('mouseup', () => {
     if (btn) btn.style.display = 'none';
   }
 });
+
+// Nascondi il bottone quando l'utente clicca da qualche parte
+document.addEventListener('mousedown', (e) => {
+  const btn = document.getElementById('ask-ai-btn');
+  // Se il click non è sul bottone stesso, nascondilo
+  if (btn && e.target !== btn) {
+    btn.style.display = 'none';
+  }
+});
+
