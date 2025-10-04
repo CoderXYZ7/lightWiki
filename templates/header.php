@@ -50,7 +50,7 @@
                     <li><a href="/?action=list">All Pages</a></li>
                     <li><a href="/?action=search">Search</a></li>
                     <?php if ($auth->isLoggedIn()): ?>
-                        <li><a href="/?action=create">Create Page</a></li>
+                    <!-- <li><a href="/?action=create">Create Page</a></li> -->
                         <li>Hello, <?php echo htmlspecialchars(
                             $auth->getCurrentUser()["username"],
                         ); ?>!</li>
