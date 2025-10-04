@@ -191,9 +191,6 @@ function initializeThemeSwitcher() {
   const themeCSS = document.getElementById("theme-css");
   const currentTheme = getCurrentThemeFromCSS(themeCSS.href);
 
-  // Apply theme-specific dropdown styling
-  updateDropdownThemeStyle(currentTheme);
-
   // Set active theme option
   themeOptions.forEach((option) => {
     if (option.dataset.theme === currentTheme) {
@@ -204,12 +201,12 @@ function initializeThemeSwitcher() {
   // Toggle dropdown
   themeToggle.addEventListener("click", function (e) {
     e.stopPropagation();
-    toggleThemeDropdown();
+    themeDropdown.classList.toggle("show");
   });
 
   // Close dropdown when clicking outside
   document.addEventListener("click", function () {
-    closeThemeDropdown();
+    themeDropdown.classList.remove("show");
   });
 
   // Handle theme selection
@@ -225,7 +222,7 @@ function initializeThemeSwitcher() {
       switchTheme(selectedTheme);
 
       // Close dropdown
-      closeThemeDropdown();
+      themeDropdown.classList.remove("show");
     });
   });
 }
@@ -268,8 +265,6 @@ function switchTheme(theme) {
 
   if (themePaths[theme] && themeCSS) {
     themeCSS.href = themePaths[theme];
-    // Update dropdown styling for new theme
-    updateDropdownThemeStyle(theme);
   }
 
   // Send AJAX request to save preference
@@ -292,6 +287,7 @@ function switchTheme(theme) {
       // Still allow theme change locally even if server request fails
     });
 }
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 function toggleThemeDropdown() {
@@ -392,3 +388,5 @@ document.addEventListener('mouseup', () => {
 });
 
 >>>>>>> 98d2d23a9c4798472dbfa8eaf702d2b1b0eda919
+=======
+>>>>>>> parent of 3d094df (Trying to fix the Z axis problem "Help Me")
