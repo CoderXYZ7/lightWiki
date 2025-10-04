@@ -165,17 +165,13 @@ body {
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
 }
 
-.theme-option[data-theme="minimal"]::before {
+.theme-option[data-theme="white"]::before {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border-color: #dee2e6;
 }
 
-.theme-option[data-theme="corporate"]::before {
+.theme-option[data-theme="highVisibilty"]::before {
     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-}
-
-.theme-option[data-theme="retro"]::before {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
 }
 
 /* Dark theme adaptations */
