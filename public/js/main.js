@@ -109,6 +109,9 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+// Initialize theme switcher
+initializeThemeSwitcher();
+
 // Search filter functionality
 function initializeSearchFilters() {
   // Tag search functionality
@@ -174,6 +177,67 @@ function filterAuthors(e) {
   });
 }
 
+function getCurrentThemeFromCSS(cssHref) {
+  const themePaths = {
+    "/css/style.css": "default",
+    "/css/dark.css": "dark",
+    "/css/minimal.css": "minimal",
+    "/css/minimalist.css": "minimalist",
+    "/css/vibrant.css": "vibrant",
+    "/css/nature.css": "nature",
+    "/css/corporate.css": "corporate",
+    "/css/retro.css": "retro",
+  };
+
+  // Find theme from CSS path
+  for (const [path, theme] of Object.entries(themePaths)) {
+    if (cssHref.includes(path)) {
+      return theme;
+    }
+  }
+
+  return "default";
+}
+
+function switchTheme(theme) {
+  // Update CSS immediately for smooth transition
+  const themeCSS = document.getElementById("theme-css");
+  const themePaths = {
+    default: "/css/style.css",
+    dark: "/css/dark.css",
+    minimal: "/css/minimal.css",
+    minimalist: "/css/minimalist.css",
+    vibrant: "/css/vibrant.css",
+    nature: "/css/nature.css",
+    corporate: "/css/corporate.css",
+    retro: "/css/retro.css",
+  };
+
+  if (themePaths[theme] && themeCSS) {
+    themeCSS.href = themePaths[theme];
+  }
+
+  // Send AJAX request to save preference
+  fetch("/?action=switch_theme", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ theme: theme }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (!data.success) {
+        console.error("Failed to save theme preference:", data.message);
+        // Optionally show user-friendly error message
+      }
+    })
+    .catch((error) => {
+      console.error("Error switching theme:", error);
+      // Still allow theme change locally even if server request fails
+    });
+}
+
 function toggleThemeDropdown() {
   const themeDropdown = document.getElementById("theme-dropdown");
   if (!themeDropdown) return;
@@ -231,51 +295,50 @@ function updateDropdownThemeStyle(theme) {
 }
 
 // Inserisci questa parte in fondo al main.js, prima di eventuali altre chiusure </script>
-document.addEventListener("mouseup", () => {
+document.addEventListener('mouseup', () => {
   const selection = window.getSelection();
   if (!selection.isCollapsed) {
     const range = selection.getRangeAt(0);
     const rect = range.getBoundingClientRect();
 
-    let btn = document.getElementById("ask-ai-btn");
+    let btn = document.getElementById('ask-ai-btn');
     if (!btn) {
-      btn = document.createElement("button");
-      btn.id = "ask-ai-btn";
-      btn.textContent = "Chiedi all'AI";
-      btn.style.position = "absolute";
-      btn.style.zIndex = "9999";
-      btn.style.padding = "6px 12px";
-      btn.style.backgroundColor = "#0056b3";
-      btn.style.color = "#fff";
-      btn.style.border = "none";
-      btn.style.borderRadius = "6px";
-      btn.style.fontWeight = "600";
-      btn.style.fontSize = "14px";
-      btn.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
-      btn.style.cursor = "pointer";
-      btn.style.transition = "background-color 0.3s ease";
-      btn.style.userSelect = "none";
-      btn.style.whiteSpace = "nowrap";
+      btn = document.createElement('button');
+      btn.id = 'ask-ai-btn';
+      btn.textContent = 'Chiedi all\'AI';
+      btn.style.position = 'absolute';
+      btn.style.zIndex = '9999';
+      btn.style.padding = '6px 12px';
+      btn.style.backgroundColor = '#0056b3'; 
+      btn.style.color = '#fff';
+      btn.style.border = 'none';
+      btn.style.borderRadius = '6px';
+      btn.style.fontWeight = '600';
+      btn.style.fontSize = '14px';
+      btn.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+      btn.style.cursor = 'pointer';
+      btn.style.transition = 'background-color 0.3s ease';
+      btn.style.userSelect = 'none'; 
+      btn.style.whiteSpace = 'nowrap';
 
-      btn.addEventListener("mouseenter", () => {
-        btn.style.backgroundColor = "#003d80";
+      btn.addEventListener('mouseenter', () => {
+        btn.style.backgroundColor = '#003d80';
       });
 
-      btn.addEventListener("mouseleave", () => {
-        btn.style.backgroundColor = "#0056b3";
+      btn.addEventListener('mouseleave', () => {
+        btn.style.backgroundColor = '#0056b3';
       });
 
       document.body.appendChild(btn);
 
-      btn.addEventListener("click", () => {
+      btn.addEventListener('click', () => {
         const selectedText = selection.toString();
-        alert("Testo selezionato da inviare all'AI: " + selectedText);
-        btn.style.display = "none";
+        alert('Testo selezionato da inviare all\'AI: ' + selectedText);
+        btn.style.display = 'none';
         selection.removeAllRanges();
       });
     }
 
-<<<<<<< Updated upstream
     btn.style.display = 'block';
     
     requestAnimationFrame(() => {
@@ -290,28 +353,11 @@ document.addEventListener("mouseup", () => {
       btn.style.top = `${topPos}px`;
       btn.style.left = `${leftPos}px`;
     });
-=======
-    // Calcoliamo posizione per garantire che il bottone sia sempre fuori e sopra la selezione:
-    const scrollTop = window.scrollY || window.pageYOffset;
-    const scrollLeft = window.scrollX || window.pageXOffset;
-
-    // Posizione top leggermente sopra la parte superiore della selezione (con margine 10px)
-    const topPos = scrollTop + rect.top - btn.offsetHeight - 10;
-
-    // Posizione left leggermente più a sinistra della selezione (con margine 5px)
-    // evitando di farlo uscire dal bordo sinistro della pagina
-    const leftPos = Math.max(scrollLeft + rect.left - 5, 5);
-
-    btn.style.top = `${topPos}px`;
-    btn.style.left = `${leftPos}px`;
-    btn.style.display = "block";
->>>>>>> Stashed changes
   } else {
-    const btn = document.getElementById("ask-ai-btn");
-    if (btn) btn.style.display = "none";
+    const btn = document.getElementById('ask-ai-btn');
+    if (btn) btn.style.display = 'none';
   }
 });
-<<<<<<< Updated upstream
 
 // Nascondi il bottone quando l'utente clicca da qualche parte
 document.addEventListener('mousedown', (e) => {
@@ -321,6 +367,3 @@ document.addEventListener('mousedown', (e) => {
     btn.style.display = 'none';
   }
 });
-
-=======
->>>>>>> Stashed changes
