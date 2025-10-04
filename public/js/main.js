@@ -389,23 +389,28 @@ document.addEventListener('mouseup', () => {
       });
     }
 
-    // Calcoliamo posizione per garantire che il bottone sia sempre fuori e sopra la selezione:
-    const scrollTop = window.scrollY || window.pageYOffset;
-    const scrollLeft = window.scrollX || window.pageXOffset;
-
-    // Posizione top leggermente sopra la parte superiore della selezione (con margine 10px)
-    const topPos = scrollTop + rect.top - btn.offsetHeight - 10;
-
-    // Posizione left leggermente più a sinistra della selezione (con margine 5px)
-    // evitando di farlo uscire dal bordo sinistro della pagina
-    const leftPos = Math.max(scrollLeft + rect.left - 5, 5);
-
-    btn.style.top = `${topPos}px`;
-    btn.style.left = `${leftPos}px`;
+    // Rendi visibile il bottone prima di calcolare la posizione
     btn.style.display = 'block';
+    
+    // Usa requestAnimationFrame per assicurarti che il browser abbia renderizzato il bottone
+    requestAnimationFrame(() => {
+      const scrollTop = window.scrollY || window.pageYOffset;
+      const scrollLeft = window.scrollX || window.pageXOffset;
+      
+      // Usa l'altezza effettiva del bottone dopo il rendering
+      const btnHeight = btn.offsetHeight || 34; // fallback a 34px se offsetHeight è 0
+      
+      // Posizione sopra la selezione con margine di 12px
+      const topPos = scrollTop + rect.top - btnHeight - 12;
+      
+      // Posizione a sinistra della selezione
+      const leftPos = Math.max(scrollLeft + rect.left, 5);
+
+      btn.style.top = `${topPos}px`;
+      btn.style.left = `${leftPos}px`;
+    });
   } else {
     const btn = document.getElementById('ask-ai-btn');
     if (btn) btn.style.display = 'none';
   }
 });
-
