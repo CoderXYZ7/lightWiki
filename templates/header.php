@@ -39,55 +39,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
-    <style>
-        .theme-switcher {
-            position: relative;
-            display: inline-block;
-        }
-        .theme-button {
-            background: none;
-            border: none;
-            color: inherit;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-        .theme-button:hover {
-            background-color: rgba(0, 0, 0, 0.1);
-        }
-        .theme-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 999999 !important;
-            min-width: 150px;
-            display: none;
-        }
-        .theme-dropdown.show {
-            display: block;
-        }
-        .theme-option {
-            padding: 10px 15px;
-            cursor: pointer;
-            border-bottom: 1px solid #eee;
-            transition: background-color 0.2s;
-        }
-        .theme-option:last-child {
-            border-bottom: none;
-        }
-        .theme-option:hover {
-            background-color: #f5f5f5;
-        }
-        .theme-option.active {
-            background-color: #007cba;
-            color: white;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/theme-switcher.css">
+    <script src="/js/theme-switcher.js" defer></script>
 </head>
 <body>
     <header>
