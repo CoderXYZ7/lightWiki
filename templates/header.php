@@ -64,9 +64,9 @@
                             <i class="fas fa-palette"></i>
                         </button>
                         <div class="theme-dropdown" id="theme-dropdown">
-                            <div class="theme-option" data-theme="minimal">Minimal</div>
+                            <div class="theme-option" data-theme="minimal">Corporate</div>
                             <div class="theme-option" data-theme="dark">Dark</div>
-                            <div class="theme-option" data-theme="corporate">Corporate</div>
+                            <div class="theme-option" data-theme="corporate">Minimal</div>
                             <div class="theme-option" data-theme="retro">Retro</div>
                         </div>
                     </li>
