@@ -159,19 +159,33 @@ body {
     margin-right: 8px;
     flex-shrink: 0;
     transition: all 0.2s ease;
+    border: 1px solid #333;
 }
 
 .theme-option[data-theme="dark"]::before {
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    border-color: #fff;
 }
 
 .theme-option[data-theme="white"]::before {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-color: #dee2e6;
+    border-color: #333;
 }
 
 .theme-option[data-theme="highVisibility"]::before {
     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    border-color: #fff;
+}
+
+/* Theme-adaptive border colors for better visibility */
+[data-theme="dark"] .theme-option::before,
+body[class*="dark"] .theme-option::before {
+    border-color: #fff !important;
+}
+
+[data-theme="white"] .theme-option::before,
+[data-theme="highVisibility"] .theme-option::before {
+    border-color: #333 !important;
 }
 
 /* Dark theme adaptations */
