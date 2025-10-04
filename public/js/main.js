@@ -373,17 +373,16 @@ document.addEventListener("mouseup", () => {
 
       document.body.appendChild(btnSearch);
 
-      btnSearch.addEventListener("click", () => {
-        const selectedText = selection.toString();
-        const encodedText = encodeURIComponent(selectedText);
-        window.open(
-          `http://91.98.199.163/api.php?action=ai-search&text=${encodedText}`,
-          "_blank",
-        );
-        btnSearch.style.display = "none";
-        btnAsk.style.display = "none";
-        selection.removeAllRanges();
-      });
+      btnSearch.addEventListener('click', () => {
+      const selectedText = selection.toString();
+      const encodedText = encodeURIComponent(selectedText);
+      // Apri la pagina di AI Search locale invece dell'API esterna
+      window.open(`/?action=ai-search&q=${encodedText}`, '_blank');
+      btnSearch.style.display = 'none';
+      btnAsk.style.display = 'none';
+      selection.removeAllRanges();
+    });
+
     }
 
     // Bottone "Ask to AI"

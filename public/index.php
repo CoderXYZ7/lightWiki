@@ -50,6 +50,9 @@ switch ($action) {
     case "search":
         showSearchForm();
         break;
+    case "ai-search":
+        showAISearchForm();
+        break;
     case "login":
         showLoginForm();
         break;
@@ -451,6 +454,147 @@ function showPageList($wiki)
     }
 }
 
+function showAISearchForm()
+{
+    global $pageTitle;
+
+    $pageTitle = "AI Search";
+
+    $query = $_GET["q"] ?? "";
+    $results = [];
+
+    // Se c'è una query, chiama l'API
+    if ($query) {
+        $apiUrl = "http://91.98.199.163/api.php?action=ai-search&text=" . urlencode($query);
+        
+        // Chiamata all'API
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $apiUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode === 200 && $response) {
+            $data = json_decode($response, true);
+            if (isset($data['results']) && is_array($data['results'])) {
+                $results = $data['results'];
+            } elseif (is_array($data)) {
+                $results = $data;
+            }
+        }
+    }
+
+    // Hero section con search
+    echo '<div class="search-hero">';
+    echo '<div class="search-hero-content">';
+    echo '<h1><i class="fas fa-robot"></i> AI-Powered Search</h1>';
+    echo '<p>Search using artificial intelligence for better results</p>';
+
+    echo '<div class="search-input-wrapper">';
+    echo '<form method="get" id="ai-search-form" class="quick-search-form">';
+    echo '<input type="hidden" name="action" value="ai-search">';
+    echo '<div class="search-input-group">';
+    echo '<input type="text" name="q" id="ai-q" value="' .
+        htmlspecialchars($query) .
+        '" placeholder="Ask the AI anything..." class="search-input" autofocus>';
+    echo '<button type="submit" class="search-btn"><i class="fas fa-search"></i> Search</button>';
+    echo "</div>";
+    echo "</form>";
+    echo "</div>";
+    echo "</div>";
+    echo "</div>";
+
+    // Search results
+    if ($query && !empty($results)) {
+        echo '<div class="search-results">';
+        echo '<div class="container">';
+        echo '<div class="results-header">';
+        echo "<h2>Search Results</h2>";
+        echo '<span class="results-count">' .
+            count($results) .
+            " pages found</span>";
+        echo "</div>";
+
+        echo '<div class="results-grid">';
+        foreach ($results as $result) {
+            echo '<div class="result-card">';
+            echo '<div class="result-header">';
+            echo '<h3><a href="/?action=view&page=' .
+                urlencode($result["title"]) .
+                '">' .
+                htmlspecialchars($result["title"]) .
+                "</a></h3>";
+            echo '<div class="result-meta">';
+            
+            if (isset($result["created_by"])) {
+                echo '<span class="result-created-by"><i class="fas fa-user-plus"></i> Created by: ' .
+                    htmlspecialchars($result["created_by"]) .
+                    "</span>";
+            }
+            
+            if (isset($result["authors"])) {
+                echo '<span class="result-authors"><i class="fas fa-pen"></i> Written by: ' .
+                    htmlspecialchars($result["authors"]) .
+                    "</span>";
+            }
+            
+            if (isset($result["updated_at"])) {
+                echo '<span class="result-date"><i class="fas fa-calendar"></i> ' .
+                    date("M j, Y", strtotime($result["updated_at"])) .
+                    "</span>";
+            }
+            
+            echo "</div>";
+            echo "</div>";
+
+            if (!empty($result["content"])) {
+                $preview = substr(strip_tags($result["content"]), 0, 200);
+                if (strlen(strip_tags($result["content"])) > 200) {
+                    $preview .= "...";
+                }
+                echo '<div class="result-preview">' .
+                    htmlspecialchars($preview) .
+                    "</div>";
+            }
+
+            echo '<div class="result-actions">';
+            echo '<a href="/?action=view&page=' .
+                urlencode($result["title"]) .
+                '" class="btn btn-sm">View Page</a>';
+            echo "</div>";
+            echo "</div>";
+        }
+        echo "</div>";
+        echo "</div>";
+        echo "</div>";
+    } elseif ($query) {
+        echo '<div class="no-results">';
+        echo '<div class="container">';
+        echo '<div class="no-results-content">';
+        echo '<div class="no-results-icon"><i class="fas fa-robot"></i></div>';
+        echo "<h3>No results found</h3>";
+        echo '<p>The AI couldn\'t find any pages matching your search.</p>';
+        echo '<div class="no-results-suggestions">';
+        echo "<h4>Try:</h4>";
+        echo "<ul>";
+        echo "<li>Using different keywords</li>";
+        echo "<li>Rephrasing your question</li>";
+        echo "<li>Being more specific or more general</li>";
+        echo "</ul>";
+        echo "</div>";
+        echo '<a href="/?action=ai-search" class="btn btn-primary">Try Another Search</a>';
+        echo "</div>";
+        echo "</div>";
+        echo "</div>";
+    }
+}
+
+
+
+
+
 function showSearchForm()
 {
     global $pageTitle, $wiki;
@@ -787,6 +931,12 @@ function showSearchForm()
         echo "</div>";
     }
 }
+
+
+
+
+
+
 
 function removeFilterFromUrl($filterType)
 {
