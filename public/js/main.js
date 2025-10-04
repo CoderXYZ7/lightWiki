@@ -187,7 +187,6 @@ function getCurrentThemeFromCSS(cssHref) {
     "/css/white.css": "white",
     "/css/dark.css": "dark",
     "/css/corporate.css": "corporate",
-    "/css/retro.css": "retro",
   };
 
   // Find theme from CSS path
@@ -208,7 +207,6 @@ function switchTheme(theme) {
     white: "/css/white.css",
     dark: "/css/dark.css",
     corporate: "/css/corporate.css",
-    retro: "/css/retro.css",
   };
 
   if (themePaths[theme] && themeCSS) {

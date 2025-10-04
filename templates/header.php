@@ -23,7 +23,6 @@
         "white" => "/css/white.css",
         "dark" => "/css/dark.css",
         "corporate" => "/css/corporate.css",
-        "retro" => "/css/retro.css",
     ];
     $currentCss = isset($themeCss[$userTheme])
         ? $themeCss[$userTheme]
@@ -67,7 +66,6 @@
                             <div class="theme-option" data-theme="white">White</div>
                             <div class="theme-option" data-theme="dark">Dark</div>
                             <div class="theme-option" data-theme="corporate">Minimal</div>
-                            <div class="theme-option" data-theme="retro">Retro</div>
                         </div>
                     </li>
                 </ul>
