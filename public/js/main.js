@@ -177,56 +177,6 @@ function filterAuthors(e) {
   });
 }
 
-// Theme switcher functionality
-function initializeThemeSwitcher() {
-  const themeToggle = document.getElementById("theme-toggle");
-  const themeDropdown = document.getElementById("theme-dropdown");
-  const themeOptions = document.querySelectorAll(".theme-option");
-
-  if (!themeToggle || !themeDropdown || !themeOptions.length) {
-    return; // Theme switcher not present on this page
-  }
-
-  // Get current theme from the CSS link href
-  const themeCSS = document.getElementById("theme-css");
-  const currentTheme = getCurrentThemeFromCSS(themeCSS.href);
-
-  // Set active theme option
-  themeOptions.forEach((option) => {
-    if (option.dataset.theme === currentTheme) {
-      option.classList.add("active");
-    }
-  });
-
-  // Toggle dropdown
-  themeToggle.addEventListener("click", function (e) {
-    e.stopPropagation();
-    themeDropdown.classList.toggle("show");
-  });
-
-  // Close dropdown when clicking outside
-  document.addEventListener("click", function () {
-    themeDropdown.classList.remove("show");
-  });
-
-  // Handle theme selection
-  themeOptions.forEach((option) => {
-    option.addEventListener("click", function () {
-      const selectedTheme = this.dataset.theme;
-
-      // Update active state
-      themeOptions.forEach((opt) => opt.classList.remove("active"));
-      this.classList.add("active");
-
-      // Switch theme
-      switchTheme(selectedTheme);
-
-      // Close dropdown
-      themeDropdown.classList.remove("show");
-    });
-  });
-}
-
 function getCurrentThemeFromCSS(cssHref) {
   const themePaths = {
     "/css/style.css": "default",
