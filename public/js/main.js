@@ -368,7 +368,7 @@ document.addEventListener('mouseup', () => {
       btn.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
       btn.style.cursor = 'pointer';
       btn.style.transition = 'background-color 0.3s ease';
-      btn.style.userSelect = 'none'; // evita selezione bottone
+      btn.style.userSelect = 'none'; 
       btn.style.whiteSpace = 'nowrap';
 
       btn.addEventListener('mouseenter', () => {
@@ -386,16 +386,26 @@ document.addEventListener('mouseup', () => {
         alert('Testo selezionato da inviare all\'AI: ' + selectedText);
         btn.style.display = 'none';
         selection.removeAllRanges();
-        // Qui si può attivare chiamata API AI
       });
     }
 
-    // Posiziona il pulsante sopra la selezione, in alto a sinistra
-    btn.style.top = `${window.scrollY + rect.top - btn.offsetHeight - 10}px`;
-    btn.style.left = `${window.scrollX + rect.left}px`;
+    // Calcoliamo posizione per garantire che il bottone sia sempre fuori e sopra la selezione:
+    const scrollTop = window.scrollY || window.pageYOffset;
+    const scrollLeft = window.scrollX || window.pageXOffset;
+
+    // Posizione top leggermente sopra la parte superiore della selezione (con margine 10px)
+    const topPos = scrollTop + rect.top - btn.offsetHeight - 10;
+
+    // Posizione left leggermente più a sinistra della selezione (con margine 5px)
+    // evitando di farlo uscire dal bordo sinistro della pagina
+    const leftPos = Math.max(scrollLeft + rect.left - 5, 5);
+
+    btn.style.top = `${topPos}px`;
+    btn.style.left = `${leftPos}px`;
     btn.style.display = 'block';
   } else {
     const btn = document.getElementById('ask-ai-btn');
     if (btn) btn.style.display = 'none';
   }
 });
+
