@@ -287,9 +287,7 @@ function switchTheme(theme) {
       // Still allow theme change locally even if server request fails
     });
 }
-<<<<<<< HEAD
 
-<<<<<<< HEAD
 function toggleThemeDropdown() {
   const themeDropdown = document.getElementById("theme-dropdown");
   if (!themeDropdown) return;
@@ -345,7 +343,7 @@ function updateDropdownThemeStyle(theme) {
   // Set data attribute for CSS targeting
   document.body.setAttribute("data-current-theme", theme);
 }
-=======
+
 // Inserisci questa parte in fondo al main.js, prima di eventuali altre chiusure </script>
 document.addEventListener('mouseup', () => {
   const selection = window.getSelection();
@@ -386,7 +384,3 @@ document.addEventListener('mouseup', () => {
     if (btn) btn.style.display = 'none';
   }
 });
-
->>>>>>> 98d2d23a9c4798472dbfa8eaf702d2b1b0eda919
-=======
->>>>>>> parent of 3d094df (Trying to fix the Z axis problem "Help Me")
