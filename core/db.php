@@ -39,15 +39,32 @@ class Database
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
 
+            CREATE TABLE IF NOT EXISTS authors (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT UNIQUE NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
+
             CREATE TABLE IF NOT EXISTS pages (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT UNIQUE NOT NULL,
                 content TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                author_id INTEGER,
+                created_by INTEGER,
+                discoverable BOOLEAN DEFAULT 1,
                 embedding BLOB,
-                FOREIGN KEY (author_id) REFERENCES users(id)
+                FOREIGN KEY (created_by) REFERENCES users(id)
+            );
+
+            CREATE TABLE IF NOT EXISTS page_authors (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                page_id INTEGER NOT NULL,
+                author_id INTEGER NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE CASCADE,
+                FOREIGN KEY (author_id) REFERENCES authors(id) ON DELETE CASCADE,
+                UNIQUE(page_id, author_id)
             );
 
             CREATE TABLE IF NOT EXISTS revisions (
@@ -150,10 +167,14 @@ class Database
         $params = [];
         $whereConditions = [];
 
-        // Base query
-        $sql = "SELECT DISTINCT p.id, p.title, p.content, p.updated_at, u.username as author
+        // Base query - get authors as comma-separated list and user who created the page
+        $sql = "SELECT DISTINCT p.id, p.title, p.content, p.updated_at, 
+                       GROUP_CONCAT(a.name) as authors,
+                       u.username as created_by
                 FROM pages p
-                LEFT JOIN users u ON p.author_id = u.id";
+                LEFT JOIN page_authors pa ON p.id = pa.page_id
+                LEFT JOIN authors a ON pa.author_id = a.id
+                LEFT JOIN users u ON p.created_by = u.id";
 
         // Add tag filtering if specified
         if (!empty($filters["tags"])) {
@@ -177,8 +198,15 @@ class Database
 
         // Add author filtering
         if (!empty($filters["author"])) {
-            $whereConditions[] = "u.username = ?";
+            $sql .= " JOIN page_authors pa2 ON p.id = pa2.page_id
+                     JOIN authors a2 ON pa2.author_id = a2.id";
+            $whereConditions[] = "a2.name = ?";
             $params[] = $filters["author"];
+        }
+
+        // Add discoverable filter (only show discoverable pages by default)
+        if (!isset($filters["include_non_discoverable"]) || !$filters["include_non_discoverable"]) {
+            $whereConditions[] = "p.discoverable = 1";
         }
 
         // Add text search
@@ -194,7 +222,7 @@ class Database
             $sql .= " WHERE " . implode(" AND ", $whereConditions);
         }
 
-        $sql .= " ORDER BY p.updated_at DESC";
+        $sql .= " GROUP BY p.id ORDER BY p.updated_at DESC";
 
         return $this->fetchAll($sql, $params);
     }
@@ -291,6 +319,68 @@ class Database
                 ORDER BY p.updated_at DESC";
 
         return $this->fetchAll($sql, [$tagName]);
+    }
+
+    // Author management methods
+    public function getOrCreateAuthor($authorName)
+    {
+        // Try to find existing author
+        $existing = $this->fetch("SELECT id FROM authors WHERE name = ?", [
+            $authorName,
+        ]);
+        if ($existing) {
+            return $existing["id"];
+        }
+
+        // Create new author
+        return $this->insert("authors", ["name" => $authorName]);
+    }
+
+    public function getAuthorsForPage($pageId)
+    {
+        $sql = "SELECT a.id, a.name
+                FROM authors a
+                JOIN page_authors pa ON a.id = pa.author_id
+                WHERE pa.page_id = ?
+                ORDER BY a.name";
+        return $this->fetchAll($sql, [$pageId]);
+    }
+
+    public function addAuthorToPage($pageId, $authorName)
+    {
+        // First, ensure the author exists
+        $authorId = $this->getOrCreateAuthor($authorName);
+
+        // Then add the relationship (ignore if it already exists due to UNIQUE constraint)
+        try {
+            $this->insert("page_authors", [
+                "page_id" => $pageId,
+                "author_id" => $authorId,
+            ]);
+        } catch (PDOException $e) {
+            // Ignore duplicate key errors
+            if ($e->getCode() != 23000) {
+                throw $e;
+            }
+        }
+    }
+
+    public function removeAuthorFromPage($pageId, $authorId)
+    {
+        $this->delete("page_authors", "page_id = ? AND author_id = ?", [
+            $pageId,
+            $authorId,
+        ]);
+    }
+
+    public function getAllAuthors()
+    {
+        return $this->fetchAll("SELECT id, name FROM authors ORDER BY name");
+    }
+
+    public function updatePageDiscoverable($pageId, $discoverable)
+    {
+        $this->update('pages', ['discoverable' => $discoverable ? 1 : 0], 'id = ?', ['id' => $pageId]);
     }
 }
 ?>

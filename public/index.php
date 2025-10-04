@@ -117,12 +117,16 @@ function handlePost($action, $auth, $wiki, &$message, &$messageType)
                 return;
             }
             $tags = isset($_POST["tags"]) ? explode(",", $_POST["tags"]) : [];
+            $authors = isset($_POST["authors"]) ? explode(",", $_POST["authors"]) : [];
+            $discoverable = isset($_POST["discoverable"]) ? $_POST["discoverable"] == "1" : false;
             $result = $wiki->createPage(
                 $_POST["title"],
                 $_POST["content"],
                 $tags,
+                $authors,
+                $discoverable
             );
-            if ($result["success"]) {
+            if ($result['success']) {
                 header(
                     "Location: /?action=view&page=" .
                         urlencode($_POST["title"]),
@@ -142,11 +146,19 @@ function handlePost($action, $auth, $wiki, &$message, &$messageType)
             $pageTitle = $_GET["page"] ?? "";
             $result = $wiki->updatePage($pageTitle, $_POST["content"]);
             if ($result["success"]) {
+                // Handle authors update
+                if (isset($_POST["authors"])) {
+                    $authors = explode(",", $_POST["authors"]);
+                    $wiki->updatePageAuthors($pageTitle, $authors);
+                }
                 // Handle tags update
                 if (isset($_POST["tags"])) {
                     $tags = explode(",", $_POST["tags"]);
                     $wiki->updatePageTags($pageTitle, $tags);
                 }
+                // Handle discoverable update
+                $discoverable = isset($_POST["discoverable"]) ? $_POST["discoverable"] == "1" : false;
+                $wiki->updatePageDiscoverable($pageTitle, $discoverable);
                 header("Location: /?action=view&page=" . urlencode($pageTitle));
                 exit();
             } else {
@@ -184,7 +196,7 @@ function showHome($wiki)
             echo '<div class="page-meta">Updated ' .
                 date("M j, Y", strtotime($page["updated_at"])) .
                 " by " .
-                htmlspecialchars($page["author"]) .
+                htmlspecialchars($page["authors"] ?? "Unknown") .
                 "</div>";
             echo "</li>";
         }
@@ -211,6 +223,30 @@ function showPage($wiki, $title)
     }
 
     $pageTitle = $page["title"];
+
+    // Display user who created the page
+    echo '<div class="page-created-by margin-bottom-1">';
+    echo "<strong>Created by:</strong> " . htmlspecialchars($page["created_by"] ?? "Unknown");
+    echo "</div>";
+
+    // Display authors if any
+    if (!empty($page["authors"])) {
+        echo '<div class="page-authors margin-bottom-1">';
+        echo "<strong>Written by:</strong> ";
+        $authorNames = array_column($page["authors"], "name");
+        echo htmlspecialchars(implode(", ", $authorNames));
+        echo "</div>";
+    }
+
+    // Display discoverable status for logged-in users
+    if ($auth->isLoggedIn()) {
+        $discoverableStatus = $page["discoverable"] ? "Discoverable" : "Not Discoverable";
+        $discoverableClass = $page["discoverable"] ? "status-discoverable" : "status-non-discoverable";
+        echo '<div class="page-discoverable margin-bottom-1">';
+        echo "<strong>Search Status:</strong> ";
+        echo '<span class="' . $discoverableClass . '">' . $discoverableStatus . '</span>';
+        echo "</div>";
+    }
 
     // Display tags if any
     if (!empty($page["tags"])) {
@@ -266,6 +302,13 @@ function showEditForm($wiki, $auth, $title)
         $currentTags = implode(", ", $tagNames);
     }
 
+    // Get current authors as comma-separated string
+    $currentAuthors = "";
+    if ($page && isset($page["authors"])) {
+        $authorNames = array_column($page["authors"], "name");
+        $currentAuthors = implode(", ", $authorNames);
+    }
+
     if ($message) {
         echo '<div class="message ' .
             $messageType .
@@ -280,11 +323,25 @@ function showEditForm($wiki, $auth, $title)
         $auth->generateCSRFToken() .
         '">';
     echo '<div class="form-group">';
+    echo '<label for="authors">Authors (comma-separated):</label>';
+    echo '<input type="text" name="authors" id="authors" value="' .
+        htmlspecialchars($currentAuthors) .
+        '" placeholder="Bosh, Tizzio Caio">';
+    echo '<small class="text-light">Separate multiple authors with commas</small>';
+    echo "</div>";
+    echo '<div class="form-group">';
     echo '<label for="tags">Tags (comma-separated):</label>';
     echo '<input type="text" name="tags" id="tags" value="' .
         htmlspecialchars($currentTags) .
         '" placeholder="documentation, tutorial, guide">';
     echo '<small class="text-light">Separate multiple tags with commas</small>';
+    echo "</div>";
+    echo '<div class="form-group">';
+    echo '<label for="discoverable">';
+    $discoverableChecked = $page["discoverable"] ? "checked" : "";
+    echo '<input type="checkbox" name="discoverable" id="discoverable" value="1" ' . $discoverableChecked . '>';
+    echo ' Make page discoverable in search</label>';
+    echo '<small class="text-light">Uncheck to hide this page from search results</small>';
     echo "</div>";
     echo '<div class="form-group">';
     echo '<label for="content">Content (Markdown):</label>';
@@ -329,9 +386,20 @@ function showCreateForm($auth)
     echo '<input type="text" name="title" id="title" required>';
     echo "</div>";
     echo '<div class="form-group">';
+    echo '<label for="authors">Authors (comma-separated):</label>';
+    echo '<input type="text" name="authors" id="authors" placeholder="Bosh, Tizzio Caio">';
+    echo '<small class="text-light">Separate multiple authors with commas</small>';
+    echo "</div>";
+    echo '<div class="form-group">';
     echo '<label for="tags">Tags (comma-separated):</label>';
     echo '<input type="text" name="tags" id="tags" placeholder="documentation, tutorial, guide">';
     echo '<small class="text-light">Separate multiple tags with commas</small>';
+    echo "</div>";
+    echo '<div class="form-group">';
+    echo '<label for="discoverable">';
+    echo '<input type="checkbox" name="discoverable" id="discoverable" value="1" checked>';
+    echo ' Make page discoverable in search</label>';
+    echo '<small class="text-light">Uncheck to hide this page from search results</small>';
     echo "</div>";
     echo '<div class="form-group">';
     echo '<label for="content">Content (Markdown):</label>';
@@ -615,7 +683,7 @@ function showSearchForm()
             " pages found</span>";
         echo "</div>";
 
-        echo '<div class="results-grid">';
+            echo '<div class="results-grid">';
         foreach ($results as $result) {
             echo '<div class="result-card">';
             echo '<div class="result-header">';
@@ -625,8 +693,11 @@ function showSearchForm()
                 htmlspecialchars($result["title"]) .
                 "</a></h3>";
             echo '<div class="result-meta">';
-            echo '<span class="result-author"><i class="fas fa-user"></i> ' .
-                htmlspecialchars($result["author"]) .
+            echo '<span class="result-created-by"><i class="fas fa-user-plus"></i> Created by: ' .
+                htmlspecialchars($result["created_by"] ?? "Unknown") .
+                "</span>";
+            echo '<span class="result-authors"><i class="fas fa-pen"></i> Written by: ' .
+                htmlspecialchars($result["authors"] ?? "Unknown") .
                 "</span>";
             echo '<span class="result-date"><i class="fas fa-calendar"></i> ' .
                 date("M j, Y", strtotime($result["updated_at"])) .
