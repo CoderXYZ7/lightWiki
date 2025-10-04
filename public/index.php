@@ -1072,7 +1072,7 @@ function handleThemeSwitch()
         $theme = $input["theme"] ?? "";
 
         // Validate theme
-        $validThemes = ["white", "dark", "corporate"];
+        $validThemes = ["white", "dark", "highVisibility"];
 
         if (!in_array($theme, $validThemes)) {
             http_response_code(400);

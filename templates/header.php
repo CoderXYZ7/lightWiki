@@ -22,7 +22,7 @@
     $themeCss = [
         "white" => "/css/white.css",
         "dark" => "/css/dark.css",
-        "corporate" => "/css/corporate.css",
+        "highVisibility" => "/css/highVisibility.css",
     ];
     $currentCss = isset($themeCss[$userTheme])
         ? $themeCss[$userTheme]
@@ -65,7 +65,7 @@
                         <div class="theme-dropdown" id="theme-dropdown">
                             <div class="theme-option" data-theme="white">White</div>
                             <div class="theme-option" data-theme="dark">Dark</div>
-                            <div class="theme-option" data-theme="corporate">Minimal</div>
+                            <div class="theme-option" data-theme="highVisibility">High Visibility</div>
                         </div>
                     </li>
                 </ul>

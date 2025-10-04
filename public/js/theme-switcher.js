@@ -294,7 +294,7 @@ function getCurrentThemeFromCSS(cssHref) {
   const themePaths = {
     "/css/white.css": "white",
     "/css/dark.css": "dark",
-    "/css/corporate.css": "corporate",
+    "/css/highVisibility.css": "highVisibility",
   };
 
   // Find theme from CSS path
@@ -319,7 +319,7 @@ function switchTheme(theme) {
   const themePaths = {
     white: "/css/white.css",
     dark: "/css/dark.css",
-    corporate: "/css/corporate.css",
+    highVisibility: "/css/highVisibility.css",
   };
 
   if (themePaths[theme] && themeCSS) {
