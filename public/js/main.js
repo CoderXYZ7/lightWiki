@@ -8,6 +8,32 @@ if (typeof marked === "undefined") {
   document.head.appendChild(script);
 }
 
+// Nascondi scrollbar della pagina principale
+const hideScrollbarStyle = document.createElement('style');
+hideScrollbarStyle.textContent = `
+  /* Nascondi scrollbar per Chrome, Safari e Opera */
+  body::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Nascondi scrollbar per IE, Edge e Firefox */
+  body {
+    -ms-overflow-style: none;  /* IE e Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  html::-webkit-scrollbar {
+    display: none;
+  }
+  
+  html {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+`;
+document.head.appendChild(hideScrollbarStyle);
+
+
 document.addEventListener("DOMContentLoaded", function () {
   // Auto-resize textareas
   const textareas = document.querySelectorAll("textarea");
