@@ -22,7 +22,6 @@
     $themeCss = [
         "minimal" => "/css/style.css",
         "dark" => "/css/dark.css",
-        "minimal" => "/css/minimal.css",
         "corporate" => "/css/corporate.css",
         "retro" => "/css/retro.css",
     ];
@@ -66,6 +65,7 @@
                         </button>
                         <div class="theme-dropdown" id="theme-dropdown">
                             <div class="theme-option" data-theme="minimal">Minimal</div>
+                            <div class="theme-option" data-theme="dark">Dark</div>
                             <div class="theme-option" data-theme="corporate">Corporate</div>
                             <div class="theme-option" data-theme="retro">Retro</div>
                         </div>
