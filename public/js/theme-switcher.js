@@ -292,7 +292,7 @@ function positionDropdown(button, dropdown) {
  */
 function getCurrentThemeFromCSS(cssHref) {
   const themePaths = {
-    "/css/style.css": "minimal",
+    "/css/white.css": "white",
     "/css/dark.css": "dark",
     "/css/corporate.css": "corporate",
     "/css/retro.css": "retro",
@@ -318,7 +318,7 @@ function switchTheme(theme) {
   // Update CSS immediately for smooth transition
   const themeCSS = document.getElementById("theme-css");
   const themePaths = {
-    minimal: "/css/style.css",
+    white: "/css/white.css",
     dark: "/css/dark.css",
     corporate: "/css/corporate.css",
     retro: "/css/retro.css",

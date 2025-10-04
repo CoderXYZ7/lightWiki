@@ -117,16 +117,20 @@ function handlePost($action, $auth, $wiki, &$message, &$messageType)
                 return;
             }
             $tags = isset($_POST["tags"]) ? explode(",", $_POST["tags"]) : [];
-            $authors = isset($_POST["authors"]) ? explode(",", $_POST["authors"]) : [];
-            $discoverable = isset($_POST["discoverable"]) ? $_POST["discoverable"] == "1" : false;
+            $authors = isset($_POST["authors"])
+                ? explode(",", $_POST["authors"])
+                : [];
+            $discoverable = isset($_POST["discoverable"])
+                ? $_POST["discoverable"] == "1"
+                : false;
             $result = $wiki->createPage(
                 $_POST["title"],
                 $_POST["content"],
                 $tags,
                 $authors,
-                $discoverable
+                $discoverable,
             );
-            if ($result['success']) {
+            if ($result["success"]) {
                 header(
                     "Location: /?action=view&page=" .
                         urlencode($_POST["title"]),
@@ -157,7 +161,9 @@ function handlePost($action, $auth, $wiki, &$message, &$messageType)
                     $wiki->updatePageTags($pageTitle, $tags);
                 }
                 // Handle discoverable update
-                $discoverable = isset($_POST["discoverable"]) ? $_POST["discoverable"] == "1" : false;
+                $discoverable = isset($_POST["discoverable"])
+                    ? $_POST["discoverable"] == "1"
+                    : false;
                 $wiki->updatePageDiscoverable($pageTitle, $discoverable);
                 header("Location: /?action=view&page=" . urlencode($pageTitle));
                 exit();
@@ -226,7 +232,8 @@ function showPage($wiki, $title)
 
     // Display user who created the page
     echo '<div class="page-created-by margin-bottom-1">';
-    echo "<strong>Created by:</strong> " . htmlspecialchars($page["created_by"] ?? "Unknown");
+    echo "<strong>Created by:</strong> " .
+        htmlspecialchars($page["created_by"] ?? "Unknown");
     echo "</div>";
 
     // Display authors if any
@@ -240,11 +247,19 @@ function showPage($wiki, $title)
 
     // Display discoverable status for logged-in users
     if ($auth->isLoggedIn()) {
-        $discoverableStatus = $page["discoverable"] ? "Discoverable" : "Not Discoverable";
-        $discoverableClass = $page["discoverable"] ? "status-discoverable" : "status-non-discoverable";
+        $discoverableStatus = $page["discoverable"]
+            ? "Discoverable"
+            : "Not Discoverable";
+        $discoverableClass = $page["discoverable"]
+            ? "status-discoverable"
+            : "status-non-discoverable";
         echo '<div class="page-discoverable margin-bottom-1">';
         echo "<strong>Search Status:</strong> ";
-        echo '<span class="' . $discoverableClass . '">' . $discoverableStatus . '</span>';
+        echo '<span class="' .
+            $discoverableClass .
+            '">' .
+            $discoverableStatus .
+            "</span>";
         echo "</div>";
     }
 
@@ -266,7 +281,7 @@ function showPage($wiki, $title)
     }
 
     echo '<div class="page-content">' . $page["rendered_content"] . "</div>";
-/*
+    /*
     if ($auth->isLoggedIn()) {
         echo '<div class="page-actions">';
         echo '<a href="/?action=edit&page=' .
@@ -340,8 +355,10 @@ function showEditForm($wiki, $auth, $title)
     echo '<div class="form-group">';
     echo '<label for="discoverable">';
     $discoverableChecked = $page["discoverable"] ? "checked" : "";
-    echo '<input type="checkbox" name="discoverable" id="discoverable" value="1" ' . $discoverableChecked . '>';
-    echo ' Make page discoverable in search</label>';
+    echo '<input type="checkbox" name="discoverable" id="discoverable" value="1" ' .
+        $discoverableChecked .
+        ">";
+    echo " Make page discoverable in search</label>";
     echo '<small class="text-light">Uncheck to hide this page from search results</small>';
     echo "</div>";
     echo '<div class="form-group">';
@@ -399,7 +416,7 @@ function showCreateForm($auth)
     echo '<div class="form-group">';
     echo '<label for="discoverable">';
     echo '<input type="checkbox" name="discoverable" id="discoverable" value="1" checked>';
-    echo ' Make page discoverable in search</label>';
+    echo " Make page discoverable in search</label>";
     echo '<small class="text-light">Uncheck to hide this page from search results</small>';
     echo "</div>";
     echo '<div class="form-group">';
@@ -684,7 +701,7 @@ function showSearchForm()
             " pages found</span>";
         echo "</div>";
 
-            echo '<div class="results-grid">';
+        echo '<div class="results-grid">';
         foreach ($results as $result) {
             echo '<div class="result-card">';
             echo '<div class="result-header">';
@@ -1055,7 +1072,7 @@ function handleThemeSwitch()
         $theme = $input["theme"] ?? "";
 
         // Validate theme
-        $validThemes = ["minimal", "dark", "corporate", "retro"];
+        $validThemes = ["white", "dark", "corporate", "retro"];
 
         if (!in_array($theme, $validThemes)) {
             http_response_code(400);
