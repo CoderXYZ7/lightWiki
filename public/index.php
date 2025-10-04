@@ -467,16 +467,17 @@ function showAISearchForm()
     if ($query) {
         $apiUrl = "http://91.98.199.163/api.php?action=ai-search&text=" . urlencode($query);
         
-        // Chiamata all'API
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $apiUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        // Chiamata all'API usando file_get_contents
+        $context = stream_context_create([
+            'http' => [
+                'timeout' => 30,
+                'ignore_errors' => true
+            ]
+        ]);
+        
+        $response = @file_get_contents($apiUrl, false, $context);
 
-        if ($httpCode === 200 && $response) {
+        if ($response !== false) {
             $data = json_decode($response, true);
             if (isset($data['results']) && is_array($data['results'])) {
                 $results = $data['results'];
@@ -590,6 +591,7 @@ function showAISearchForm()
         echo "</div>";
     }
 }
+
 
 
 
