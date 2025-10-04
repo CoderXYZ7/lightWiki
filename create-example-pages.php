@@ -35,7 +35,7 @@ $pages = [
 
 <div class='featured-grid'>
 <div class='card'>
-<h2 class='card-title'>Getting Started Guide</h2>
+<h2 class='card-title'>Getting Started Guide TEST</h2>
 <p class='card-text'>Learn how to use LiteWiki effectively. This comprehensive guide covers everything from basic editing to advanced features like Mermaid diagrams and API integration.</p>
 <div class='button-group'>
 <a href='/?action=view&page=Getting+Started' class='btn-primary-inline'>Read article</a>
