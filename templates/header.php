@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo htmlspecialchars($config['site_title']); ?> - <?php echo isset($pageTitle) ? htmlspecialchars($pageTitle) : 'Home'; ?></title>
+    <?php
+    // Dynamically set CSS path based on theme
+    $themeCss = [
+        'default' => '/css/style.css',
+        'dark' => '/css/dark.css',
+        'minimal' => '/css/minimal.css',
+        'vibrant' => '/css/vibrant.css',
+        'nature' => '/css/nature.css',
+        'corporate' => '/css/corporate.css',
+        'retro' => '/css/retro.css',
+        'minimalist' => '/css/minimalist.css'
+    ];
+    $currentCss = isset($themeCss[$config['theme']]) ? $themeCss[$config['theme']] : '/css/style.css';
+    ?>
+    <link rel="stylesheet" href="<?php echo $currentCss; ?>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-container">
+                <h1><a href="/"><?php echo htmlspecialchars($config['site_title']); ?></a></h1>
+                <ul>
+                    <li><a href="/?action=view&page=Home">Home</a></li>
+                    <li><a href="/?action=list">All Pages</a></li>
+                    <li><a href="/?action=search">Search</a></li>
+                    <?php if ($auth->isLoggedIn()): ?>
+                        <li><a href="/?action=create">Create Page</a></li>
+                        <li>Hello, <?php echo htmlspecialchars($auth->getCurrentUser()['username']); ?>!</li>
+                        <li><a href="/?action=logout">Logout</a></li>
+                    <?php else: ?>
+                        <li><a href="/?action=login">Login</a></li>
+                        <li><a href="/?action=register">Register</a></li>
+                    <?php endif; ?>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <main>
