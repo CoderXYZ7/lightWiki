@@ -330,7 +330,10 @@ document.addEventListener('mouseup', () => {
 
       btn.addEventListener('click', () => {
         const selectedText = selection.toString();
-        alert('Testo selezionato da inviare all\'AI: ' + selectedText);
+        // Codifica il testo selezionato per l'URL
+        const encodedText = encodeURIComponent(selectedText);
+        // Apri nuova pagina con l'URL specificato
+        window.open(`http://91.98.199.163/api.php?action=ai-search&text=${encodedText}`, '_blank');
         btn.style.display = 'none';
         selection.removeAllRanges();
       });
@@ -359,8 +362,8 @@ document.addEventListener('mouseup', () => {
 // Nascondi il bottone quando l'utente clicca da qualche parte
 document.addEventListener('mousedown', (e) => {
   const btn = document.getElementById('ask-ai-btn');
-  // Se il click non è sul bottone stesso, nascondilo
   if (btn && e.target !== btn) {
     btn.style.display = 'none';
   }
 });
+
