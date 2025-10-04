@@ -166,8 +166,8 @@ body {
 }
 
 .theme-option[data-theme="minimal"]::before {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-color: #dee2e6;
+    background: linear-gradient(135deg, #f7f7f7 0%, #e3e3e3 100%);
+    border: 1px solid #ccc;
 }
 
 .theme-option[data-theme="corporate"]::before {

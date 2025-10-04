@@ -294,6 +294,7 @@ function getCurrentThemeFromCSS(cssHref) {
   const themePaths = {
     "/css/style.css": "minimal",
     "/css/dark.css": "dark",
+    "/css/minimal.css": "minimal",
     "/css/corporate.css": "corporate",
     "/css/retro.css": "retro",
   };
@@ -320,6 +321,7 @@ function switchTheme(theme) {
   const themePaths = {
     minimal: "/css/style.css",
     dark: "/css/dark.css",
+    minimal: "/css/minimal.css",
     corporate: "/css/corporate.css",
     retro: "/css/retro.css",
   };
