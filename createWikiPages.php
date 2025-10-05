@@ -25,13 +25,286 @@ $pages = [
 <p class='subtitle-small'>24h speed coding project</p>
 <div style='font-size: 20px'><i class='fa-solid fa-bolt fa-2x' style='color: var(--text-light);'></i></div>
 
-<div class='.graph'>
-<canvas id='graph'></canvas>
+
+<div id='graphContainer' style='width:100vw; height:100vh; position:relative; background:#fff; overflow:hidden; touch-action:none; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;'>
+
+<style>
+  #graphContainer canvas {
+    display: block;
+    cursor: pointer;
+    background: #ffffff;
+    touch-action: none;
+  }
+  #graphContainer canvas.dragging {
+    cursor: grabbing;
+  }
+  #graphContainer #info {
+    position: absolute;
+    top: 20px; left: 20px;
+    background: rgba(255,255,255,0.95);
+    color: #333;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    font-size: 13px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0,0,0,0.1);
+    line-height: 1.6;
+  }
+  #graphContainer #info strong {
+    color: #2c7fb8;
+    font-size: 15px;
+    display: block;
+    margin-bottom: 8px;
+  }
+  #graphContainer #nodeInfo {
+    position: absolute;
+    top: 20px; right: 20px;
+    background: rgba(255,255,255,0.95);
+    color: #333;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    font-size: 13px;
+    display: none;
+    max-width: 300px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0,0,0,0.1);
+    line-height: 1.6;
+  }
+  #graphContainer #nodeInfo strong {
+    color: #2c7fb8;
+    font-size: 15px;
+    display: block;
+    margin-bottom: 8px;
+  }
+  #graphContainer #nodeInfo img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 10px;
+    border: 2px solid rgba(44,127,184,0.3);
+  }
+  #graphContainer #loading {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    color: #2c7fb8;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  #graphContainer .close-btn {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: rgba(0,0,0,0.1);
+    border: none;
+    color: #333;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    transition: all 0.2s;
+  }
+  #graphContainer .close-btn:hover {
+    background: rgba(0,0,0,0.2);
+    transform: scale(1.1);
+  }
+  @media (max-width: 768px) {
+    #graphContainer #info, #graphContainer #nodeInfo {
+      font-size: 12px;
+      padding: 12px 16px;
+      max-width: 250px;
+    }
+    #graphContainer #info strong, #graphContainer #nodeInfo strong {
+      font-size: 14px;
+    }
+  }
+</style>
+
+<div id='loading'>Loading graph...</div>
+<canvas id='graph' width='600' height='600'></canvas>
+
+<div id='info'>
+  <strong>Controls</strong>
+  • 1 finger: Rotate<br>
+  • 2 fingers: Zoom + Pan<br>
+  • Wheel: Zoom<br>
+  • Click/Tap node: Show info
+</div>
+
 <div id='nodeInfo'>
-<button class='close-btn' onclick='document.getElementById('nodeInfo').style.display='none''>×</button>
-<div id='nodeContent'></div>
+  <button class='close-btn' onclick='document.getElementById('nodeInfo').style.display='none''>×</button>
+  <div id='nodeContent'></div>
 </div>
+
+<script>
+(async function() {
+  // Inserisci qui il tuo JSON di dati (o fai fetch da file esterno se preferisci)
+  // Per esempio in questo esempio semplice inserisco dati dummy statici:
+  const data = {
+    nodes: [
+      {id:0,x:-100,y:0,z:0}, {id:1,x:100,y:0,z:0},
+      {id:2,x:0,y:-100,z:0}, {id:3,x:0,y:100,z:0},
+      {id:4,x:0,y:0,z:-100}, {id:5,x:0,y:0,z:100}
+    ],
+    edges: [
+      {source:0,target:1,weight:1},
+      {source:2,target:3,weight:1},
+      {source:4,target:5,weight:1}
+    ],
+    blobs: [
+      {blob:'Node 0 info'},
+      {blob:'Node 1 info'},
+      {blob:'Node 2 info'},
+      {blob:'Node 3 info'},
+      {blob:'Node 4 info'},
+      {blob:'Node 5 info'}
+    ]
+  };
+
+  // Setup canvas
+  const canvas = document.getElementById('graph');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.clientWidth;
+  canvas.height = canvas.clientHeight;
+
+  let rotationX = 0, rotationY = 0, zoom = 350;
+  let drag = false, lastX=0, lastY=0;
+  const nodes = data.nodes.map(n => ({...n, color: '#2c7fb8'}));
+  const edges = data.edges;
+  const nodeRadius = 8;
+
+  // Simple 3D rotation matrices helpers
+  function rotateX(x, y, z, angle) {
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    return {
+      x: x,
+      y: y * cos - z * sin,
+      z: y * sin + z * cos
+    };
+  }
+  function rotateY(x, y, z, angle) {
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    return {
+      x: x * cos + z * sin,
+      y: y,
+      z: -x * sin + z * cos
+    };
+  }
+
+  function project(x, y, z) {
+    const scale = zoom / (zoom + z);
+    return {
+      x: canvas.width / 2 + x * scale + panX,
+      y: canvas.height / 2 + y * scale + panY,
+      scale
+    };
+  }
+
+  // For panning
+  let panX = 0, panY = 0;
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Rotate and project nodes
+    const projected = nodes.map(n => {
+      let r = rotateX(n.x, n.y, n.z, rotationX);
+      r = rotateY(r.x, r.y, r.z, rotationY);
+      return {...n, ...project(r.x, r.y, r.z)};
+    });
+
+    // Draw edges
+    ctx.strokeStyle = '#ccc';
+    ctx.lineWidth = 1;
+    edges.forEach(e => {
+      const a = projected.find(n => n.id === e.source);
+      const b = projected.find(n => n.id === e.target);
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+    });
+
+    // Draw nodes
+    projected.forEach(n => {
+      ctx.beginPath();
+      ctx.fillStyle = n.color;
+      ctx.shadowColor = 'rgba(0,0,0,0.3)';
+      ctx.shadowBlur = 5;
+      ctx.arc(n.x, n.y, nodeRadius, 0, 2*Math.PI);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    });
+  }
+
+  function onMouseDown(e) {
+    drag = true;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    canvas.classList.add('dragging');
+  }
+  function onMouseUp(e) {
+    drag = false;
+    canvas.classList.remove('dragging');
+  }
+  function onMouseMove(e) {
+    if (!drag) return;
+    const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
+    rotationY += dx * 0.01;
+    rotationX += dy * 0.01;
+    lastX = e.clientX;
+    lastY = e.clientY;
+  }
+  function onWheel(e) {
+    zoom += e.deltaY * -0.5;
+    zoom = Math.min(Math.max(zoom, 100), 1000);
+  }
+
+  // Handle clicks on nodes
+  canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    for(let n of nodes) {
+      // Project node again for click detection
+      let r = rotateX(n.x, n.y, n.z, rotationX);
+      r = rotateY(r.x, r.y, r.z, rotationY);
+      const p = project(r.x, r.y, r.z);
+      const dx = mouseX - p.x;
+      const dy = mouseY - p.y;
+      if(dx*dx + dy*dy < nodeRadius*nodeRadius) {
+        const infoBox = document.getElementById('nodeInfo');
+        const content = document.getElementById('nodeContent');
+        content.innerHTML = '<strong>Node ' + n.id + '</strong><br>' + (data.blobs[n.id] && data.blobs[n.id].blob ? data.blobs[n.id].blob : '');
+        infoBox.style.display = 'block';
+        break;
+      }
+    }
+  });
+
+  canvas.addEventListener('mousedown', onMouseDown);
+  window.addEventListener('mouseup', onMouseUp);
+  window.addEventListener('mousemove', onMouseMove);
+  canvas.addEventListener('wheel', onWheel);
+
+  function animate() {
+    draw();
+    requestAnimationFrame(animate);
+  }
+  animate();
+
+  document.getElementById('loading').style.display = 'none';
+})();
+</script>
+
 </div>
+
+
+
 
 </div>
 
@@ -722,351 +995,6 @@ echo "\n📊 Summary:\n";
 echo "Created: $created pages\n";
 echo "Errors: $errors\n";
 echo "\n🎉 Example wiki pages created successfully!\n";
+
 ?>
-
-
-
-// Carica il grafo da file JSON
-async function loadGraph() {
-  try {
-    const response = await fetch('./lightWikiBackEnd/graph3d.json');
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-
-    // Normalizza le coordinate per avere una scala migliore
-    const coords = data.nodes.map(n => [n.x, n.y, n.z]);
-    const maxDist = Math.max(...coords.flat().map(Math.abs));
-    const scale = maxDist > 0 ? 1 / maxDist : 1;
-
-    // Formatta i dati
-    const graph = {
-      nodes: data.nodes.map((node, i) => ({
-        id: node.id,
-        x: node.x * scale,
-        y: node.y * scale,
-        z: node.z * scale,
-        blob: data.blobs && data.blobs[i] ? data.blobs[i].blob : null,
-        color: null
-      })),
-      edges: data.edges.map(edge => ({
-        source: edge.source,
-        target: edge.target,
-        weight: edge.weight || 0.5
-      }))
-    };
-
-    // Trova i 4 nodi agli estremi
-    const extremes = {
-      minX: graph.nodes.reduce((min, n) => (n.x < min.x ? n : min)),
-      maxX: graph.nodes.reduce((max, n) => (n.x > max.x ? n : max)),
-      minY: graph.nodes.reduce((min, n) => (n.y < min.y ? n : min)),
-      maxY: graph.nodes.reduce((max, n) => (n.y > max.y ? n : max))
-    };
-
-    const extremeIds = new Set([
-      extremes.minX.id,
-      extremes.maxX.id,
-      extremes.minY.id,
-      extremes.maxY.id
-    ]);
-
-    // Colora i nodi
-    const extremeColors = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3'];
-    let colorIndex = 0;
-
-    graph.nodes.forEach(node => {
-      if (extremeIds.has(node.id)) {
-        node.color = extremeColors[colorIndex++ % 4];
-        node.isExtreme = true;
-      } else {
-        const dist = Math.sqrt(node.x * node.x + node.y * node.y + node.z * node.z);
-        const hue = 200 + dist * 100;
-        node.color = `hsl(${hue % 360}, 70%, 45%)`;
-        node.isExtreme = false;
-      }
-    });
-
-    return graph;
-  } catch (error) {
-    console.error('Errore nel caricamento del grafo:', error);
-    document.getElementById('loading').textContent =
-      'Error: Cannot load graph3d.json\nMake sure the file exists.';
-    return null;
-  }
-}
-
-class Graph3D {
-  constructor(canvas, graph) {
-    this.canvas = canvas;
-    this.ctx = canvas.getContext('2d');
-    this.graph = graph;
-
-    this.rotationX = 0;
-    this.rotationY = 0;
-    this.zoom = 350;
-    this.panX = 0;
-    this.panY = 0;
-
-    this.isDragging = false;
-    this.isPanning = false;
-    this.lastMouseX = 0;
-    this.lastMouseY = 0;
-
-    this.touchStart = null;
-    this.twoFingerStart = null;
-    this.initialZoom = 0;
-    this.initialTouchDistance = 0;
-    this.isTwoFinger = false;
-
-    this.velocityX = 0;
-    this.velocityY = 0;
-    this.friction = 0.95;
-    this.inertia = false;
-
-    this.projectedNodes = [];
-
-    this.setupCanvas();
-    this.setupEvents();
-    this.animate();
-  }
-
-  setupCanvas() {
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
-
-    window.addEventListener('resize', () => {
-      this.canvas.width = window.innerWidth;
-      this.canvas.height = window.innerHeight;
-    });
-  }
-
-  setupEvents() {
-    // gestione eventi mouse, touch, click ecc.
-    // (inserisci qui tutto il codice degli event listener 
-    // come nel tuo codice originale per mousedown, mousemove, wheel, touchstart, ecc.)
-
-    // Per brevità, ti lascio la parte degli eventi da copiare 
-    // integralmente dal tuo codice originale e incollare qui.
-  }
-
-  getTouchDistance(touch1, touch2) {
-    const dx = touch1.clientX - touch2.clientX;
-    const dy = touch1.clientY - touch2.clientY;
-    return Math.sqrt(dx * dx + dy * dy);
-  }
-
-  project(x, y, z) {
-    const cosY = Math.cos(this.rotationY);
-    const sinY = Math.sin(this.rotationY);
-    const cosX = Math.cos(this.rotationX);
-    const sinX = Math.sin(this.rotationX);
-
-    // Rotazione
-    let dx = cosY * x + sinY * z;
-    let dz = -sinY * x + cosY * z;
-    let dy = cosX * y - sinX * dz;
-    dz = sinX * y + cosX * dz;
-
-    const distance = this.zoom + dz;
-    if (distance === 0) return { x: 0, y: 0, visible: false };
-
-    const px = (dx * this.zoom) / distance + this.canvas.width / 2 + this.panX;
-    const py = (dy * this.zoom) / distance + this.canvas.height / 2 + this.panY;
-
-    return { x: px, y: py, visible: distance > 0 };
-  }
-
-  drawNode(node) {
-    const r = node.isExtreme ? 10 : 6;
-    this.ctx.beginPath();
-    this.ctx.shadowColor = 'rgba(0,0,0,0.4)';
-    this.ctx.shadowBlur = 4;
-    this.ctx.shadowOffsetX = 2;
-    this.ctx.shadowOffsetY = 2;
-    this.ctx.fillStyle = node.color;
-    this.ctx.globalAlpha = node.isExtreme ? 1 : 0.9;
-    this.ctx.arc(node.screenX, node.screenY, r, 0, Math.PI * 2);
-    this.ctx.fill();
-    this.ctx.globalAlpha = 1;
-    this.ctx.shadowBlur = 0;
-  }
-
-  drawEdge(edge) {
-    const source = this.projectedNodes.find(n => n.id === edge.source);
-    const target = this.projectedNodes.find(n => n.id === edge.target);
-    if (!source || !target || !source.visible || !target.visible) return;
-
-    this.ctx.strokeStyle = `rgba(100, 100, 100, ${edge.weight})`;
-    this.ctx.lineWidth = 1;
-    this.ctx.shadowColor = 'rgba(0,0,0,0.15)';
-    this.ctx.shadowBlur = 1;
-    this.ctx.beginPath();
-    this.ctx.moveTo(source.x, source.y);
-    this.ctx.lineTo(target.x, target.y);
-    this.ctx.stroke();
-    this.ctx.shadowBlur = 0;
-  }
-
-  findNodeAt(x, y) {
-    for (let i = this.projectedNodes.length - 1; i >= 0; i--) {
-      const node = this.projectedNodes[i];
-      if (!node.visible) continue;
-      const dx = x - node.x;
-      const dy = y - node.y;
-      const r = node.isExtreme ? 10 : 6;
-      if (dx * dx + dy * dy <= r * r) return node;
-    }
-    return null;
-  }
-
-  showNodeInfo(node) {
-    const infoPanel = document.getElementById('nodeInfo');
-    const content = document.getElementById('nodeContent');
-
-    content.innerHTML = `
-      <strong>ID:</strong> ${node.id}<br/>
-      <strong>Coordinates:</strong> (${node.x.toFixed(3)}, ${node.y.toFixed(3)}, ${node.z.toFixed(3)})<br/>
-    `;
-
-    if (node.blob) {
-      // Mostra immagine base64 se presente
-      const img = new Image();
-      img.onload = () => {
-        content.appendChild(img);
-      };
-      img.src = `data:image/png;base64,${node.blob}`;
-    }
-
-    infoPanel.style.display = 'block';
-  }
-
-  animate() {
-    requestAnimationFrame(() => this.animate());
-
-    if (this.inertia) {
-      this.rotationX += this.velocityX;
-      this.rotationY += this.velocityY;
-
-      this.velocityX *= this.friction;
-      this.velocityY *= this.friction;
-
-      if (Math.abs(this.velocityX) < 0.001 && Math.abs(this.velocityY) < 0.001) {
-        this.inertia = false;
-      }
-    }
-
-    this.draw();
-  }
-
-  draw() {
-    const ctx = this.ctx;
-    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-    this.projectedNodes = this.graph.nodes.map(node => {
-      const proj = this.project(node.x, node.y, node.z);
-      return {
-        ...node,
-        x: proj.x,
-        y: proj.y,
-        visible: proj.visible,
-        screenX: proj.x,
-        screenY: proj.y
-      };
-    });
-
-    // Ordina i nodi per profondità (z) per corretta visualizzazione
-    this.projectedNodes.sort((a, b) => {
-      const za = Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
-      const zb = Math.sqrt(b.x * b.x + b.y * b.y + b.z * b.z);
-      return zb - za;
-    });
-
-    // Disegna archi prima
-    this.graph.edges.forEach(edge => this.drawEdge(edge));
-
-    // Disegna nodi dopo
-    this.projectedNodes.forEach(node => this.drawNode(node));
-  }
-}
-
-async function main() {
-  const canvas = document.getElementById('graph');
-  const loading = document.getElementById('loading');
-  const graph = await loadGraph();
-  if (!graph) return;
-
-  loading.style.display = 'none';
-
-  const graph3D = new Graph3D(canvas, graph);
-
-  // Qui aggiungi setup eventi dal tuo codice originale: mouse, touch, wheel, click etc.
-
-  // Ad esempio:
-  canvas.addEventListener('mousedown', e => {
-    if (e.button === 0) {
-      graph3D.isDragging = true;
-      graph3D.lastMouseX = e.clientX;
-      graph3D.lastMouseY = e.clientY;
-      graph3D.inertia = false;
-    } else if (e.button === 1) {
-      graph3D.isPanning = true;
-      graph3D.lastMouseX = e.clientX;
-      graph3D.lastMouseY = e.clientY;
-      graph3D.inertia = false;
-    }
-  });
-
-  canvas.addEventListener('mousemove', e => {
-    if (graph3D.isDragging) {
-      const dx = (e.clientX - graph3D.lastMouseX) / 150;
-      const dy = (e.clientY - graph3D.lastMouseY) / 150;
-      graph3D.rotationY += dx;
-      graph3D.rotationX += dy;
-      graph3D.lastMouseX = e.clientX;
-      graph3D.lastMouseY = e.clientY;
-    } else if (graph3D.isPanning) {
-      const dx = e.clientX - graph3D.lastMouseX;
-      const dy = e.clientY - graph3D.lastMouseY;
-      graph3D.panX += dx;
-      graph3D.panY += dy;
-      graph3D.lastMouseX = e.clientX;
-      graph3D.lastMouseY = e.clientY;
-    }
-  });
-
-  canvas.addEventListener('mouseup', e => {
-    if (graph3D.isDragging) {
-      graph3D.isDragging = false;
-      // inertia
-      graph3D.velocityX = (e.clientY - graph3D.lastMouseY) / 300;
-      graph3D.velocityY = (e.clientX - graph3D.lastMouseX) / 300;
-      graph3D.inertia = true;
-    }
-    if (graph3D.isPanning) {
-      graph3D.isPanning = false;
-    }
-  });
-
-  canvas.addEventListener('wheel', e => {
-    e.preventDefault();
-    graph3D.zoom += e.deltaY * -0.3;
-    graph3D.zoom = Math.min(Math.max(graph3D.zoom, 100), 1000);
-  }, { passive: false });
-
-  canvas.addEventListener('click', e => {
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const node = graph3D.findNodeAt(x, y);
-    if (node) {
-      graph3D.showNodeInfo(node);
-    }
-  });
-
-  // Touch events e altri gestori da aggiungere analogamente
-}
-
-main();
 
