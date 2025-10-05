@@ -1635,3 +1635,27 @@ footer {
     color: #ffffff;
     padding: 2px 6px;
 }
+
+/* Moving text animation */
+.moving-text-container {
+    padding: 20px 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.moving-text {
+    font-size: 36px;
+    font-weight: bold;
+    animation: slideForward 8s linear infinite;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+@keyframes slideForward {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100vw);
+    }
+}

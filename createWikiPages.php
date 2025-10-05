@@ -17,32 +17,7 @@ if (!$auth->login("admin", "admin123")) {
 }
 
 $pages = [
-    "Home" => "<style>
-.moving-text-container {
-    padding: 20px 0;
-    overflow: hidden;
-    position: relative;
-}
-
-.moving-text {
-    font-size: 36px;
-    font-weight: bold;
-    animation: slideForward 8s linear infinite;
-    white-space: nowrap;
-    display: inline-block;
-}
-
-@keyframes slideForward {
-    0% {
-        transform: translateX(-100%);
-    }
-    100% {
-        transform: translateX(100vw);
-    }
-}
-</style>
-
-<div class='moving-text-container'>
+    "Home" => "<div class='moving-text-container'>
     <div class='moving-text'>Welcome to LightWiki</div>
 </div>
 
