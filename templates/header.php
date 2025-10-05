@@ -58,9 +58,7 @@
             <div class="nav-container">
                 <h1>
                   <a href="/">
-                    <img src="./assets/icons/mainLogo.png" alt="<?php echo htmlspecialchars(
-                        $config["site_title"],
-                    ); ?> logo" class="header-logo">
+                    <img src="./assets/icons/mainLogo.png" class="header-logo">
                   </a>
                 </h1>
 
