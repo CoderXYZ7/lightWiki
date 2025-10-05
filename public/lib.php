@@ -118,22 +118,57 @@ class EmbeddingAPI {
         
         // 2. Ottieni tutti i blob
         $blobs = $this->get_blobs();
-        $blobs_json = json_encode($blobs);
         
-        // 3. Trova k nearest
-        $command = escapeshellcmd("{$this->pythonEnv} {$this->pythonScriptPath}") 
-                  . " k_nearest " 
-                  . escapeshellarg($blob_b64) 
-                  . " " . escapeshellarg($blobs_json) 
-                  . " 5";
+        if (empty($blobs)) {
+            return json_encode(['error' => 'No embeddings found in database']);
+        }
         
-        $nearest_json = shell_exec($command);
-        $nearest = json_decode($nearest_json, true);
+        // 3. Trova k nearest usando stdin (come in create_graph)
+        $input_data = json_encode([
+            'query_blob' => $blob_b64,
+            'blobs' => $blobs,
+            'k' => 5
+        ]);
+        
+        $descriptors = [
+            0 => ['pipe', 'r'], // stdin
+            1 => ['pipe', 'w'], // stdout
+            2 => ['pipe', 'w']  // stderr
+        ];
+        
+        $command = "{$this->pythonEnv} {$this->pythonScriptPath} k_nearest_from_stdin";
+        $process = proc_open($command, $descriptors, $pipes);
+        
+        if (!is_resource($process)) {
+            return json_encode(['error' => 'Failed to start Python process']);
+        }
+        
+        fwrite($pipes[0], $input_data);
+        fclose($pipes[0]);
+        
+        $output = stream_get_contents($pipes[1]);
+        $errors = stream_get_contents($pipes[2]);
+        
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        
+        $return_code = proc_close($process);
+        
+        if ($return_code !== 0) {
+            return json_encode([
+                'error' => 'Python script failed',
+                'stderr' => $errors,
+                'return_code' => $return_code
+            ]);
+        }
+        
+        $nearest = json_decode($output, true);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
             return json_encode([
                 'error' => 'Failed to parse Python output',
-                'output' => $nearest_json
+                'output' => $output,
+                'stderr' => $errors
             ]);
         }
         
