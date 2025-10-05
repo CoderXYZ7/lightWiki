@@ -22,32 +22,35 @@ class EmbeddingAPI {
     }
 
     public function get_blobs(){
-        $sql = "SELECT p.embedding 
+        $sql = "SELECT p.embedding
                 FROM pages p";
 
         $blobs = $this->db->fetchAll($sql);
 
         $result = [
-            "blobs" => $blobs
+            "blobs" => array_map('base64_encode', $blobs)
         ];
 
         return json_encode($result);
-        
+
     }
 
-    private function get_page_info($blob){
+    private function get_page_info($blob_b64){
+        $blob = base64_decode($blob_b64);
         $sql = "SELECT p.id, p.title, p.created_at
                 FROM pages p
                 WHERE embedding = ?";
-        
+
         $info = $this->db->fetchAll($sql, [$blob]);
         return $info;
     }
 
     public function create_graph(){
         $blobs = $this->get_blobs();
+        $blobs_data = json_decode($blobs, true);
+        $args_json = json_encode($blobs_data);
 
-        $graph = shell_exec("lightwiki_env/bin/python " . $this->pythonScriptPath . " graph_nearest " . json_encode($blobs));
+        $graph = shell_exec("../lightWikiBackEnd/lightwiki_env/bin/python " . $this->pythonScriptPath . " graph_nearest " . escapeshellarg($args_json));
 
         if (file_put_contents($this->graphPath, $graph)) {
             return "File JSON salvato con successo!";
@@ -62,16 +65,23 @@ class EmbeddingAPI {
     }
 
     public function search($text){
-        $blob = shell_exec("../lightWikiBackEnd/lightwiki_env/bin/python " . $this->pythonScriptPath . " get_blob " . $text);
+        $args_json = json_encode($text);
+        $text_esc = escapeshellarg($args_json);
+        $blob = shell_exec("../lightWikiBackEnd/lightwiki_env/bin/python " . $this->pythonScriptPath . " get_blob " . $text_esc);
         $blobs = $this->get_blobs();
-        $nearest_blobs = shell_exec("../lightWikiBackEnd/lightwiki_env/bin/python " . $this->pythonScriptPath . " k_nearest " . $blob . " 5 " . json_encode($blobs));
+        $blobs_data = json_decode($blobs, true);
+        $k_nearest_args = [trim($blob), 5, $blobs_data];
+        $args_json = json_encode($k_nearest_args);
+        $args_esc = escapeshellarg($args_json);
+        $nearest_blobs = shell_exec("../lightWikiBackEnd/lightwiki_env/bin/python " . $this->pythonScriptPath . " k_nearest " . $args_esc);
         $nearest_blobs_data = json_decode($nearest_blobs, true);
-        
+
         $info = array();
-        foreach($nearest_blobs_data["blobs"] as $blob_a){
+        foreach($nearest_blobs_data["embeddings"] as $item){
+            $blob_a = $item["blobs"];
             $info[] = $this->get_page_info($blob_a);
         }
-         
+
         return $info;
     }
 
@@ -105,7 +115,7 @@ switch($action) {
         
     case 'get-blobs':
         $blobs = $api->get_blobs();
-        echo json_encode($blobs);
+        echo $blobs;
         break;
         
     default:
