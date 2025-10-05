@@ -25,13 +25,11 @@ class EmbeddingAPI {
         $sql = "SELECT embedding FROM pages WHERE embedding IS NOT NULL AND embedding != ''";
         $blobs = $this->db->fetchAll($sql);
 
-        $result = [
-            "blobs" => array_map(function($row) { 
-                return base64_encode($row['embedding']); 
-            }, $blobs)
-        ];
-
-        return json_encode($result);
+        $arr = array_map(function($row) {
+            return base64_encode($row['embedding']);
+        }, $blobs);
+        
+        return json.endcode(arr);
     }
 
     private function get_page_info($blob){
@@ -76,9 +74,7 @@ class EmbeddingAPI {
     public function search($text){
         $blob = shell_exec("../lightWikiBackEnd/lightwiki_env/bin/python   $this->pythonScriptPath get_blob $text"); //raw blob
 
-        $blobs = $this->get_blobs();
-
-        error_log(print_r($blobs, true));
+        $blobs = $this->get_blobs(); 
 
         $nearest_blobs_json = shell_exec("../lightWikiBackEnd/lightwiki_env/bin/python  $this->pythonScriptPath k_nearest $blob 5 $blobs");
         $nearest_blobs = json_decode($nearest_blobs_json, true);
