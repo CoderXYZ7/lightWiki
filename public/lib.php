@@ -49,8 +49,10 @@ class EmbeddingAPI {
         $blobs = $this->get_blobs();
         $blobs_data = json_decode($blobs, true);
         $args_json = json_encode($blobs_data);
+        $temp_file = tempnam(sys_get_temp_dir(), 'args');
+        file_put_contents($temp_file, $args_json);
 
-        $graph = shell_exec("../lightWikiBackEnd/lightwiki_env/bin/python " . $this->pythonScriptPath . " graph_nearest " . escapeshellarg($args_json));
+        $graph = shell_exec("../lightWikiBackEnd/lightwiki_env/bin/python " . $this->pythonScriptPath . " graph_nearest " . escapeshellarg($temp_file));
 
         if (file_put_contents($this->graphPath, $graph)) {
             return "File JSON salvato con successo!";
@@ -72,7 +74,9 @@ class EmbeddingAPI {
         $blobs_data = json_decode($blobs, true);
         $k_nearest_args = [trim($blob), 5, $blobs_data];
         $args_json = json_encode($k_nearest_args);
-        $args_esc = escapeshellarg($args_json);
+        $temp_file = tempnam(sys_get_temp_dir(), 'args');
+        file_put_contents($temp_file, $args_json);
+        $args_esc = escapeshellarg($temp_file);
         $nearest_blobs = shell_exec("../lightWikiBackEnd/lightwiki_env/bin/python " . $this->pythonScriptPath . " k_nearest " . $args_esc);
         $nearest_blobs_data = json_decode($nearest_blobs, true);
 
