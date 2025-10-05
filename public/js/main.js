@@ -661,7 +661,7 @@ function showAIModal(selectedText, pageId) {
   overlay.style.display = "block";
 
   const encodedText = encodeURIComponent(selectedText);
-  const apiUrl = `test-api.php?text=${encodedText}&page_id=${pageId}`;
+  const apiUrl = `ai-meanings.php?text=${encodedText}&page_id=${pageId}`;
 
   fetch(apiUrl)
     .then((response) => response.json())
@@ -809,6 +809,3 @@ function addMarkdownStyles() {
   `;
   document.head.appendChild(style);
 }
-
-
-
