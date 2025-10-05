@@ -29,15 +29,33 @@ $pages = [
 <div id='graphContainer' style='width:100vw; height:100vh; position:relative; background:#fff; overflow:hidden; touch-action:none; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;'>
 
 <style>
+  #graphContainer {
+    position: relative;
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    background: #fefefe;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    overflow: hidden;
+  }
+
   #graphContainer canvas {
     display: block;
+    width: 100%;
+    height: auto;
     cursor: pointer;
     background: #ffffff;
     touch-action: none;
+    border-radius: 8px;
   }
+
   #graphContainer canvas.dragging {
     cursor: grabbing;
   }
+
   #graphContainer #info {
     position: absolute;
     top: 20px; left: 20px;
@@ -50,13 +68,16 @@ $pages = [
     backdrop-filter: blur(10px);
     border: 1px solid rgba(0,0,0,0.1);
     line-height: 1.6;
+    z-index: 2;
   }
+
   #graphContainer #info strong {
     color: #2c7fb8;
     font-size: 15px;
     display: block;
     margin-bottom: 8px;
   }
+
   #graphContainer #nodeInfo {
     position: absolute;
     top: 20px; right: 20px;
@@ -71,19 +92,23 @@ $pages = [
     backdrop-filter: blur(10px);
     border: 1px solid rgba(0,0,0,0.1);
     line-height: 1.6;
+    z-index: 2;
   }
+
   #graphContainer #nodeInfo strong {
     color: #2c7fb8;
     font-size: 15px;
     display: block;
     margin-bottom: 8px;
   }
+
   #graphContainer #nodeInfo img {
     max-width: 100%;
     border-radius: 8px;
     margin-top: 10px;
     border: 2px solid rgba(44,127,184,0.3);
   }
+
   #graphContainer #loading {
     position: absolute;
     top: 50%; left: 50%;
@@ -91,7 +116,13 @@ $pages = [
     color: #2c7fb8;
     font-size: 18px;
     font-weight: 600;
+    z-index: 3;
+    background: rgba(255,255,255,0.9);
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.1);
   }
+
   #graphContainer .close-btn {
     position: absolute;
     top: 10px; right: 10px;
@@ -105,22 +136,32 @@ $pages = [
     line-height: 1;
     transition: all 0.2s;
   }
+
   #graphContainer .close-btn:hover {
     background: rgba(0,0,0,0.2);
     transform: scale(1.1);
   }
+
   @media (max-width: 768px) {
-    #graphContainer #info, #graphContainer #nodeInfo {
+    #graphContainer {
+      padding: 16px;
+    }
+
+    #graphContainer #info,
+    #graphContainer #nodeInfo {
       font-size: 12px;
       padding: 12px 16px;
-      max-width: 250px;
+      max-width: 90%;
     }
-    #graphContainer #info strong, #graphContainer #nodeInfo strong {
+
+    #graphContainer #info strong,
+    #graphContainer #nodeInfo strong {
       font-size: 14px;
     }
   }
 </style>
 
+<div id = 'graphContainer'>
 <div id='loading'>Loading graph...</div>
 <canvas id='graph' width='600' height='600'></canvas>
 
@@ -135,6 +176,7 @@ $pages = [
 <div id='nodeInfo'>
   <button class='close-btn' onclick='document.getElementById('nodeInfo').style.display='none''>×</button>
   <div id='nodeContent'></div>
+</div>
 </div>
 
 <script>
