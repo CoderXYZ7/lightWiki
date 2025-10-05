@@ -45,6 +45,8 @@ composer.lock
 # Backup files
 *.bak
 *.backup
+
+LightWikiBackEnd/.env
 *~
 
 # Node modules (if any)
