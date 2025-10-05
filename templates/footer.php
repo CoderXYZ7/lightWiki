@@ -4,7 +4,7 @@
             "Y",
         ); ?> <?php echo htmlspecialchars(
      $config["site_title"],
- ); ?>. Powered by LiteWiki.</p>
+ ); ?>. Powered by LightWiki.</p>
     </div>
     <script src="<?php echo $config["js_path"]; ?>"></script>
     <script>

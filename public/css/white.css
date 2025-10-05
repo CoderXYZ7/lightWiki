@@ -443,7 +443,8 @@ footer {
     padding: 2rem;
     background-color: var(--secondary-color);
     color: var(--text-color);
-    margin-top: 2rem;
+    margin: 2rem auto 0 auto; /* Centers the footer horizontally */
+    max-width: 1200px; /* Optional: matches main content width */
 }
 
 /* Search Interface Styles */
