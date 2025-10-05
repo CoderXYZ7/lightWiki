@@ -34,8 +34,7 @@ class EmbeddingAPI {
         return json_encode($result);
     }
 
-    private function get_page_info($blob_b64){
-        $blob = base64_decode($blob_b64);
+    private function get_page_info($blob){
         $sql = "SELECT p.id, p.title, p.created_at, p.content, p.updated_at, p.created_by  FROM pages p WHERE embedding = ?";
         $info = $this->db->fetch($sql, [$blob]); // fetch singolo, non fetchAll
         return $info;
@@ -75,58 +74,26 @@ class EmbeddingAPI {
     }
 
     public function search($text){
-        // 1. Genera blob per il testo di ricerca
-        $temp_text = tempnam(sys_get_temp_dir(), 'text_');
-        file_put_contents($temp_text, $text);
+        $blob = shell_exec("../lightWikiBackEnd/lightwiki_env/bin/python   $this->pythonScriptPath get_blob $text"); //raw blob
+        $blob = trim($blob);
         
-        $command = "{$this->pythonEnv} {$this->pythonScriptPath} get_blob " . escapeshellarg($temp_text);
-        $blob_b64 = shell_exec($command);
-        unlink($temp_text);
-        
-        if (empty($blob_b64)) {
-            return json_encode(['error' => 'Failed to generate embedding for search text']);
-        }
-        
-        $blob_b64 = trim($blob_b64);
-        
-        // 2. Ottieni tutti i blobs
         $blobs_json = $this->get_blobs();
-        
-        // 3. Prepara i dati per k_nearest
-        $k_nearest_data = [
-            'blob' => $blob_b64,
-            'k' => 5,
-            'blobs_json' => json_decode($blobs_json, true)
-        ];
-        
-        $temp_k_nearest = tempnam(sys_get_temp_dir(), 'knearest_');
-        file_put_contents($temp_k_nearest, json_encode($k_nearest_data));
-        
-        $command = "{$this->pythonEnv} {$this->pythonScriptPath} k_nearest " . escapeshellarg($temp_k_nearest);
-        $nearest_json = shell_exec($command);
-        unlink($temp_k_nearest);
-        
-        if (empty($nearest_json)) {
-            return json_encode(['error' => 'Failed to find nearest embeddings']);
+        $blobs_decoded = json_decode($blobs_json, true);
+
+        $blobs = array_map(function($blob) {
+            return base64_decode($blob);
+        }, $blobs_decoded['blobs']);
+
+        $nearest_blobs = shell_exec("../lightWikiBackEnd/lightwiki_env/bin/python  $this->pythonScriptPath k_nearest $blob 5 $blobs");
+        $nearest_blobs_json = trim($nearest_blobs_json);
+        $nearest_blobs = json_decode($nearest_blobs_json, true);
+
+        foreach($nearest_blobs["blobs"] as $blob_a){
+            $blob_raw = base64_decode($item['blobs']); // Decodifica da base64 a raw
+            $page_info = $this->get_page_info($blob_raw);
         }
-        
-        $nearest_data = json_decode($nearest_json, true);
-        
-        if (!isset($nearest_data['embeddings'])) {
-            return json_encode(['error' => 'Invalid response format', 'raw' => $nearest_json]);
-        }
-        
-        // 4. Ottieni info delle pagine
-        $results = [];
-        foreach($nearest_data['embeddings'] as $item){
-            $page_info = $this->get_page_info($item['blob']);
-            if ($page_info) {
-                $page_info['distance'] = $item['distance'];
-                $results[] = $page_info;
-            }
-        }
-        
-        return json_encode(['success' => true, 'results' => $results]);
+         
+        return $page_info;
     }
 }
 
