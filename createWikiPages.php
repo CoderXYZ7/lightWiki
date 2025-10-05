@@ -18,49 +18,18 @@ if (!$auth->login("admin", "admin123")) {
 
 $pages = [
     "Home" => "<style>
-.neon-container {
-    background: #000;
-    padding: 40px 0;
-    margin: 20px -20px;
+.moving-text-container {
+    padding: 20px 0;
     overflow: hidden;
     position: relative;
 }
 
-.neon-text {
-    font-family: 'Courier New', monospace;
-    font-size: 48px;
+.moving-text {
+    font-size: 36px;
     font-weight: bold;
-    color: #fff;
-    text-shadow:
-        0 0 5px #00ffff,
-        0 0 10px #00ffff,
-        0 0 20px #00ffff,
-        0 0 40px #00ffff,
-        0 0 80px #00ffff;
-    animation: neonGlow 2s ease-in-out infinite alternate, slideForward 8s linear infinite;
+    animation: slideForward 8s linear infinite;
     white-space: nowrap;
     display: inline-block;
-}
-
-@keyframes neonGlow {
-    from {
-        text-shadow:
-            0 0 5px #00ffff,
-            0 0 10px #00ffff,
-            0 0 20px #00ffff,
-            0 0 40px #00ffff,
-            0 0 80px #00ffff;
-    }
-    to {
-        text-shadow:
-            0 0 2px #00ffff,
-            0 0 5px #00ffff,
-            0 0 10px #00ffff,
-            0 0 20px #00ffff,
-            0 0 40px #00ffff,
-            0 0 80px #00ffff,
-            0 0 100px #00ffff;
-    }
 }
 
 @keyframes slideForward {
@@ -71,36 +40,17 @@ $pages = [
         transform: translateX(100vw);
     }
 }
-
-.subtitle-neon {
-    color: #ff6600;
-    text-shadow:
-        0 0 5px #ff6600,
-        0 0 10px #ff6600,
-        0 0 20px #ff6600;
-    animation: neonGlow 2.5s ease-in-out infinite alternate;
-    margin-top: 20px;
-}
-
-.bolt-neon {
-    color: #ffff00;
-    text-shadow:
-        0 0 5px #ffff00,
-        0 0 10px #ffff00,
-        0 0 20px #ffff00;
-    animation: bounce 1s infinite;
-}
 </style>
 
-<div class='neon-container'>
-    <div class='neon-text'>★ Welcome to LightWiki ★</div>
+<div class='moving-text-container'>
+    <div class='moving-text'>Welcome to LightWiki</div>
 </div>
 
 <div class='text-center margin-y-2'>
-<h1 class='h1-large subtitle-neon'>LightWiki</h1>
+<h1 class='h1-large'>LightWiki</h1>
 <p class='subtitle'>The free & open-source wiki with an AI assistant</p>
 <p class='subtitle-small'>24h speed coding project</p>
-<div style='font-size: 20px'><i class='fa-solid fa-bolt bolt-neon fa-2x'></i></div>
+<div style='font-size: 20px'><i class='fa-solid fa-bolt fa-bounce fa-2x'></i></div>
 </div>
 
 
