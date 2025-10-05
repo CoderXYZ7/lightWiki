@@ -2,6 +2,8 @@
 
 **LightWiki** is a lightweight, AI-powered wiki engine designed to meet the "Build a Space Biology Knowledge Engine" challenge for the NASA Space Apps Challenge. It provides a dynamic and intuitive platform for exploring and understanding NASA's vast collection of bioscience publications.
 
+Demo
+>[!ATENTION]
 [http://bsl.mywire.org](http://bsl.mywire.org)
 
 ## The Challenge
