@@ -78,7 +78,7 @@ class EmbeddingAPI {
 
         $blobs = $this->get_blobs();
 
-        $nearest_blobs = shell_exec("../lightWikiBackEnd/lightwiki_env/bin/python  $this->pythonScriptPath k_nearest $blob 5 $blobs");
+        $nearest_blobs_json = shell_exec("../lightWikiBackEnd/lightwiki_env/bin/python  $this->pythonScriptPath k_nearest $blob 5 $blobs");
         $nearest_blobs = json_decode($nearest_blobs_json, true);
 
         printf($nearest_blobs["blobs"]);
