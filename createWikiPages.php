@@ -164,7 +164,7 @@ $pages = [
   }
 </style>
 
-<div id = 'graphContainer'>
+
 <div id='loading'>Loading graph...</div>
 <canvas id='graph' width='600' height='600'></canvas>
 
@@ -180,7 +180,7 @@ $pages = [
   <button class='close-btn' onclick='document.getElementById('nodeInfo').style.display='none''  >×</button>
   <div id='nodeContent'></div>
 </div>
-</div>
+
 
 <script>
 (async function() {
