@@ -34,6 +34,23 @@ hideScrollbarStyle.textContent = `
 document.head.appendChild(hideScrollbarStyle);
 
 
+// Stile personalizzato per la selezione del testo con angoli smussati
+const selectionStyle = document.createElement('style');
+selectionStyle.textContent = `
+  ::selection {
+    background-color: rgba(0, 123, 255, 0.3);
+    border-radius: 4px;
+  }
+  
+  ::-moz-selection {
+    background-color: rgba(0, 123, 255, 0.3);
+    border-radius: 4px;
+  }
+`;
+document.head.appendChild(selectionStyle);
+
+
+
 document.addEventListener("DOMContentLoaded", function () {
   // Auto-resize textareas
   const textareas = document.querySelectorAll("textarea");
@@ -326,7 +343,6 @@ document.addEventListener("mouseup", () => {
   
   // Escludi le action specificate e la pagina Home
   if (excludedActions.includes(currentAction) || (currentAction === "view" && currentPage === "Home")) {
-    // Nascondi i bottoni se esistono e esci
     const btnSearch = document.getElementById("search-ai-btn");
     const btnAsk = document.getElementById("ask-ai-btn");
     if (btnSearch) btnSearch.style.display = "none";
@@ -334,9 +350,42 @@ document.addEventListener("mouseup", () => {
     return;
   }
 
-  // Piccolo ritardo per assicurarsi che la selezione sia aggiornata
   setTimeout(() => {
     const selection = window.getSelection();
+    
+    // Espandi la selezione a parole intere
+    if (!selection.isCollapsed && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      
+      // Espandi all'inizio della parola
+      if (range.startContainer.nodeType === 3) { // Text node
+        const text = range.startContainer.textContent;
+        let start = range.startOffset;
+        
+        // Vai indietro fino a trovare uno spazio o l'inizio
+        while (start > 0 && !/\s/.test(text[start - 1])) {
+          start--;
+        }
+        range.setStart(range.startContainer, start);
+      }
+      
+      // Espandi alla fine della parola
+      if (range.endContainer.nodeType === 3) { // Text node
+        const text = range.endContainer.textContent;
+        let end = range.endOffset;
+        
+        // Vai avanti fino a trovare uno spazio o la fine
+        while (end < text.length && !/\s/.test(text[end])) {
+          end++;
+        }
+        range.setEnd(range.endContainer, end);
+      }
+      
+      // Riapplica la selezione modificata
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+    
     if (!selection.isCollapsed) {
       const range = selection.getRangeAt(0);
       const rect = range.getBoundingClientRect();
@@ -397,7 +446,7 @@ document.addEventListener("mouseup", () => {
         document.body.appendChild(btnSearch);
 
         btnSearch.addEventListener("click", () => {
-          const selectedText = selection.toString();
+          const selectedText = selection.toString().trim(); // trim per rimuovere spazi
           const encodedText = encodeURIComponent(selectedText);
           window.open(
             `/?action=ai-search&q=${encodedText}`,
@@ -441,7 +490,7 @@ document.addEventListener("mouseup", () => {
         document.body.appendChild(btnAsk);
 
         btnAsk.addEventListener("click", () => {
-          const selectedText = selection.toString();
+          const selectedText = selection.toString().trim(); // trim per rimuovere spazi
 
           const urlParams = new URLSearchParams(window.location.search);
           const pageId = urlParams.get("page") || "";
@@ -480,7 +529,7 @@ document.addEventListener("mouseup", () => {
       if (btnSearch) btnSearch.style.display = "none";
       if (btnAsk) btnAsk.style.display = "none";
     }
-  }, 10); // Ritardo di 10ms per lasciare tempo alla selezione di aggiornarsi
+  }, 10);
 });
 
 document.addEventListener("mousedown", (e) => {
@@ -760,5 +809,6 @@ function addMarkdownStyles() {
   `;
   document.head.appendChild(style);
 }
+
 
 
