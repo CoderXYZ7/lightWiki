@@ -26,9 +26,12 @@ $pages = [
 <div style='font-size: 20px'><i class='fa-solid fa-bolt fa-2x' style='color: var(--text-light); padding-bottom: 4vw;'></i></div>
 
 
-<iframe src='index3d.html' width='95%' height='500vw' frameborder='0'>
-    Il tuo browser non supporta gli iframe.
-</iframe>
+<div style='border-radius: 15px; overflow: hidden; width: 95%; position: relative;'>
+    <iframe src='index3d.html' width='100%' height='500vw' frameborder='0'>
+        Il tuo browser non supporta gli iframe.
+    </iframe>
+</div>
+
 
 
 
