@@ -56,9 +56,14 @@
     <header>
         <nav>
             <div class="nav-container">
-                <h1><a href="/"><?php echo htmlspecialchars(
-                    $config["site_title"],
-                ); ?></a></h1>
+                <h1>
+                  <a href="/">
+                    <img src="/home/mrthecatsgo/Documents/Working3/lightWiki/icons/mainLogo.png" alt="<?php echo htmlspecialchars(
+                        $config["site_title"],
+                    ); ?> logo" class="header-logo">
+                  </a>
+                </h1>
+
                 <ul >
                     <li><a href="/?action=view&page=Home">Home</a></li>
                     <li><a href="/?action=list">All Pages</a></li>

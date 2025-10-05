@@ -1230,6 +1230,24 @@ footer {
         gap: 1rem;
     }
 
+    .header-logo {
+        max-height: 50px; /* Adjust as needed for header height */
+        width: auto;
+        display: block;
+        /* For better alignment with nav elements */
+        vertical-align: middle;
+    }
+
+    @media (max-width: 768px) {
+        .header-logo {
+            max-height: 40px; /* Slightly smaller on mobile */
+        }
+        /* Optional: Center the logo if nav layout changes */
+        nav h1 {
+            text-align: center;
+        }
+    }
+
     .revision-meta {
         flex-direction: column;
         align-items: flex-start;
