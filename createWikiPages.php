@@ -333,23 +333,29 @@ $pages = [
   const mx = e.clientX - rect.left;
   const my = e.clientY - rect.top;
 
-        const clicked = nodes.find(n => {
-            // Ruota e proietta ogni nodo per controllare la distanza
-            let r = rotateX(n.x, n.y, n.z, rotationX);
-            r = rotateY(r.x, r.y, r.z, rotationY);
-            const p = project(r.x, r.y, r.z);
-            const dx = p.x - mx;
-            const dy = p.y - my;
-            return Math.sqrt(dx * dx + dy * dy) < nodeRadius + 5; // tolleranza click
-        });
+        canvas.addEventListener('click', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
 
-        if (clicked) {
-            const infoDiv = document.getElementById('nodeInfo');
-            const contentDiv = document.getElementById('nodeContent');
-            contentDiv.innerHTML = `<strong>Node ${clicked.id}</strong><br>${data.blobs[clicked.id].blob}`;
-            infoDiv.style.display = 'block';
-        }
-        });
+  const clicked = nodes.find(n => {
+    let r = rotateX(n.x, n.y, n.z, rotationX);
+    r = rotateY(r.x, r.y, r.z, rotationY);
+    const p = project(r.x, r.y, r.z);
+    const dx = mouseX - p.x;
+    const dy = mouseY - p.y;
+    return dx * dx + dy * dy < (nodeRadius * nodeRadius);
+  });
+
+  if (clicked) {
+    const infoBox = document.getElementById('nodeInfo');
+    const content = document.getElementById('nodeContent');
+    content.innerHTML = `<strong>Node ${clicked.id}</strong><br>` + 
+      (data.blobs && data.blobs[clicked.id] && data.blobs[clicked.id].blob ? data.blobs[clicked.id].blob : 'No info available');
+    infoBox.style.display = 'block';
+  }
+});
+
 
         if(clicked){
           const infoDiv = document.getElementById('nodeInfo');
