@@ -318,22 +318,6 @@ function updateDropdownThemeStyle(theme) {
 
 // Inserisci questa parte in fondo al main.js, prima di eventuali altre chiusure </script>
 document.addEventListener("mouseup", () => {
-  // Controlla se siamo in una delle pagine escluse
-  const urlParams = new URLSearchParams(window.location.search);
-  const currentAction = urlParams.get("action");
-  const currentPage = urlParams.get("page");
-  const excludedActions = ["search", "list", "login", "register"];
-  
-  // Escludi le action specificate e la pagina Home
-  if (excludedActions.includes(currentAction) || (currentAction === "view" && currentPage === "Home")) {
-    // Nascondi i bottoni se esistono e esci
-    const btnSearch = document.getElementById("search-ai-btn");
-    const btnAsk = document.getElementById("ask-ai-btn");
-    if (btnSearch) btnSearch.style.display = "none";
-    if (btnAsk) btnAsk.style.display = "none";
-    return;
-  }
-
   // Piccolo ritardo per assicurarsi che la selezione sia aggiornata
   setTimeout(() => {
     const selection = window.getSelection();
