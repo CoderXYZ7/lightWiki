@@ -49,6 +49,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
     <link rel="stylesheet" href="<?php echo $currentPrismCss; ?>" id="prism-css"></link>
     <link rel="stylesheet" href="/css/theme-switcher.css">
+    <link rel="stylesheet" href="/css/center.css">
     <script src="/js/theme-switcher.js" defer></script>
 </head>
 <body>
@@ -58,10 +59,12 @@
                 <h1><a href="/"><?php echo htmlspecialchars(
                     $config["site_title"],
                 ); ?></a></h1>
-                <ul>
+                <ul >
                     <li><a href="/?action=view&page=Home">Home</a></li>
                     <li><a href="/?action=list">All Pages</a></li>
                     <li><a href="/?action=search">Search</a></li>
+                </ul>
+                <ul>
                     <?php if ($auth->isLoggedIn()): ?>
                     <!-- <li><a href="/?action=create">Create Page</a></li> -->
                         <li>Hello, <?php echo htmlspecialchars(
