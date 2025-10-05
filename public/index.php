@@ -234,21 +234,6 @@ function showPage($wiki, $title)
 
     $pageTitle = $page["title"];
 
-    // Display user who created the page
-    echo '<div class="page-created-by margin-bottom-1">';
-    echo "<strong>Created by:</strong> " .
-        htmlspecialchars($page["created_by"] ?? "Unknown");
-    echo "</div>";
-
-    // Display authors if any
-    if (!empty($page["authors"])) {
-        echo '<div class="page-authors margin-bottom-1">';
-        echo "<strong>Written by:</strong> ";
-        $authorNames = array_column($page["authors"], "name");
-        echo htmlspecialchars(implode(", ", $authorNames));
-        echo "</div>";
-    }
-
     // Display discoverable status for logged-in users
     if ($auth->isLoggedIn()) {
         $discoverableStatus = $page["discoverable"]
@@ -466,7 +451,7 @@ function showAISearchForm()
     echo '<div class="search-hero">';
     echo '<div class="search-hero-content">';
     echo '<h1><i class="fas fa-robot"></i> AI-Powered Search</h1>';
-    echo '<p>Search using artificial intelligence for better results</p>';
+    echo "<p>Search using artificial intelligence for better results</p>";
 
     echo '<div class="search-input-wrapper">';
     echo '<form method="get" id="ai-search-form" class="quick-search-form">';
@@ -484,28 +469,27 @@ function showAISearchForm()
 
     // Container per i risultati
     echo '<div id="ai-results-container">';
-    
+
     if ($query) {
         echo '<div class="search-results">';
         echo '<div class="container">';
         echo '<div class="loading-spinner" style="text-align: center; padding: 40px;">';
         echo '<i class="fas fa-spinner fa-spin" style="font-size: 48px; color: #0056b3;"></i>';
         echo '<p style="margin-top: 20px; font-size: 18px;">Searching with AI...</p>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        echo "</div>";
+        echo "</div>";
+        echo "</div>";
     }
-    
-    echo '</div>';
-    
+
+    echo "</div>";
+
     // JavaScript per caricare i risultati dall'API
-    if ($query) {
-        ?>
+    if ($query) { ?>
         <script>
         document.addEventListener("DOMContentLoaded", function() {
             const container = document.getElementById("ai-results-container");
             const query = "<?php echo addslashes($query); ?>";
-            
+
             // Chiama l'API di test (sostituisci con l'API vera quando pronta)
             fetch(`./lib.php?action=ai-search&q=${encodeURIComponent(query)}`)
                 .then(response => response.json())
@@ -519,7 +503,7 @@ function showAISearchForm()
                 .catch(error => {
                     displayError(error.message);
                 });
-            
+
             function displayResults(results) {
                 let html = `
                     <div class="search-results">
@@ -530,7 +514,7 @@ function showAISearchForm()
                             </div>
                             <div class="results-grid">
                 `;
-                
+
                 results.forEach(result => {
                     html += `
                         <div class="result-card">
@@ -542,13 +526,13 @@ function showAISearchForm()
                                 </div>
                             </div>
                     `;
-                    
+
                     if (result.content) {
                         const stripped = result.content.replace(/<[^>]*>/g, "");
                         const preview = stripped.substring(0, 200) + (stripped.length > 200 ? "..." : "");
                         html += `<div class="result-preview">${escapeHtml(preview)}</div>`;
                     }
-                    
+
                     html += `
                             <div class="result-actions">
                                 <a href="/?action=view&page=${encodeURIComponent(result.title)}" class="btn btn-sm">View Page</a>
@@ -556,16 +540,16 @@ function showAISearchForm()
                         </div>
                     `;
                 });
-                
+
                 html += `
                             </div>
                         </div>
                     </div>
                 `;
-                
+
                 container.innerHTML = html;
             }
-            
+
             function displayNoResults() {
                 container.innerHTML = `
                     <div class="no-results">
@@ -588,7 +572,7 @@ function showAISearchForm()
                     </div>
                 `;
             }
-            
+
             function displayError(message) {
                 container.innerHTML = `
                     <div class="no-results">
@@ -603,31 +587,22 @@ function showAISearchForm()
                     </div>
                 `;
             }
-            
+
             function escapeHtml(text) {
                 if (!text) return '';
                 const div = document.createElement("div");
                 div.textContent = text;
                 return div.innerHTML;
             }
-            
+
             function formatDate(dateStr) {
                 const date = new Date(dateStr);
                 return date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
             }
         });
         </script>
-        <?php
-    }
+        <?php }
 }
-
-
-
-
-
-
-
-
 
 function showSearchForm()
 {
@@ -891,11 +866,6 @@ function showSearchForm()
         echo "</div>";
     }
 }
-
-
-
-
-
 
 function removeFilterFromUrl($filterType)
 {
