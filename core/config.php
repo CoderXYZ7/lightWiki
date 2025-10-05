@@ -21,7 +21,7 @@ $config = [
 
     // API settings
     "api_key" => "test-api-key", // Change this to a secure key
-    "api_rate_limit" => 100, // requests per hour
+    "api_rate_limit" => 2000, // requests per hour
 
     // Markdown settings
     "markdown_extensions" => [
