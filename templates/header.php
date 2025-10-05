@@ -58,7 +58,7 @@
             <div class="nav-container">
                 <h1>
                   <a href="/">
-                    <img src="./assets/icons/mainLogo.png" class="header-logo">
+                      <img src="./assets/icons/mainLogo.png" class="header-logo" style="height: 1vw; width: auto;">
                   </a>
                 </h1>
 
