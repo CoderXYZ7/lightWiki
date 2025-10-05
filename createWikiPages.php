@@ -23,7 +23,7 @@ $pages = [
 <h1 class='h1-large'>LightWiki</h1>
 <p class='subtitle'>The free & open-source wiki with an AI assistant</p>
 <p class='subtitle-small'>24h speed coding project</p>
-<div style='font-size: 20px'><i class='fa-solid fa-bolt fa-2x' style='color: var(--text-light);'></i></div>
+<div style='font-size: 20px'><i class='fa-solid fa-bolt fa-2x' style='color: var(--text-light); padding-bottom: 4vw;'></i></div>
 
 
 <iframe src='index3d.html' width='600' height='400' frameborder='0'>
