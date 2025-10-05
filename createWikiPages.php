@@ -141,7 +141,7 @@ $pages = [
 (async function() {
   // Inserisci qui il tuo JSON di dati (o fai fetch da file esterno se preferisci)
   // Per esempio in questo esempio semplice inserisco dati dummy statici:
-  const response = await fetch('../lightWikiBackEnd/index3d.json');
+  const response = await fetch('public/asset/graph3d.json');
   const data = await response.json();
 
   // Setup canvas
