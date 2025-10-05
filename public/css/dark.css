@@ -109,6 +109,7 @@ main {
     margin-bottom: 1rem;
     border-bottom: 3px solid var(--primary-color);
     padding-bottom: 0.5rem;
+    text-align: center;
 }
 
 .page-content h2 {
@@ -119,6 +120,7 @@ main {
     margin-bottom: 0.75rem;
     border-bottom: 2px solid var(--light-bg);
     padding-bottom: 0.25rem;
+    text-align: center;
 }
 
 .page-content h3 {
@@ -127,6 +129,7 @@ main {
     color: var(--text-color);
     margin-top: 1.5rem;
     margin-bottom: 0.5rem;
+    text-align: center;
 }
 
 .page-content h4,
@@ -136,6 +139,7 @@ main {
     color: var(--text-color);
     margin-top: 1.25rem;
     margin-bottom: 0.5rem;
+    text-align: center;
 }
 
 .page-content p {
