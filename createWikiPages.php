@@ -316,10 +316,9 @@ $pages = [
   canvas.addEventListener('mousedown', onMouseDown);
   window.addEventListener('mouseup', onMouseUp);
   window.addEventListener('mousemove', onMouseMove);
-  canvas.addEventListener('wheel', (e) => {
   canvas.addEventListener('wheel', function(e) {
-  e.preventDefault();      // ✅ blocca lo scroll
-  onWheel(e);              // ✅ chiama la funzione zoom
+  e.preventDefault();      // 🔒 blocca lo scroll pagina
+  onWheel(e);
 }, { passive: false });
 
   function animate() {
