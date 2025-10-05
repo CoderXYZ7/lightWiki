@@ -3,7 +3,7 @@
 
 $config = [
     // Site settings
-    "site_title" => "LiteWiki",
+    "site_title" => "LightWiki",
     "site_description" => "A lightweight wiki framework",
     "base_url" => "http://localhost/litewiki", // Change this to your actual URL
 
