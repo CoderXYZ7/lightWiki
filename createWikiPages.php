@@ -26,7 +26,7 @@ $pages = [
 <div style='font-size: 20px'><i class='fa-solid fa-bolt fa-2x' style='color: var(--text-light);'></i></div>
 
 
-<iframe src='../lightWikiBackEnd/graph3d.html' width='600' height='400' frameborder='0'>
+<iframe src='../lightWikiBackEnd/index3d.html' width='600' height='400' frameborder='0'>
     Il tuo browser non supporta gli iframe.
 </iframe>
 
