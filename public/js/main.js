@@ -788,7 +788,6 @@ function openChatModal(pageId, pageTitle) {
     subtitle.style.margin = "0";
     subtitle.style.color = "#6c757d";
     subtitle.style.fontSize = "14px";
-    subtitle.innerHTML = '<i class="fas fa-book"></i> ' + escapeHtml(pageTitle);
 
     const closeBtn = document.createElement("button");
     closeBtn.innerHTML = '<i class="fas fa-times"></i>';
