@@ -497,7 +497,7 @@ function showAISearchForm()
     
     echo '</div>';
     
-    // JavaScript per caricare i risultati
+    // JavaScript per caricare i risultati dall'API
     if ($query) {
         ?>
         <script>
@@ -505,7 +505,8 @@ function showAISearchForm()
             const container = document.getElementById("ai-results-container");
             const query = "<?php echo addslashes($query); ?>";
             
-            fetch(`/test-api-search.php?q=${encodeURIComponent(query)}`)
+            // Chiama l'API di test (sostituisci con l'API vera quando pronta)
+            fetch(`/test-ai-api.php?text=${encodeURIComponent(query)}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.results && data.results.length > 0) {
@@ -523,7 +524,7 @@ function showAISearchForm()
                     <div class="search-results">
                         <div class="container">
                             <div class="results-header">
-                                <h2>Search Results</h2>
+                                <h2>AI Search Results</h2>
                                 <span class="results-count">${results.length} pages found</span>
                             </div>
                             <div class="results-grid">
@@ -619,6 +620,7 @@ function showAISearchForm()
         <?php
     }
 }
+
 
 
 

@@ -1,5 +1,5 @@
 <?php
-// Disabilita la visualizzazione degli errori PHP
+// Disabilita errori PHP visibili
 error_reporting(0);
 ini_set('display_errors', 0);
 
@@ -10,9 +10,8 @@ try {
     // Path al database SQLite
     $dbPath = __DIR__ . '/../storage/litewiki.db';
 
-    // Verifica che il database esista
     if (!file_exists($dbPath)) {
-        throw new Exception('Database not found at: ' . $dbPath);
+        throw new Exception('Database not found');
     }
 
     // Connessione al database
@@ -22,7 +21,7 @@ try {
     // Ottieni la query dall'URL
     $query = $_GET['text'] ?? $_GET['q'] ?? '';
 
-    // Query SQL - se c'è una ricerca, filtra, altrimenti prendi tutto
+    // Query SQL - filtra per query di ricerca
     if ($query) {
         $sql = "
             SELECT 
@@ -37,14 +36,17 @@ try {
             LEFT JOIN users u ON p.user_id = u.id
             LEFT JOIN page_authors pa ON p.id = pa.page_id
             LEFT JOIN users ua ON pa.user_id = ua.id
-            WHERE p.title LIKE :query OR p.content LIKE :query
+            WHERE (p.title LIKE :query OR p.content LIKE :query)
+            AND p.discoverable = 1
             GROUP BY p.id
             ORDER BY p.updated_at DESC
+            LIMIT 50
         ";
         
         $stmt = $db->prepare($sql);
         $stmt->execute([':query' => '%' . $query . '%']);
     } else {
+        // Se non c'è query, restituisci tutte le pagine scopribili
         $sql = "
             SELECT 
                 p.id,
@@ -58,8 +60,10 @@ try {
             LEFT JOIN users u ON p.user_id = u.id
             LEFT JOIN page_authors pa ON p.id = pa.page_id
             LEFT JOIN users ua ON pa.user_id = ua.id
+            WHERE p.discoverable = 1
             GROUP BY p.id
             ORDER BY p.updated_at DESC
+            LIMIT 50
         ";
         
         $stmt = $db->prepare($sql);

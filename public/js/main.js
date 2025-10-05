@@ -376,12 +376,12 @@ document.addEventListener("mouseup", () => {
       btnSearch.addEventListener('click', () => {
       const selectedText = selection.toString();
       const encodedText = encodeURIComponent(selectedText);
-      // Apri la pagina di AI Search locale invece dell'API esterna
       window.open(`/?action=ai-search&q=${encodedText}`, '_blank');
       btnSearch.style.display = 'none';
       btnAsk.style.display = 'none';
       selection.removeAllRanges();
-    });
+});
+
 
     }
 
