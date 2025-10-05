@@ -32,32 +32,34 @@ $pages = [
 
 <div class='grid-3'>
 
-<div class='card'>
-<h3 class='card-title-small'><i class='fas fa-search margin-right-half'></i>Search</h3>
-<p class='card-text-small'>Find articles, images, and more with our powerful search engine.</p>
-<a href='/?action=search' class='link-primary'>Search LiteWiki →</a>
-</div>
+    <div class='card'>
+    <h3 class='card-title-small'><i class='fas fa-search margin-right-half'></i>Search</h3>
+    <p class='card-text-small'>Find articles, images, and more with our powerful search engine.</p>
+    <a href='/?action=search' class='link-primary'>Search LiteWiki →</a>
+    </div>
 
-<div class='card'>
-<h3 class='card-title-small'><i class='fas fa-list margin-right-half'></i>All pages</h3>
-<p class='card-text-small'>Browse the complete list of all articles in LiteWiki.</p>
-<a href='/?action=list' class='link-primary'>Browse articles →</a>
-</div>
+    <div class='card'>
+    <h3 class='card-title-small'><i class='fas fa-list margin-right-half'></i>All pages</h3>
+    <p class='card-text-small'>Browse the complete list of all articles in LiteWiki.</p>
+    <a href='/?action=list' class='link-primary'>Browse articles →</a>
+    </div>
 
-<div class='card'>
-<h3 class='card-title-small'><i class='fas fa-code margin-right-half'></i>API</h3>
-<p class='card-text-small'>Integrate with LiteWiki using our REST API for external applications.</p>
-<a href='/?action=view&page=API+Documentation' class='link-primary'>View documentation →</a>
+    <div class='card'>
+    <h3 class='card-title-small'><i class='fas fa-code margin-right-half'></i>API</h3>
+    <p class='card-text-small'>Integrate with LiteWiki using our REST API for external applications.</p>
+    <a href='/?action=view&page=API+Documentation' class='link-primary'>View documentation →</a>
+    </div>
+
 </div>
 
 <div class='footer-section'>
-<p class='footer-text'>LightWiki a innovational way to visualize datas and share knowledge</p>
-<div class='footer-links'>
-<a href='/?action=view&page=System+Architecture' class='link-light'>About LightWiki</a>
-<a href='/?action=view&page=Markdown+Guide' class='link-light'>Help</a>
-<a href='/?action=view&page=API+Documentation' class='link-light'>Github</a>
-<a href='/?action=list' class='link-light'>All pages</a>
-</div>
+    <p class='footer-text'>LightWiki a innovational way to visualize datas and share knowledge</p>
+    <div class='footer-links'>
+        <a href='/?action=view&page=System+Architecture' class='link-light'>About LightWiki</a>
+        <a href='/?action=view&page=Markdown+Guide' class='link-light'>Help</a>
+        <a href='/?action=view&page=API+Documentation' class='link-light'>Github</a>
+        <a href='/?action=list' class='link-light'>All pages</a>
+    </div>
 </div>",
 
     "Getting Started" => "# 🚀 Getting Started with LiteWiki
