@@ -124,8 +124,8 @@ class EmbeddingGenerator
         }
         
         // Update database with the blob
-        $this->db->update("pages", $pageId, ["embedding" => $blob]);
-        
+        $this->db->update("pages", ["embedding" => $blob], "id = ?", [$pageId]);
+
         return true;
     }
 
