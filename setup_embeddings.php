@@ -1,5 +1,8 @@
 <?php
-// Script to generate embeddings for all pages in LiteWiki database
+// ============================================================================
+// generate_embeddings.php - Sistema ottimizzato per generazione embeddings
+// ============================================================================
+
 require_once 'core/db.php';
 
 class EmbeddingGenerator
@@ -19,114 +22,167 @@ class EmbeddingGenerator
         }
     }
 
-    public function generateAllEmbeddings($batchSize = 10)
+    /**
+     * Esegue Python con gestione errori ottimizzata
+     */
+    private function execPython($command, $stdinData = null)
     {
-        // Get all pages without embeddings or with NULL embeddings
+        $descriptors = [
+            0 => ['pipe', 'r'],
+            1 => ['pipe', 'w'],
+            2 => ['pipe', 'w']
+        ];
+        
+        $fullCommand = "{$this->pythonEnv} {$this->pythonScriptPath} {$command}";
+        $process = proc_open($fullCommand, $descriptors, $pipes);
+        
+        if (!is_resource($process)) {
+            throw new Exception('Failed to start Python process');
+        }
+        
+        if ($stdinData !== null) {
+            fwrite($pipes[0], $stdinData);
+        }
+        fclose($pipes[0]);
+        
+        $output = stream_get_contents($pipes[1]);
+        $errors = stream_get_contents($pipes[2]);
+        
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        
+        $returnCode = proc_close($process);
+        
+        if ($returnCode !== 0) {
+            throw new Exception("Python error (code {$returnCode}): {$errors}");
+        }
+        
+        return trim($output);
+    }
+
+    /**
+     * Genera embedding per una singola pagina - CORRETTO
+     */
+    private function generateEmbeddingForPage($pageId, $title, $content)
+    {
+        // Prepara testo per embedding
+        $text = $title . "\n\n" . $content;
+        $text = preg_replace('/\s+/', ' ', $text);
+        $text = trim($text);
+        
+        // Limita lunghezza
+        $maxLength = 8000;
+        if (strlen($text) > $maxLength) {
+            $text = substr($text, 0, $maxLength);
+        }
+        
+        // Chiama Python tramite stdin per evitare problemi con shell
+        $inputData = json_encode(['text' => $text]);
+        
+        try {
+            // Python ritorna base64
+            $blobBase64 = $this->execPython('get_blob_stdin', $inputData);
+            
+            // Decodifica base64 -> blob binario
+            $blob = base64_decode($blobBase64, true);
+            
+            if ($blob === false) {
+                throw new Exception("Invalid base64 from Python");
+            }
+            
+            if (strlen($blob) < 4) {
+                throw new Exception("Blob too short: " . strlen($blob) . " bytes");
+            }
+            
+            // Salva blob binario nel database
+            $sql = "UPDATE pages SET embedding = ? WHERE id = ?";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(1, $blob, SQLITE3_BLOB);
+            $stmt->bindValue(2, $pageId, SQLITE3_INTEGER);
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Database update failed");
+            }
+            
+            return true;
+            
+        } catch (Exception $e) {
+            throw new Exception("Embedding generation failed: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Genera embeddings per tutte le pagine - BATCH OTTIMIZZATO
+     */
+    public function generateAllEmbeddings($batchSize = 20)
+    {
         $sql = "SELECT id, title, content FROM pages WHERE embedding IS NULL OR embedding = ''";
         $pages = $this->db->fetchAll($sql);
 
         if (empty($pages)) {
-            echo "No pages need embeddings. All pages are up to date.\n";
+            echo "✓ No pages need embeddings. All pages are up to date.\n";
             return;
         }
 
-        echo "Found " . count($pages) . " pages without embeddings.\n";
-        echo "Starting embedding generation...\n\n";
+        $total = count($pages);
+        echo "Found {$total} pages without embeddings.\n";
+        echo "Starting embedding generation...\n";
+        echo str_repeat("=", 60) . "\n\n";
 
-        $successCount = 0;
-        $errorCount = 0;
-        $totalPages = count($pages);
+        $success = 0;
+        $errors = 0;
+        $startTime = time();
 
         foreach ($pages as $index => $page) {
+            $pageNum = $index + 1;
+            
             try {
                 $this->generateEmbeddingForPage($page['id'], $page['title'], $page['content']);
-                $successCount++;
-                echo "[" . ($index + 1) . "/$totalPages] ✓ Generated embedding for: " . substr($page['title'], 0, 50) . "\n";
+                $success++;
                 
-                // Small delay to avoid overwhelming ollama
-                if (($index + 1) % $batchSize === 0) {
-                    echo "  → Processed $batchSize pages, pausing for 2 seconds...\n";
-                    sleep(2);
+                $titleShort = substr($page['title'], 0, 45);
+                echo "[{$pageNum}/{$total}] ✓ {$titleShort}\n";
+                
+                // Pausa ogni batch per non sovraccaricare Ollama
+                if ($pageNum % $batchSize === 0) {
+                    $elapsed = time() - $startTime;
+                    $rate = round($pageNum / $elapsed, 2);
+                    echo "  → Batch complete. Speed: {$rate} pages/sec\n\n";
+                    sleep(1);
                 }
                 
             } catch (Exception $e) {
-                $errorCount++;
-                echo "[" . ($index + 1) . "/$totalPages] ✗ Error for '{$page['title']}': " . $e->getMessage() . "\n";
+                $errors++;
+                echo "[{$pageNum}/{$total}] ✗ {$page['title']}\n";
+                echo "  Error: " . $e->getMessage() . "\n\n";
             }
         }
 
+        $totalTime = time() - $startTime;
+        $avgRate = round($total / max($totalTime, 1), 2);
+
         echo "\n" . str_repeat("=", 60) . "\n";
-        echo "Embedding generation completed:\n";
-        echo "- Success: $successCount pages\n";
-        echo "- Errors: $errorCount pages\n";
-        echo "- Total: $totalPages pages\n";
+        echo "EMBEDDING GENERATION COMPLETED\n";
+        echo str_repeat("=", 60) . "\n";
+        echo "Success:      {$success} pages\n";
+        echo "Errors:       {$errors} pages\n";
+        echo "Total:        {$total} pages\n";
+        echo "Time:         {$totalTime} seconds\n";
+        echo "Avg Speed:    {$avgRate} pages/sec\n";
         echo str_repeat("=", 60) . "\n";
     }
 
     public function updateAllEmbeddings($force = false)
     {
-        // Get all pages (or only those needing update)
         if ($force) {
-            $sql = "SELECT id, title, content FROM pages";
-            echo "Force update mode: regenerating ALL embeddings...\n";
+            echo "FORCE MODE: Regenerating ALL embeddings...\n\n";
+            $sql = "UPDATE pages SET embedding = NULL";
+            $this->db->execute($sql);
         } else {
-            $sql = "SELECT id, title, content FROM pages WHERE embedding IS NULL OR embedding = ''";
-            echo "Update mode: generating missing embeddings...\n";
+            echo "UPDATE MODE: Generating missing embeddings...\n\n";
         }
         
-        $pages = $this->db->fetchAll($sql);
-        
-        if (empty($pages)) {
-            echo "No pages to process.\n";
-            return;
-        }
-
-        $this->generateAllEmbeddings(10);
-    }
-
-    private function generateEmbeddingForPage($pageId, $title, $content)
-    {
-        // Prepare text for embedding (title + content)
-        $text = $title . "\n\n" . $content;
-        
-        // Clean text: remove excessive whitespace and special characters
-        $text = preg_replace('/\s+/', ' ', $text);
-        $text = trim($text);
-        
-        // Limit text length (ollama might have limits)
-        $maxLength = 8000; // Adjust based on your model
-        if (strlen($text) > $maxLength) {
-            $text = substr($text, 0, $maxLength);
-        }
-        
-        // Escape text for shell
-        $escapedText = escapeshellarg($text);
-        
-        // Call Python script to generate blob
-        $command = "{$this->pythonEnv} {$this->pythonScriptPath} get_blob {$escapedText} 2>&1";
-        $output = shell_exec($command);
-        
-        if ($output === null || $output === '') {
-            throw new Exception("Python script returned empty output");
-        }
-        
-        // Check for Python errors
-        if (strpos($output, 'Error') !== false || strpos($output, 'Traceback') !== false) {
-            throw new Exception("Python error: " . substr($output, 0, 200));
-        }
-        
-        // The output should be the raw binary blob
-        $blob = $output;
-        
-        // Validate blob (should start with 4-byte length header)
-        if (strlen($blob) < 4) {
-            throw new Exception("Invalid blob: too short");
-        }
-        
-        // Update database with the blob
-        $this->db->update("pages", ["embedding" => $blob], "id = ?", [$pageId]);
-
-        return true;
+        $this->generateAllEmbeddings(20);
     }
 
     public function generateEmbeddingForSinglePage($pageId)
@@ -134,10 +190,10 @@ class EmbeddingGenerator
         $page = $this->db->fetch("SELECT id, title, content FROM pages WHERE id = ?", [$pageId]);
         
         if (!$page) {
-            throw new Exception("Page not found with ID: $pageId");
+            throw new Exception("Page not found with ID: {$pageId}");
         }
         
-        echo "Generating embedding for page: {$page['title']}\n";
+        echo "Generating embedding for: {$page['title']}\n";
         $this->generateEmbeddingForPage($page['id'], $page['title'], $page['content']);
         echo "✓ Embedding generated successfully!\n";
     }
@@ -145,46 +201,77 @@ class EmbeddingGenerator
     public function getEmbeddingStats()
     {
         $total = $this->db->fetch("SELECT COUNT(*) as count FROM pages")['count'];
-        $withEmbedding = $this->db->fetch("SELECT COUNT(*) as count FROM pages WHERE embedding IS NOT NULL AND embedding != ''")['count'];
+        $withEmbedding = $this->db->fetch(
+            "SELECT COUNT(*) as count FROM pages WHERE embedding IS NOT NULL AND embedding != ''"
+        )['count'];
         $withoutEmbedding = $total - $withEmbedding;
         
-        echo "\nEmbedding Statistics:\n";
-        echo str_repeat("-", 40) . "\n";
-        echo "Total pages:              $total\n";
-        echo "With embeddings:          $withEmbedding (" . round(($withEmbedding/$total)*100, 1) . "%)\n";
-        echo "Without embeddings:       $withoutEmbedding (" . round(($withoutEmbedding/$total)*100, 1) . "%)\n";
-        echo str_repeat("-", 40) . "\n";
+        $pctWith = $total > 0 ? round(($withEmbedding / $total) * 100, 1) : 0;
+        $pctWithout = $total > 0 ? round(($withoutEmbedding / $total) * 100, 1) : 0;
+        
+        echo "\n" . str_repeat("=", 50) . "\n";
+        echo "EMBEDDING STATISTICS\n";
+        echo str_repeat("=", 50) . "\n";
+        echo "Total pages:           {$total}\n";
+        echo "With embeddings:       {$withEmbedding} ({$pctWith}%)\n";
+        echo "Without embeddings:    {$withoutEmbedding} ({$pctWithout}%)\n";
+        echo str_repeat("=", 50) . "\n";
+    }
+
+    public function verifyDatabase()
+    {
+        echo "Verifying database embeddings...\n\n";
+        
+        $sql = "SELECT id, title, length(embedding) as blob_size FROM pages WHERE embedding IS NOT NULL";
+        $pages = $this->db->fetchAll($sql);
+        
+        if (empty($pages)) {
+            echo "No embeddings found in database.\n";
+            return;
+        }
+        
+        $valid = 0;
+        $invalid = 0;
+        
+        foreach ($pages as $page) {
+            $size = $page['blob_size'];
+            if ($size > 4) {
+                $valid++;
+            } else {
+                $invalid++;
+                echo "✗ Invalid blob for page {$page['id']}: {$page['title']} (size: {$size} bytes)\n";
+            }
+        }
+        
+        echo "\n";
+        echo "Valid embeddings:    {$valid}\n";
+        echo "Invalid embeddings:  {$invalid}\n";
     }
 }
 
-// ============================================================
-// Main execution
-// ============================================================
+// ============================================================================
+// ESECUZIONE PRINCIPALE
+// ============================================================================
 
 try {
     $generator = new EmbeddingGenerator();
     
-    // Parse command line arguments
-    $command = $argv[1] ?? 'generate';
+    $command = $argv[1] ?? 'help';
     
     switch ($command) {
         case 'generate':
-            // Generate embeddings for pages that don't have them
             $generator->updateAllEmbeddings(false);
             break;
             
         case 'regenerate':
-            // Force regenerate ALL embeddings
             $generator->updateAllEmbeddings(true);
             break;
             
         case 'stats':
-            // Show embedding statistics
             $generator->getEmbeddingStats();
             break;
             
         case 'single':
-            // Generate embedding for a single page
             if (!isset($argv[2])) {
                 echo "Usage: php generate_embeddings.php single <page_id>\n";
                 exit(1);
@@ -193,18 +280,29 @@ try {
             $generator->generateEmbeddingForSinglePage($pageId);
             break;
             
+        case 'verify':
+            $generator->verifyDatabase();
+            break;
+            
+        case 'help':
         default:
-            echo "Unknown command: $command\n\n";
-            echo "Available commands:\n";
-            echo "  generate      - Generate embeddings for pages without them\n";
+            echo "\n";
+            echo "LiteWiki Embedding Generator\n";
+            echo str_repeat("=", 50) . "\n";
+            echo "Usage: php generate_embeddings.php [command]\n\n";
+            echo "Commands:\n";
+            echo "  generate      - Generate missing embeddings\n";
             echo "  regenerate    - Force regenerate ALL embeddings\n";
             echo "  stats         - Show embedding statistics\n";
-            echo "  single <id>   - Generate embedding for a single page\n";
-            exit(1);
+            echo "  single <id>   - Generate embedding for one page\n";
+            echo "  verify        - Verify database embeddings\n";
+            echo "  help          - Show this help message\n";
+            echo str_repeat("=", 50) . "\n";
+            echo "\n";
+            break;
     }
     
 } catch (Exception $e) {
-    echo "Error: " . $e->getMessage() . "\n";
+    echo "\n✗ ERROR: " . $e->getMessage() . "\n\n";
     exit(1);
 }
-?>
