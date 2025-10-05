@@ -52,3 +52,7 @@ LightWikiBackEnd/.env
 # Node modules (if any)
 node_modules/
 storage/litewiki.db
+
+
+# Graph
+public/assets/graph3d.json
