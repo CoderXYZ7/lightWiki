@@ -3,6 +3,7 @@
 # Database files
 storage/*.db
 storage/*.db-*
+storage/litewiki.db
 
 # Vendor dependencies
 #vendor/
