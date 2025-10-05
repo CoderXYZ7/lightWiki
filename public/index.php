@@ -507,7 +507,7 @@ function showAISearchForm()
             const query = "<?php echo addslashes($query); ?>";
             
             // Chiama l'API di test (sostituisci con l'API vera quando pronta)
-            fetch(`/api.php?action=ai-search&q=${encodeURIComponent(query)}`)
+            fetch(`/lib.php?action=ai-search&q=${encodeURIComponent(query)}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.results && data.results.length > 0) {
