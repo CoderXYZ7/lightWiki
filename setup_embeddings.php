@@ -259,6 +259,23 @@ class EmbeddingGenerator
         echo str_repeat("=", 50) . "\n";
     }
 
+    public function forceUpdateEmbeddings()
+{
+    echo "Forcing update of all embeddings...\n";
+
+    // Crea un valore fittizio per il campo embedding (un blob di test)
+    $dummyBlob = base64_encode(random_bytes(64)); // Puoi scegliere una lunghezza di blob a tua scelta
+
+    // Esegui l'update su tutte le pagine
+    $sql = "UPDATE pages SET embedding = ? WHERE embedding IS NULL OR embedding = ''";
+    $stmt = $this->db->prepare($sql);
+    $stmt->bindValue(1, $dummyBlob, SQLITE3_TEXT);
+
+    $rowsAffected = $stmt->execute();
+    echo "Updated embeddings for {$rowsAffected} pages.\n";
+}
+
+
     public function verifyDatabase()
     {
         echo "Verifying database embeddings...\n\n";
@@ -328,6 +345,11 @@ try {
         case 'stats':
             $generator->getEmbeddingStats();
             break;
+
+        case 'force-update':
+            $generator->forceUpdateEmbeddings();
+            break;
+            
             
         case 'single':
             if (!isset($argv[2])) {
