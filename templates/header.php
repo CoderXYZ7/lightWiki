@@ -58,7 +58,7 @@
             <div class="nav-container">
                 <h1>
                   <a href="/">
-                    <img src="/home/mrthecatsgo/Documents/Working3/lightWiki/icons/mainLogo.png" alt="<?php echo htmlspecialchars(
+                    <img src="/icons/mainLogo.png" alt="<?php echo htmlspecialchars(
                         $config["site_title"],
                     ); ?> logo" class="header-logo">
                   </a>
