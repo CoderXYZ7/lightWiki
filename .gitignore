@@ -4,6 +4,7 @@
 storage/*.db
 storage/*.db-*
 storage/litewiki.db
+storage/litewiki.db-*
 
 # Vendor dependencies
 #vendor/
@@ -48,3 +49,4 @@ composer.lock
 
 # Node modules (if any)
 node_modules/
+storage/litewiki.db
