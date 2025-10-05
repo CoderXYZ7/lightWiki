@@ -25,15 +25,11 @@ $pages = [
 <p class='subtitle-small'>24h speed coding project</p>
 <div style='font-size: 20px'><i class='fa-solid fa-bolt fa-2x' style='color: var(--text-light); padding-bottom: 4vw;'></i></div>
 
-
-<div style='border-radius: 15px; overflow: hidden; width: 95%; position: relative;'>
+<div style='border-radius: 15px; overflow: hidden; width: 95%; position: relative; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);'>
     <iframe src='index3d.html' width='100%' height='500vw' frameborder='0'>
         Il tuo browser non supporta gli iframe.
     </iframe>
 </div>
-
-
-
 
 <h2><i class='fa-solid fa-square-up-right'></i> Explore LightWiki</h2>
 
