@@ -1283,6 +1283,12 @@ footer {
         justify-content: center;
     }
 
+    nav ul:first-of-type {
+        position: static;
+        left: auto;
+        transform: none;
+    }
+
     main {
         margin: 1.5rem auto;
         padding: 1.5rem;

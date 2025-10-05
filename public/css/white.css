@@ -1165,6 +1165,12 @@ footer {
         justify-content: center;
     }
 
+    nav ul:first-of-type {
+        position: static;
+        left: auto;
+        transform: none;
+    }
+
     main {
         margin: 1rem auto;
         padding: 1rem;
