@@ -20,78 +20,135 @@ class EmbeddingAPI {
         $this->pythonEnv = __DIR__ . '/../lightWikiBackEnd/lightwiki_env/bin/python';
         $this->graphPath = __DIR__ . '/assets/graph3d.json';
     }
-
+    
     public function get_blobs(){
         $sql = "SELECT embedding FROM pages WHERE embedding IS NOT NULL AND embedding != ''";
         $blobs = $this->db->fetchAll($sql);
-
         $arr = array_map(function($row) {
             return base64_encode($row['embedding']);
         }, $blobs);
         
-        return json_encode($arr);
+        return $arr; // Ritorna array, non JSON
     }
-
+    
     private function get_page_info($blob){
-        $sql = "SELECT p.id, p.title, p.created_at, p.content, p.updated_at, p.created_by  FROM pages p WHERE embedding = ?";
-        $info = $this->db->fetch($sql, [$blob]); // fetch singolo, non fetchAll
+        $sql = "SELECT p.id, p.title, p.created_at, p.content, p.updated_at, p.created_by FROM pages p WHERE embedding = ?";
+        $info = $this->db->fetch($sql, [$blob]);
         return $info;
     }
-
+    
     public function create_graph(){
-        $blobs_json = $this->get_blobs();
+        $blobs = $this->get_blobs();
         
-        // Scrivi JSON in file temporaneo
-        $temp_file = tempnam(sys_get_temp_dir(), 'blobs_');
-        file_put_contents($temp_file, $blobs_json);
+        if (empty($blobs)) {
+            return json_encode(['error' => 'No embeddings found in database']);
+        }
         
-        // Chiama Python
-        $command = "{$this->pythonEnv} {$this->pythonScriptPath} graph_nearest " . escapeshellarg($temp_file) . " 2>&1";
-        $graph = shell_exec($command);
+        // Passa JSON via stdin a Python
+        $blobs_json = json_encode($blobs);
         
-        // Pulisci
-        unlink($temp_file);
+        $descriptors = [
+            0 => ['pipe', 'r'], // stdin
+            1 => ['pipe', 'w'], // stdout
+            2 => ['pipe', 'w']  // stderr
+        ];
         
-        if (empty($graph)) {
-            return json_encode(['error' => 'Python script returned empty output']);
+        $command = "{$this->pythonEnv} {$this->pythonScriptPath} graph_nearest -";
+        $process = proc_open($command, $descriptors, $pipes);
+        
+        if (!is_resource($process)) {
+            return json_encode(['error' => 'Failed to start Python process']);
+        }
+        
+        // Scrivi JSON su stdin
+        fwrite($pipes[0], $blobs_json);
+        fclose($pipes[0]);
+        
+        // Leggi output
+        $output = stream_get_contents($pipes[1]);
+        $errors = stream_get_contents($pipes[2]);
+        
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        
+        $return_code = proc_close($process);
+        
+        if ($return_code !== 0) {
+            return json_encode([
+                'error' => 'Python script failed',
+                'stderr' => $errors,
+                'return_code' => $return_code
+            ]);
+        }
+        
+        if (empty($output)) {
+            return json_encode([
+                'error' => 'Python script returned empty output',
+                'stderr' => $errors
+            ]);
         }
         
         // Salva il grafo
-        if (file_put_contents($this->graphPath, $graph)) {
-            return json_encode(['success' => true, 'message' => 'Graph saved successfully']);
+        if (file_put_contents($this->graphPath, $output)) {
+            return json_encode([
+                'success' => true,
+                'message' => 'Graph created successfully',
+                'nodes_count' => count($blobs)
+            ]);
         } else {
             return json_encode(['error' => 'Failed to save graph file']);
         }
     }
-
+    
     public function get_graph(){
         if (!file_exists($this->graphPath)) {
             return json_encode(['error' => 'Graph file not found. Run create-graph first.']);
         }
         return file_get_contents($this->graphPath);
     }
-
+    
     public function search($text){
-        $blob = shell_exec("../lightWikiBackEnd/lightwiki_env/bin/python   $this->pythonScriptPath get_blob $text"); //raw blob
-
-        $blobs = $this->get_blobs(); 
-
-        $nearest_blobs_json = shell_exec("../lightWikiBackEnd/lightwiki_env/bin/python  $this->pythonScriptPath k_nearest $blob 5 $blobs");
-        $nearest_blobs = json_decode($nearest_blobs_json, true);
-
-        error_log(print_r($nearest_blobs["blobs"], true));
-
-
+        // 1. Ottieni blob per il testo di ricerca
+        $command = escapeshellcmd("{$this->pythonEnv} {$this->pythonScriptPath}") . " get_blob " . escapeshellarg($text);
+        $blob_b64 = trim(shell_exec($command));
+        
+        if (empty($blob_b64)) {
+            return json_encode(['error' => 'Failed to generate embedding for search text']);
+        }
+        
+        // 2. Ottieni tutti i blob
+        $blobs = $this->get_blobs();
+        $blobs_json = json_encode($blobs);
+        
+        // 3. Trova k nearest
+        $command = escapeshellcmd("{$this->pythonEnv} {$this->pythonScriptPath}") 
+                  . " k_nearest " 
+                  . escapeshellarg($blob_b64) 
+                  . " " . escapeshellarg($blobs_json) 
+                  . " 5";
+        
+        $nearest_json = shell_exec($command);
+        $nearest = json_decode($nearest_json, true);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return json_encode([
+                'error' => 'Failed to parse Python output',
+                'output' => $nearest_json
+            ]);
+        }
+        
+        // 4. Recupera info pagine
         $infos = [];
-        foreach($nearest_blobs["blobs"] as $blob_a){
-            $blob_raw = base64_decode($blob_a); // Decodifica da base64 a raw
+        foreach($nearest as $item) {
+            $blob_raw = base64_decode($item['blobs']);
             $page_info = $this->get_page_info($blob_raw);
             if ($page_info) {
-                $infos[] = $page_info;  // accumulo tutte le info in un array
+                $page_info['distance'] = $item['distance'];
+                $infos[] = $page_info;
             }
         }
-
-        return $infos; 
+        
+        return json_encode($infos);
     }
 }
 
@@ -99,7 +156,6 @@ class EmbeddingAPI {
 header('Content-Type: application/json');
 
 $api = new EmbeddingAPI(__DIR__ . "/../storage/litewiki.db");
-
 $action = $_GET['action'] ?? '';
 
 switch($action) {
@@ -121,7 +177,7 @@ switch($action) {
         break;
         
     case 'get-blobs':
-        echo $api->get_blobs();
+        echo json_encode($api->get_blobs());
         break;
         
     default:
