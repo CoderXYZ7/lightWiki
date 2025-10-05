@@ -35,18 +35,18 @@ $pages = [
     <div class='card'>
     <h3 class='card-title-small'><i class='fas fa-search margin-right-half'></i>Search</h3>
     <p class='card-text-small'>Find articles, images, and more with our powerful search engine.</p>
-    <a href='/?action=search' class='link-primary'>Search LiteWiki →</a>
+    <a href='/?action=search' class='link-primary'>Search LightWiki →</a>
     </div>
 
     <div class='card'>
     <h3 class='card-title-small'><i class='fas fa-list margin-right-half'></i>All pages</h3>
-    <p class='card-text-small'>Browse the complete list of all articles in LiteWiki.</p>
+    <p class='card-text-small'>Browse the complete list of all articles in LightWiki.</p>
     <a href='/?action=list' class='link-primary'>Browse articles →</a>
     </div>
 
     <div class='card'>
     <h3 class='card-title-small'><i class='fas fa-code margin-right-half'></i>API</h3>
-    <p class='card-text-small'>Integrate with LiteWiki using our REST API for external applications.</p>
+    <p class='card-text-small'>Integrate with LightWiki using our REST API for external applications.</p>
     <a href='/?action=view&page=API+Documentation' class='link-primary'>View documentation →</a>
     </div>
 
@@ -62,9 +62,9 @@ $pages = [
     </div>
 </div>",
 
-    "Getting Started" => "# 🚀 Getting Started with LiteWiki
+    "Getting Started" => "# 🚀 Getting Started with LightWiki
 
-Welcome to your new LiteWiki! This lightweight wiki framework is designed to be fast, portable, and extensible.
+Welcome to your new LightWiki! This lightweight wiki framework is designed to be fast, portable, and extensible.
 
 ## 📋 Quick Start
 
@@ -113,7 +113,7 @@ Welcome to your new LiteWiki! This lightweight wiki framework is designed to be 
 
     "Markdown Guide" => "# 📝 Markdown Guide
 
-LiteWiki supports full **GitHub Flavored Markdown** with additional features like syntax highlighting and diagrams.
+LightWiki supports full **GitHub Flavored Markdown** with additional features like syntax highlighting and diagrams.
 
 ## 🎨 Text Formatting
 
@@ -157,7 +157,7 @@ Inline `code` in text
 ```javascript
 // Code block with syntax highlighting
 function hello() {
-    console.log('Hello, LiteWiki!');
+    console.log('Hello, LightWiki!');
 }
 ```
 ```
@@ -176,7 +176,7 @@ function hello() {
 ### Horizontal Rules
 ---
 
-## 🎯 LiteWiki Extensions
+## 🎯 LightWiki Extensions
 
 ### Mermaid Diagrams
 ```mermaid
@@ -204,9 +204,9 @@ graph TD
 
 *For more advanced features, check the [API Documentation](API)*",
 
-    "API Documentation" => "# <i class='fas fa-code'></i> LiteWiki API Documentation
+    "API Documentation" => "# <i class='fas fa-code'></i> LightWiki API Documentation
 
-LiteWiki provides a comprehensive REST API for external integrations and automation.
+LightWiki provides a comprehensive REST API for external integrations and automation.
 
 ## <i class='fas fa-key'></i> Authentication
 
@@ -493,7 +493,7 @@ $newPage = apiRequest('?action=create', 'POST', [
 ### Data Validation
 - Validate all input data on both client and server
 - Sanitize content before storing
-- Use prepared statements (handled automatically by LiteWiki)
+- Use prepared statements (handled automatically by LightWiki)
 
 ### CORS Configuration
 The API includes CORS headers for cross-origin requests:
@@ -521,14 +521,14 @@ The API includes CORS headers for cross-origin requests:
 
 *For more examples and advanced usage, check the [Getting Started](Getting Started) guide",
 
-    "System Architecture" => "# 🏗️ LiteWiki System Architecture
+    "System Architecture" => "# 🏗️ LightWiki System Architecture
 
 ## 📊 High-Level Overview
 
 ```mermaid
 graph TB
     A[Web Browser] --> B[PHP Server]
-    B --> C[LiteWiki Core]
+    B --> C[LightWiki Core]
     C --> D[(SQLite Database)]
     C --> E[Markdown Processor]
     C --> F[Authentication System]
