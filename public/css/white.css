@@ -40,6 +40,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
+    position: relative;
 }
 
 nav {
@@ -64,6 +65,12 @@ nav ul {
     align-items: center;
 }
 
+nav ul:first-of-type {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
 nav ul li a {
     color: var(--text-color);
     text-decoration: none;
@@ -71,6 +78,19 @@ nav ul li a {
     border-radius: var(--border-radius);
     transition: var(--transition);
     font-weight: 500;
+}
+
+nav ul:last-of-type li a[href*="login"],
+nav ul:last-of-type li a[href*="register"] {
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+nav ul:last-of-type li a[href*="login"]:hover,
+nav ul:last-of-type li a[href*="register"]:hover {
+    background-color: var(--primary-color);
+    color: white;
 }
 
 nav ul li a:hover {
