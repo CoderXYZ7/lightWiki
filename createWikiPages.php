@@ -27,316 +27,346 @@ $pages = [
 
 
 <div id='graphContainer' style='width:100vw; height:100vh; position:relative; background:#fff; overflow:hidden; touch-action:none; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;'>
-
-<style>
-  #graphContainer {
-    aspect-ratio: 2 / 1;
-    position: relative;
-    width: 100%;
-    max-width: 1000px;
-    height: auto;
-    max-height: 500px;
-    margin: 0 auto;
-    padding: 20px;
-    border: 1px solid #ddd;
-    background: #fefefe;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    overflow: hidden;
-  }
-
-  #graphContainer canvas {
-    display: block;
-    width: 100%;
-    height: auto;
-    cursor: pointer;
-    background: #ffffff;
-    touch-action: none;
-    border-radius: 8px;
-  }
-
-  #graphContainer canvas.dragging {
-    cursor: grabbing;
-  }
-
-  #graphContainer #info {
-    position: absolute;
-    top: 20px; left: 20px;
-    background: rgba(255,255,255,0.95);
-    color: #333;
-    padding: 16px 20px;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-    font-size: 13px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(0,0,0,0.1);
-    line-height: 1.6;
-    z-index: 2;
-  }
-
-  #graphContainer #info strong {
-    color: #2c7fb8;
-    font-size: 15px;
-    display: block;
-    margin-bottom: 8px;
-  }
-
-  #graphContainer #nodeInfo {
-    position: absolute;
-    top: 20px; right: 20px;
-    background: rgba(255,255,255,0.95);
-    color: #333;
-    padding: 16px 20px;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-    font-size: 13px;
-    display: none;
-    max-width: 300px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(0,0,0,0.1);
-    line-height: 1.6;
-    z-index: 2;
-  }
-
-  #graphContainer #nodeInfo strong {
-    color: #2c7fb8;
-    font-size: 15px;
-    display: block;
-    margin-bottom: 8px;
-  }
-
-  #graphContainer #nodeInfo img {
-    max-width: 100%;
-    border-radius: 8px;
-    margin-top: 10px;
-    border: 2px solid rgba(44,127,184,0.3);
-  }
-
-  #graphContainer #loading {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    color: #2c7fb8;
-    font-size: 18px;
-    font-weight: 600;
-    z-index: 3;
-    background: rgba(255,255,255,0.9);
-    padding: 10px 16px;
-    border-radius: 8px;
-    border: 1px solid rgba(0,0,0,0.1);
-  }
-
-  #graphContainer .close-btn {
-    position: absolute;
-    top: 10px; right: 10px;
-    background: rgba(0,0,0,0.1);
-    border: none;
-    color: #333;
-    width: 24px; height: 24px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 16px;
-    line-height: 1;
-    transition: all 0.2s;
-  }
-
-  #graphContainer .close-btn:hover {
-    background: rgba(0,0,0,0.2);
-    transform: scale(1.1);
-  }
-
-  @media (max-width: 768px) {
+  
+  <style>
     #graphContainer {
-      padding: 16px;
+      aspect-ratio: 2 / 1;
+      position: relative;
+      width: 100%;
+      max-width: 1000px;
+      height: auto;
+      max-height: 500px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      background: #fefefe;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      overflow: hidden;
     }
 
-    #graphContainer #info,
+    #graphContainer canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      cursor: pointer;
+      background: #ffffff;
+      touch-action: none;
+      border-radius: 8px;
+    }
+
+    #graphContainer canvas.dragging {
+      cursor: grabbing;
+    }
+
+    #graphContainer #info {
+      position: absolute;
+      top: 20px; left: 20px;
+      background: rgba(255,255,255,0.95);
+      color: #333;
+      padding: 16px 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      font-size: 13px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0,0,0,0.1);
+      line-height: 1.6;
+      z-index: 2;
+    }
+
+    #graphContainer #info strong {
+      color: #2c7fb8;
+      font-size: 15px;
+      display: block;
+      margin-bottom: 8px;
+    }
+
     #graphContainer #nodeInfo {
-      font-size: 12px;
-      padding: 12px 16px;
-      max-width: 90%;
+      position: absolute;
+      top: 20px; right: 20px;
+      background: rgba(255,255,255,0.95);
+      color: #333;
+      padding: 16px 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      font-size: 13px;
+      display: none;
+      max-width: 300px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0,0,0,0.1);
+      line-height: 1.6;
+      z-index: 2;
     }
 
-    #graphContainer #info strong,
     #graphContainer #nodeInfo strong {
-      font-size: 14px;
+      color: #2c7fb8;
+      font-size: 15px;
+      display: block;
+      margin-bottom: 8px;
     }
-  }
-</style>
 
+    #graphContainer #nodeInfo img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-top: 10px;
+      border: 2px solid rgba(44,127,184,0.3);
+    }
 
-<div id='loading'>Loading graph...</div>
-<canvas id='graph' width='600' height='600'></canvas>
+    #graphContainer #loading {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      color: #2c7fb8;
+      font-size: 18px;
+      font-weight: 600;
+      z-index: 3;
+      background: rgba(255,255,255,0.9);
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
 
-<div id='info'>
-  <strong>Controls</strong>
-  • 1 finger: Rotate<br>
-  • 2 fingers: Zoom + Pan<br>
-  • Wheel: Zoom<br>
-  • Click/Tap node: Show info
-</div>
+    #graphContainer .close-btn {
+      position: absolute;
+      top: 10px; right: 10px;
+      background: rgba(0,0,0,0.1);
+      border: none;
+      color: #333;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      transition: all 0.2s;
+    }
 
-<div id='nodeInfo'>
-  <button class='close-btn' onclick='document.getElementById('nodeInfo').style.display='none''  >×</button>
-  <div id='nodeContent'></div>
-</div>
+    #graphContainer .close-btn:hover {
+      background: rgba(0,0,0,0.2);
+      transform: scale(1.1);
+    }
 
+    @media (max-width: 768px) {
+      #graphContainer {
+        padding: 16px;
+      }
 
-<script>
-(async function() {
-  // Inserisci qui il tuo JSON di dati (o fai fetch da file esterno se preferisci)
-  // Per esempio in questo esempio semplice inserisco dati dummy statici:
-  const response = await fetch('./assets/graph3d.json');
-  const data = await response.json();
+      #graphContainer #info,
+      #graphContainer #nodeInfo {
+        font-size: 12px;
+        padding: 12px 16px;
+        max-width: 90%;
+      }
 
-  // Setup canvas
-  const canvas = document.getElementById('graph');
-  const ctx = canvas.getContext('2d');
-  canvas.width = canvas.clientWidth;
-  canvas.height = canvas.clientHeight;
-
-  let rotationX = 0, rotationY = 0, zoom = 20;
-  let drag = false, lastX=0, lastY=0;
-  const nodes = data.nodes.map(n => ({...n, color: '#2c7fb8'}));
-  const edges = data.edges;
-  const nodeRadius = 8;
-
-  // Simple 3D rotation matrices helpers
-  function rotateX(x, y, z, angle) {
-    const cos = Math.cos(angle);
-    const sin = Math.sin(angle);
-    return {
-      x: x,
-      y: y * cos - z * sin,
-      z: y * sin + z * cos
-    };
-  }
-  function rotateY(x, y, z, angle) {
-    const cos = Math.cos(angle);
-    const sin = Math.sin(angle);
-    return {
-      x: x * cos + z * sin,
-      y: y,
-      z: -x * sin + z * cos
-    };
-  }
-
-  function project(x, y, z) {
-    const scale = zoom / (zoom + z);
-    return {
-      x: canvas.width / 2 + x * scale + panX,
-      y: canvas.height / 2 + y * scale + panY,
-      scale
-    };
-  }
-
-  // For panning
-  let panX = 0, panY = 0;
-
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Rotate and project nodes
-    const projected = nodes.map(n => {
-      let r = rotateX(n.x, n.y, n.z, rotationX);
-      r = rotateY(r.x, r.y, r.z, rotationY);
-      return {...n, ...project(r.x, r.y, r.z)};
-    });
-
-    // Draw edges
-    ctx.strokeStyle = '#ccc';
-    ctx.lineWidth = 1;
-    edges.forEach(e => {
-      const a = projected.find(n => n.id === e.source);
-      const b = projected.find(n => n.id === e.target);
-      ctx.beginPath();
-      ctx.moveTo(a.x, a.y);
-      ctx.lineTo(b.x, b.y);
-      ctx.stroke();
-    });
-
-    // Draw nodes
-    projected.forEach(n => {
-      ctx.beginPath();
-      ctx.fillStyle = n.color;
-      ctx.shadowColor = 'rgba(0,0,0,0.3)';
-      ctx.shadowBlur = 5;
-      ctx.arc(n.x, n.y, nodeRadius, 0, 2*Math.PI);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    });
-  }
-
-  function onMouseDown(e) {
-    drag = true;
-    lastX = e.clientX;
-    lastY = e.clientY;
-    canvas.classList.add('dragging');
-  }
-  function onMouseUp(e) {
-    drag = false;
-    canvas.classList.remove('dragging');
-  }
-  function onMouseMove(e) {
-    if (!drag) return;
-    const dx = e.clientX - lastX;
-    const dy = e.clientY - lastY;
-    rotationY += dx * 0.01;
-    rotationX += dy * 0.01;
-    lastX = e.clientX;
-    lastY = e.clientY;
-  }
-  function onWheel(e) {
-    zoom += e.deltaY * -0.5;
-    zoom = Math.min(Math.max(zoom, 100), 1000);
-  }
-
-  // Handle clicks on nodes
-  canvas.addEventListener('click', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    for(let n of nodes) {
-      // Project node again for click detection
-      let r = rotateX(n.x, n.y, n.z, rotationX);
-      r = rotateY(r.x, r.y, r.z, rotationY);
-      const p = project(r.x, r.y, r.z);
-      const dx = mouseX - p.x;
-      const dy = mouseY - p.y;
-      if(dx*dx + dy*dy < nodeRadius*nodeRadius) {
-        const infoBox = document.getElementById('nodeInfo');
-        const content = document.getElementById('nodeContent');
-        content.innerHTML = '<strong>Node ' + n.id + '</strong><br>' + (data.blobs[n.id] && data.blobs[n.id].blob ? data.blobs[n.id].blob : '');
-        infoBox.style.display = 'block';
-        break;
+      #graphContainer #info strong,
+      #graphContainer #nodeInfo strong {
+        font-size: 14px;
       }
     }
-  });
+  </style>
 
-  canvas.addEventListener('mousedown', onMouseDown);
-  window.addEventListener('mouseup', onMouseUp);
-  window.addEventListener('mousemove', onMouseMove);
-  canvas.addEventListener('wheel', function(e) {
-  e.preventDefault();      // 🔒 blocca lo scroll pagina
-  onWheel(e);
-}, { passive: false });
+  <div id='loading'>Loading graph...</div>
+  <canvas id='graph' width='600' height='600'></canvas>
 
-  function animate() {
-    draw();
-    requestAnimationFrame(animate);
-  }
-  animate();
+  <div id='info'>
+    <strong>Controls</strong>
+    • 1 finger: Rotate<br>
+    • 2 fingers: Zoom + Pan<br>
+    • Wheel: Zoom<br>
+    • Click/Tap node: Show info
+  </div>
 
-  document.getElementById('loading').style.display = 'none';
-})();
-</script>
+  <div id='nodeInfo'>
+    <button class='close-btn' onclick='document.getElementById('nodeInfo').style.display='none''>×</button>
+    <div id='nodeContent'></div>
+  </div>
 
+  <script>
+    (async function() {
+      // Carica dati JSON (qui un esempio inline, sostituisci con fetch reale)
+      // Se vuoi puoi fare fetch con:
+      // const response = await fetch('./assets/graph3d.json');
+      // const data = await response.json();
+
+      // Per test: dati dummy
+      const data = {
+        nodes: [
+          {id: 1, x: -100, y: -50, z: 100},
+          {id: 2, x: 100, y: -50, z: 100},
+          {id: 3, x: 0, y: 100, z: 0},
+          {id: 4, x: 0, y: 0, z: -150}
+        ],
+        edges: [
+          {source: 1, target: 2},
+          {source: 1, target: 3},
+          {source: 2, target: 3},
+          {source: 3, target: 4}
+        ],
+        blobs: {
+          1: {blob: 'Info nodo 1'},
+          2: {blob: 'Info nodo 2'},
+          3: {blob: 'Info nodo 3'},
+          4: {blob: 'Info nodo 4'}
+        }
+      };
+
+      // Setup canvas e contesto
+      const canvas = document.getElementById('graph');
+      const ctx = canvas.getContext('2d');
+
+      // Rendi canvas nitido con devicePixelRatio
+      canvas.width = canvas.clientWidth * window.devicePixelRatio;
+      canvas.height = canvas.clientHeight * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+      // Variabili stato
+      let rotationX = 0, rotationY = 0;
+      let zoom = 400; // zoom iniziale adeguato
+      let panX = 0, panY = 0;
+      let drag = false, lastX = 0, lastY = 0;
+      const nodeRadius = 8;
+
+      // Colora i nodi di blu
+      const nodes = data.nodes.map(n => ({...n, color: '#2c7fb8'}));
+      const edges = data.edges;
+
+      // Funzioni rotazione 3D
+      function rotateX(x, y, z, angle) {
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+        return {
+          x: x,
+          y: y * cos - z * sin,
+          z: y * sin + z * cos
+        };
+      }
+      function rotateY(x, y, z, angle) {
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+        return {
+          x: x * cos + z * sin,
+          y: y,
+          z: -x * sin + z * cos
+        };
+      }
+
+      // Proiezione 3D in 2D con pan applicato dopo scala
+      function project(x, y, z) {
+        const scale = zoom / (zoom + z);
+        return {
+          x: canvas.width / (2 * window.devicePixelRatio) + x * scale + panX,
+          y: canvas.height / (2 * window.devicePixelRatio) + y * scale + panY,
+          scale
+        };
+      }
+
+      // Disegna tutto
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Calcola nodi ruotati e proiettati
+        const projected = nodes.map(n => {
+          let r = rotateX(n.x, n.y, n.z, rotationX);
+          r = rotateY(r.x, r.y, r.z, rotationY);
+          return {...n, ...project(r.x, r.y, r.z)};
+        });
+
+        // Disegna archi
+        ctx.strokeStyle = '#ccc';
+        ctx.lineWidth = 1;
+        edges.forEach(e => {
+          const a = projected.find(n => n.id === e.source);
+          const b = projected.find(n => n.id === e.target);
+          if(a && b){
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        });
+
+        // Disegna nodi
+        projected.forEach(n => {
+          ctx.beginPath();
+          ctx.fillStyle = n.color;
+          ctx.shadowColor = 'rgba(0,0,0,0.3)';
+          ctx.shadowBlur = 5;
+          ctx.arc(n.x, n.y, nodeRadius, 0, 2 * Math.PI);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        });
+      }
+
+      // Eventi mouse per rotazione drag
+      function onMouseDown(e) {
+        drag = true;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        canvas.classList.add('dragging');
+      }
+      function onMouseUp(e) {
+        drag = false;
+        canvas.classList.remove('dragging');
+      }
+      function onMouseMove(e) {
+        if (!drag) return;
+        const dx = e.clientX - lastX;
+        const dy = e.clientY - lastY;
+        rotationY += dx * 0.01;
+        rotationX += dy * 0.01;
+        lastX = e.clientX;
+        lastY = e.clientY;
+      }
+
+      // Zoom con rotella mouse
+      function onWheel(e) {
+        zoom += e.deltaY * -0.5;
+        zoom = Math.min(Math.max(zoom, 100), 1000);
+      }
+      canvas.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        onWheel(e);
+      }, { passive: false });
+
+      // Click sui nodi per info
+      canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        const clicked = nodes.find(n => {
+          let r = rotateX(n.x, n.y, n.z, rotationX);
+          r = rotateY(r.x, r.y, r.z, rotationY);
+          const p = project(r.x, r.y, r.z);
+          const dx = p.x - mx;
+          const dy = p.y - my;
+          return Math.sqrt(dx*dx + dy*dy) < nodeRadius + 5;
+        });
+        if(clicked){
+          const infoDiv = document.getElementById('nodeInfo');
+          const contentDiv = document.getElementById('nodeContent');
+          contentDiv.innerHTML = `<strong>Node ${clicked.id}</strong><br>${data.blobs[clicked.id].blob}`;
+          infoDiv.style.display = 'block';
+        }
+      });
+
+      // Eventi drag rotazione
+      canvas.addEventListener('mousedown', onMouseDown);
+      window.addEventListener('mouseup', onMouseUp);
+      window.addEventListener('mousemove', onMouseMove);
+
+      // Animazione
+      function animate() {
+        draw();
+        requestAnimationFrame(animate);
+      }
+
+      // Rimuovi loading e avvia animazione
+      document.getElementById('loading').style.display = 'none';
+      animate();
+
+    })();
+  </script>
 </div>
 
-
-
-
-</div>
 
 
 
