@@ -28,7 +28,7 @@ $pages = [
 
 
 
-## <i class='fa-solid fa-square-up-right fa-beat fa-2x'></i> Explore LightWiki
+## <i class='fa-solid fa-square-up-right fa-beat'></i> Explore LightWiki
 
 <div class='grid-3'>
 
