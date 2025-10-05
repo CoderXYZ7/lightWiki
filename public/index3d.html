@@ -605,10 +605,6 @@ class Graph3D {
     ).length;
     html += `Connections: ${connections}<br>`;
     
-    if (node.blob) {
-      html += `<img src="data:image/png;base64,${node.blob}" alt="Node ${node.id}" />`;
-    }
-    
     contentDiv.innerHTML = html;
     infoDiv.style.display = 'block';
   }
