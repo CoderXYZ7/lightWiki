@@ -643,7 +643,6 @@ function showSearchForm()
         : [];
     $dateFrom = $_GET["date_from"] ?? "";
     $dateTo = $_GET["date_to"] ?? "";
-    $author = $_GET["author"] ?? "";
 
     $results = [];
     $filters = [];
@@ -658,17 +657,13 @@ function showSearchForm()
     if (!empty($dateTo)) {
         $filters["date_to"] = $dateTo;
     }
-    if (!empty($author)) {
-        $filters["author"] = $author;
-    }
 
     if ($query || !empty($filters)) {
         $results = $wiki->searchPages($query, $filters);
     }
 
-    // Get all available tags and authors for filter dropdowns
+    // Get all available tags for filter dropdowns
     $allTags = $wiki->getAllTags();
-    $allAuthors = $wiki->getAllAuthors();
 
     // Hero section with search
     echo '<div class="search-hero">';
@@ -757,46 +752,6 @@ function showSearchForm()
     echo "</div>";
     echo "</div>";
 
-    // Author filter
-    echo '<div class="filter-card">';
-    echo '<label for="adv-author" class="filter-label">Filter by Author</label>';
-    echo '<div class="author-filter-container">';
-    echo '<input type="text" class="author-search-input" placeholder="Search authors..." data-filter="authors">';
-    echo '<select name="author" id="adv-author" class="filter-select hidden" size="6">';
-    echo '<option value="">All Authors</option>';
-    foreach ($allAuthors as $authUser) {
-        $selected = $author === $authUser["username"] ? "selected" : "";
-        echo '<option value="' .
-            htmlspecialchars($authUser["username"]) .
-            '" ' .
-            $selected .
-            ">" .
-            htmlspecialchars($authUser["username"]) .
-            "</option>";
-    }
-    echo "</select>";
-    echo '<div class="author-selector" id="author-selector">';
-    $allOptionSelected = empty($author) ? "selected" : "";
-    echo '<div class="author-option ' .
-        $allOptionSelected .
-        '" data-value="">All Authors</div>';
-    foreach ($allAuthors as $authUser) {
-        $selected = $author === $authUser["username"] ? "selected" : "";
-        echo '<div class="author-option ' .
-            $selected .
-            '" data-value="' .
-            htmlspecialchars($authUser["username"]) .
-            '">' .
-            htmlspecialchars($authUser["username"]) .
-            "</div>";
-    }
-    echo "</div>";
-    echo '<input type="hidden" name="author" id="selected-author" value="' .
-        htmlspecialchars($author) .
-        '">';
-    echo "</div>";
-    echo "</div>";
-
     echo "</div>";
 
     echo '<div class="filter-actions">';
@@ -837,13 +792,6 @@ function showSearchForm()
             "type" => "date_to",
             "label" => "To",
             "value" => $dateTo,
-        ];
-    }
-    if ($author) {
-        $activeFilters[] = [
-            "type" => "author",
-            "label" => "Author",
-            "value" => $author,
         ];
     }
 
@@ -942,29 +890,8 @@ function showSearchForm()
         echo "</div>";
         echo "</div>";
     }
-
-    // Popular tags section
-    if (!empty($allTags)) {
-        echo '<div class="popular-tags-section">';
-        echo '<div class="container">';
-        echo "<h3>Popular Tags</h3>";
-        echo '<div class="popular-tags">';
-        foreach (array_slice($allTags, 0, 15) as $tag) {
-            $isSelected = in_array($tag["name"], $selectedTags);
-            $tagClass = $isSelected ? "tag-link active" : "tag-link";
-            echo '<a href="' .
-                addTagToUrl($tag["name"]) .
-                '" class="' .
-                $tagClass .
-                '">' .
-                htmlspecialchars($tag["name"]) .
-                "</a>";
-        }
-        echo "</div>";
-        echo "</div>";
-        echo "</div>";
-    }
 }
+
 
 
 
