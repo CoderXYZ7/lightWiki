@@ -18,7 +18,7 @@ if (!$auth->login("admin", "admin123")) {
 
 $pages = [
     "Home" => "<div class='moving-text-container'>
-    <div class='moving-text'>Welcome to LightWiki</div>
+    <div class='moving-text'>NASA  PROJECT  2026</div>
 </div>
 
 <div class='text-center margin-y-2'>

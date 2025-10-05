@@ -1472,6 +1472,7 @@ footer {
 }
 
 .moving-text {
+    color: var(--primary-color);
     font-size: 36px;
     font-weight: bold;
     animation: slideForward 8s linear infinite;
