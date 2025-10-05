@@ -35,7 +35,6 @@ $pages = [
 
 
 
-
 <h2><i class='fa-solid fa-square-up-right'></i> Explore LightWiki</h2>
 
 <div class='grid-3'>
