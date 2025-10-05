@@ -177,7 +177,7 @@ $pages = [
 </div>
 
 <div id='nodeInfo'>
-  <button class='close-btn' onclick='document.getElementById('nodeInfo').style.display='none''>×</button>
+  <button class='close-btn' onclick='document.getElementById('nodeInfo').style.display='none''  >×</button>
   <div id='nodeContent'></div>
 </div>
 </div>
@@ -195,7 +195,7 @@ $pages = [
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
 
-  let rotationX = 0, rotationY = 0, zoom = 100;
+  let rotationX = 0, rotationY = 0, zoom = 20;
   let drag = false, lastX=0, lastY=0;
   const nodes = data.nodes.map(n => ({...n, color: '#2c7fb8'}));
   const edges = data.edges;
