@@ -28,7 +28,10 @@ class EmbeddingAPI {
         $blobs = $this->db->fetchAll($sql);
 
         $result = [
-            "blobs" => array_map(function($row) { return base64_encode($row['embedding']); }, $blobs)
+            "blobs" => array_map(function($row) { 
+                // Controlla se è già una stringa o se è binario
+                return is_string($row['embedding']) ? $row['embedding'] : base64_encode($row['embedding']); 
+            }, $blobs)
         ];
 
         return json_encode($result);
