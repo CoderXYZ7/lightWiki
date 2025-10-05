@@ -141,7 +141,7 @@ $pages = [
 (async function() {
   // Inserisci qui il tuo JSON di dati (o fai fetch da file esterno se preferisci)
   // Per esempio in questo esempio semplice inserisco dati dummy statici:
-  const response = await fetch('./public/assets/graph3d.json');
+  const response = await fetch('./assets/graph3d.json');
   const data = await response.json();
 
   // Setup canvas
