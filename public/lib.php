@@ -36,7 +36,7 @@ class EmbeddingAPI {
 
     private function get_page_info($blob_b64){
         $blob = base64_decode($blob_b64);
-        $sql = "SELECT p.id, p.title, p.created_at FROM pages p WHERE embedding = ?";
+        $sql = "SELECT p.id, p.title, p.created_at, p.content, p.updated_at, p.created_by  FROM pages p WHERE embedding = ?";
         $info = $this->db->fetch($sql, [$blob]); // fetch singolo, non fetchAll
         return $info;
     }

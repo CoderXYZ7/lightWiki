@@ -538,7 +538,6 @@ function showAISearchForm()
                                 <h3><a href="/?action=view&page=${encodeURIComponent(result.title)}">${escapeHtml(result.title)}</a></h3>
                                 <div class="result-meta">
                                     <span class="result-created-by"><i class="fas fa-user-plus"></i> Created by: ${escapeHtml(result.created_by || 'Unknown')}</span>
-                                    <span class="result-authors"><i class="fas fa-pen"></i> Written by: ${escapeHtml(result.authors || 'Unknown')}</span>
                                     <span class="result-date"><i class="fas fa-calendar"></i> ${formatDate(result.updated_at)}</span>
                                 </div>
                             </div>
