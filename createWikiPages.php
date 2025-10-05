@@ -30,9 +30,12 @@ $pages = [
 
 <style>
   #graphContainer {
+    aspect-ratio: 1 / 1;
     position: relative;
     width: 100%;
-    max-width: 700px;
+    max-width: 500px;
+    height: auto;
+    max-height: 500px;
     margin: 0 auto;
     padding: 20px;
     border: 1px solid #ddd;
@@ -192,7 +195,7 @@ $pages = [
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
 
-  let rotationX = 0, rotationY = 0, zoom = 350;
+  let rotationX = 0, rotationY = 0, zoom = 600;
   let drag = false, lastX=0, lastY=0;
   const nodes = data.nodes.map(n => ({...n, color: '#2c7fb8'}));
   const edges = data.edges;
@@ -313,7 +316,10 @@ $pages = [
   canvas.addEventListener('mousedown', onMouseDown);
   window.addEventListener('mouseup', onMouseUp);
   window.addEventListener('mousemove', onMouseMove);
-  canvas.addEventListener('wheel', onWheel);
+  canvas.addEventListener('wheel', (e) => {
+  e.preventDefault(); // ✅ imposta qui!
+  onWheel(e);
+}, { passive: false });
 
   function animate() {
     draw();
