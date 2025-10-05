@@ -329,17 +329,28 @@ $pages = [
 
       // Click sui nodi per info
       canvas.addEventListener('click', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const mx = e.clientX - rect.left;
-        const my = e.clientY - rect.top;
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
         const clicked = nodes.find(n => {
-          let r = rotateX(n.x, n.y, n.z, rotationX);
-          r = rotateY(r.x, r.y, r.z, rotationY);
-          const p = project(r.x, r.y, r.z);
-          const dx = p.x - mx;
-          const dy = p.y - my;
-          return Math.sqrt(dx*dx + dy*dy) < nodeRadius + 5;
+            // Ruota e proietta ogni nodo per controllare la distanza
+            let r = rotateX(n.x, n.y, n.z, rotationX);
+            r = rotateY(r.x, r.y, r.z, rotationY);
+            const p = project(r.x, r.y, r.z);
+            const dx = p.x - mx;
+            const dy = p.y - my;
+            return Math.sqrt(dx * dx + dy * dy) < nodeRadius + 5; // tolleranza click
         });
+
+        if (clicked) {
+            const infoDiv = document.getElementById('nodeInfo');
+            const contentDiv = document.getElementById('nodeContent');
+            contentDiv.innerHTML = `<strong>Node ${clicked.id}</strong><br>${data.blobs[clicked.id].blob}`;
+            infoDiv.style.display = 'block';
+        }
+        });
+
         if(clicked){
           const infoDiv = document.getElementById('nodeInfo');
           const contentDiv = document.getElementById('nodeContent');
