@@ -1,166 +1,80 @@
-# LiteWiki
+# LightWiki: A Space Biology Knowledge Engine
 
-LiteWiki is a lightweight wiki framework built with **PHP**, **SQLite**, **HTML**, **CSS**, and **JavaScript**.
-It is designed to be fast, portable, and extensible — with support for **extended Markdown**, **Mermaid diagrams**, and a **REST-like API** for external automation.
+**LightWiki** is a lightweight, AI-powered wiki engine designed to meet the "Build a Space Biology Knowledge Engine" challenge for the NASA Space Apps Challenge. It provides a dynamic and intuitive platform for exploring and understanding NASA's vast collection of bioscience publications.
 
----
+[![Demo](https://img.shields.io/badge/Demo-Live-brightgreen)](http://bsl.mywire.org)
 
-## 📚 Table of Contents
+## The Challenge
 
-- [✨ Features](#-features)
-- [🚀 Installation](#-installation)
-- [📂 Project Structure](#-project-structure)
-- [🖼️ Image Support](#️-image-support)
-- [🔌 API](#-api)
-- [📝 Markdown Extensions](#-markdown-extensions)
-- [🔧 Configuration](#-configuration)
-- [📜 License](#-license)
-- [🌱 Roadmap](#-roadmap)
-- [🤝 Contributing](#-contributing)
+NASA has generated a tremendous amount of information from decades of space biology experiments. This knowledge is crucial for future human space exploration, but it can be difficult for researchers and the public to find and understand the information relevant to their interests. The challenge is to build a dynamic dashboard that leverages AI and knowledge graphs to summarize and explore these publications.
 
----
+## Our Solution: LightWiki
 
-## ✨ Features
+LightWiki addresses this challenge by transforming a set of NASA bioscience publications into an interactive and intelligent knowledge base. Our solution combines a simple and fast wiki engine with powerful AI-driven features to enable users to:
 
-- **Extended Markdown** support (tables, footnotes, syntax highlighting).
-- **Mermaid.js integration** for diagrams and flowcharts.
-- **SQLite backend** (no external DB required).
-- **REST API** for creating, editing, and deleting pages externally.
-- Page history and revision control.
-- Full-text search.
-- User authentication and roles.
-- Mobile-friendly interface.
-- Plugin and theme system.
+*   **Explore Connections:** Visualize the relationships between different research papers and concepts through an interactive 3D knowledge graph.
+*   **Understand Complex Topics:** Get instant, AI-powered explanations of complex terms and concepts directly within the context of the research papers.
+*   **Search with Intelligence:** Utilize an AI-powered search engine that understands the semantic meaning of queries, not just keywords.
+*   **Chat with Documents:** Engage in a conversation with an AI assistant to ask questions and get answers about specific research papers.
 
----
+## Features
 
-## 🚀 Installation
+### 1. Interactive 3D Knowledge Graph
 
-1. Clone this repository:
+LightWiki generates a 3D knowledge graph that visually represents the connections between different research papers. This allows users to explore the landscape of space biology research and discover new relationships and areas of study.
 
+### 2. AI-Powered Contextual Explanations
+
+When reading a research paper, users can simply highlight any text to instantly receive an AI-powered explanation of the selected term or concept in the context of the document. This feature, powered by the DeepSeek language model, makes complex scientific information more accessible to a wider audience.
+
+### 3. Semantic Search
+
+Our AI-powered search goes beyond simple keyword matching. By generating vector embeddings for each document, LightWiki's search engine can understand the semantic meaning of a user's query and return the most relevant results, even if the exact keywords are not present in the text.
+
+### 4. Conversational AI Assistant
+
+Users can open a chat window to have a conversation with an AI assistant about the research paper they are currently viewing. This allows for a more natural and intuitive way to explore and understand the content of the documents.
+
+### 5. REST API
+
+LightWiki includes a comprehensive REST API that allows for programmatic access to the knowledge base. This enables other applications and services to integrate with and build upon our platform.
+
+## Technology Stack
+
+*   **Backend:** PHP
+*   **Data Storage:** Flat-file system using Markdown (`.md`) files
+*   **AI Model:** DeepSeek API for contextual explanations and conversational AI
+*   **Embeddings:** Generated using a Python script with sentence transformers
+*   **3D Visualization:** three.js
+*   **Frontend:** HTML, CSS, JavaScript
+
+## How It Works
+
+1.  **Data Import:** A script (`import_papers_data.php`) ingests the NASA bioscience publications from a JSON file, creating a separate Markdown file for each paper.
+2.  **Embedding Generation:** A PHP script (`setup_embeddings.php`) orchestrates a Python script to generate vector embeddings for the content of each research paper. These embeddings are stored and used for the semantic search feature.
+3.  **Knowledge Graph Generation:** The relationships between papers (e.g., shared authors, keywords, or concepts) are used to generate the `graph3d.json` file, which is then visualized using three.js.
+4.  **AI Interaction:** The frontend uses JavaScript to capture selected text and send it to the `ai-meanings.php` endpoint, which then queries the DeepSeek API to get a contextual explanation. The chat feature works similarly, sending the user's questions and the document context to the AI.
+
+## Getting Started
+
+1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/yourusername/litewiki.git
-    cd litewiki
+    git clone https://github.com/CoderXYZ7/lightWiki.git
     ```
-
-2. Ensure you have **PHP 8+** and **SQLite3** installed.
-
-3. Point your web server (Apache/Nginx) to the `public/` folder.
-
-4. Run the setup script:
-
+2.  **Install dependencies:**
+    ```bash
+    composer install
+    ```
+3.  **Run the setup script:**
     ```bash
     php setup.php
     ```
-
-5. Open your browser at:
-
+4.  **Generate embeddings:**
     ```bash
-    http://localhost/litewiki
+    php setup_embeddings.php
     ```
+5.  **Point your web server to the `public` directory.**
 
----
+## Demo
 
-## 📂 Project Structure
-
-```bash
-litewiki/
-├── public/           # Public web root
-│   ├── index.php     # Entry point
-│   ├── api.php       # API endpoint
-│   ├── css/          # Styles
-│   ├── js/           # Scripts
-│   └── assets/       # Uploaded files, diagrams, etc.
-├── core/             # Core PHP logic
-│   ├── db.php        # SQLite connection
-│   ├── markdown.php  # Extended Markdown renderer
-│   ├── auth.php      # Authentication system
-│   └── wiki.php      # Page logic
-├── storage/          # SQLite database & uploads
-├── templates/        # HTML templates
-├── setup.php         # Initial installer
-└── README.md
-```
-
----
-
-## 🖼️ Image Support
-
-While direct image uploads are on the roadmap, you can still embed images in your wiki pages:
-
-1. Place your image file (e.g., `my-image.png`) inside the `public/assets/` directory.
-2. Embed it in your Markdown using the following syntax:
-
-    ```markdown
-    ![My Image Description](/assets/my-image.png)
-    ```
-
----
-
-## 🔌 API
-
-LiteWiki exposes a simple **REST-like API** via `public/api.php`.
-Requests require an **API key** (configured in `core/config.php`).
-
-### Endpoints
-
-- `POST /api.php?page=create` → Create a new page
-- `POST /api.php?page=edit` → Edit an existing page
-- `POST /api.php?page=delete` → Delete a page
-- `GET  /api.php?page=view&id={page_id}` → Get page content
-- `GET  /api.php?page=list` → List all pages
-
-### Example (cURL)
-
-```bash
-curl -X POST http://localhost/litewiki/api.php?page=create \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -d "title=My Page" \
-  -d "content=# Hello World"
-```
-
----
-
-## 📝 Markdown Extensions
-
-- GitHub-flavored Markdown
-- Mermaid.js code blocks:
-
-  ```mermaid
-  graph TD
-    A[Start] --> B{Is LiteWiki cool?}
-    B -->|Yes| C[Use it!]
-    B -->|No| D[Contribute!]
-  ```
-
-- Syntax highlighting for code
-- Tables, checklists, footnotes
-
----
-
-## 🔧 Configuration
-
-- `core/config.php` → change site title, API key, theme, etc.
-
----
-
-## 📜 License
-
-MIT License
-
----
-
-## 🌱 Roadmap
-
-- [ ] WYSIWYG Markdown editor
-- [ ] File and image uploads
-- [ ] Access control per page
-- [ ] Webhooks for external integrations
-- [ ] Plugin API
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a pull request or open an issue.
-
+A live demo of LightWiki is available at: [http://bsl.mywire.org](http://bsl.mywire.org)
