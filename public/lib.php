@@ -29,7 +29,7 @@ class EmbeddingAPI {
             return base64_encode($row['embedding']);
         }, $blobs);
         
-        return json_endcode($arr);
+        return json_encode($arr);
     }
 
     private function get_page_info($blob){
