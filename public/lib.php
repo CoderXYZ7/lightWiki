@@ -75,17 +75,10 @@ class EmbeddingAPI {
 
     public function search($text){
         $blob = shell_exec("../lightWikiBackEnd/lightwiki_env/bin/python   $this->pythonScriptPath get_blob $text"); //raw blob
-        $blob = trim($blob);
-        
-        $blobs_json = $this->get_blobs();
-        $blobs_decoded = json_decode($blobs_json, true);
 
-        $blobs = array_map(function($blob) {
-            return base64_decode($blob);
-        }, $blobs_decoded['blobs']);
+        $blobs_json = $this->get_blobs();
 
         $nearest_blobs = shell_exec("../lightWikiBackEnd/lightwiki_env/bin/python  $this->pythonScriptPath k_nearest $blob 5 $blobs");
-        $nearest_blobs_json = trim($nearest_blobs_json);
         $nearest_blobs = json_decode($nearest_blobs_json, true);
 
         foreach($nearest_blobs["blobs"] as $blob_a){
