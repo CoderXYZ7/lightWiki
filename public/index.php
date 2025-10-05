@@ -11,6 +11,7 @@ $config = include __DIR__ . "/../core/config.php";
 $auth = new Auth();
 $wiki = new Wiki();
 $markdown = new MarkdownProcessor();
+// $embedding = new EmbeddingAPI("../storage/litewiki.db")
 
 // Handle actions
 $action = $_GET["action"] ?? "view";
@@ -891,8 +892,6 @@ function showSearchForm()
         echo "</div>";
     }
 }
-
-
 
 
 
