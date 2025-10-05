@@ -62,9 +62,9 @@ class EmbeddingAPI {
     }
 
     public function search($text){
-        $blob = shell_exec("lightwiki_env/bin/python " . $this->pythonScriptPath . " get_blob " . $text);
+        $blob = shell_exec("lightWikiBackEnd/lightwiki_env/bin/python " . $this->pythonScriptPath . " get_blob " . $text);
         $blobs = $this->get_blobs();
-        $nearest_blobs = shell_exec("lightwiki_env/bin/python " . $this->pythonScriptPath . " k_nearest " . $blob . " 5 " . json_encode($blobs));
+        $nearest_blobs = shell_exec("lightWikiBackEnd/lightwiki_env/bin/python " . $this->pythonScriptPath . " k_nearest " . $blob . " 5 " . json_encode($blobs));
         $nearest_blobs_data = json_decode($nearest_blobs, true);
         
         $info = array();
@@ -85,15 +85,15 @@ $api = new EmbeddingAPI("../storage/litewiki.db");
 $action = $_GET['action'] ?? '';
 
 switch($action) {
-    case 'get_graph':
+    case 'get-graph':
         echo $api->get_graph();
         break;
         
-    case 'create_graph':
+    case 'create-graph':
         echo $api->create_graph();
         break;
         
-    case 'ai_search':
+    case 'ai-search':
         $text = $_GET['q'] ?? '';
         if($text) {
             $results = $api->search($text);
@@ -103,7 +103,7 @@ switch($action) {
         }
         break;
         
-    case 'get_blobs':
+    case 'get-blobs':
         $blobs = $api->get_blobs();
         echo json_encode($blobs);
         break;
