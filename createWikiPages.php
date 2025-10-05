@@ -141,26 +141,8 @@ $pages = [
 (async function() {
   // Inserisci qui il tuo JSON di dati (o fai fetch da file esterno se preferisci)
   // Per esempio in questo esempio semplice inserisco dati dummy statici:
-  const data = {
-    nodes: [
-      {id:0,x:-100,y:0,z:0}, {id:1,x:100,y:0,z:0},
-      {id:2,x:0,y:-100,z:0}, {id:3,x:0,y:100,z:0},
-      {id:4,x:0,y:0,z:-100}, {id:5,x:0,y:0,z:100}
-    ],
-    edges: [
-      {source:0,target:1,weight:1},
-      {source:2,target:3,weight:1},
-      {source:4,target:5,weight:1}
-    ],
-    blobs: [
-      {blob:'Node 0 info'},
-      {blob:'Node 1 info'},
-      {blob:'Node 2 info'},
-      {blob:'Node 3 info'},
-      {blob:'Node 4 info'},
-      {blob:'Node 5 info'}
-    ]
-  };
+  const response = await fetch('../lightWikiBackEnd/index3d.json');
+  const data = await response.json();
 
   // Setup canvas
   const canvas = document.getElementById('graph');
