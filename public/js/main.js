@@ -318,160 +318,167 @@ function updateDropdownThemeStyle(theme) {
 
 // Inserisci questa parte in fondo al main.js, prima di eventuali altre chiusure </script>
 document.addEventListener("mouseup", () => {
-  const selection = window.getSelection();
-  if (!selection.isCollapsed) {
-    const range = selection.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
+  // Piccolo ritardo per assicurarsi che la selezione sia aggiornata
+  setTimeout(() => {
+    const selection = window.getSelection();
+    if (!selection.isCollapsed) {
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
 
-    // Controlla TUTTI i container della selezione (inizio, fine, e comune)
-    const startContainer = range.startContainer;
-    const endContainer = range.endContainer;
-    const commonContainer = range.commonAncestorContainer;
-    
-    const startElement = startContainer.nodeType === 3 ? startContainer.parentElement : startContainer;
-    const endElement = endContainer.nodeType === 3 ? endContainer.parentElement : endContainer;
-    const commonElement = commonContainer.nodeType === 3 ? commonContainer.parentElement : commonContainer;
-    
-    // Verifica se qualsiasi parte della selezione è dentro header o footer
-    const isStartInHeaderOrFooter = startElement.closest('header') || startElement.closest('footer');
-    const isEndInHeaderOrFooter = endElement.closest('header') || endElement.closest('footer');
-    const isCommonInHeaderOrFooter = commonElement.closest('header') || commonElement.closest('footer');
-    
-    // Se qualsiasi parte della selezione tocca header o footer, nascondi i bottoni
-    if (isStartInHeaderOrFooter || isEndInHeaderOrFooter || isCommonInHeaderOrFooter) {
+      // Controlla TUTTI i container della selezione (inizio, fine, e comune)
+      const startContainer = range.startContainer;
+      const endContainer = range.endContainer;
+      const commonContainer = range.commonAncestorContainer;
+      
+      const startElement = startContainer.nodeType === 3 ? startContainer.parentElement : startContainer;
+      const endElement = endContainer.nodeType === 3 ? endContainer.parentElement : endContainer;
+      const commonElement = commonContainer.nodeType === 3 ? commonContainer.parentElement : commonContainer;
+      
+      // Verifica se qualsiasi parte della selezione è dentro header o footer
+      const isStartInHeaderOrFooter = startElement.closest('header') || startElement.closest('footer');
+      const isEndInHeaderOrFooter = endElement.closest('header') || endElement.closest('footer');
+      const isCommonInHeaderOrFooter = commonElement.closest('header') || commonElement.closest('footer');
+      
+      // Se qualsiasi parte della selezione tocca header o footer, nascondi i bottoni
+      if (isStartInHeaderOrFooter || isEndInHeaderOrFooter || isCommonInHeaderOrFooter) {
+        const btnSearch = document.getElementById("search-ai-btn");
+        const btnAsk = document.getElementById("ask-ai-btn");
+        if (btnSearch) btnSearch.style.display = "none";
+        if (btnAsk) btnAsk.style.display = "none";
+        return;
+      }
+
+      // Bottone "Search with AI"
+      let btnSearch = document.getElementById("search-ai-btn");
+      if (!btnSearch) {
+        btnSearch = document.createElement("button");
+        btnSearch.id = "search-ai-btn";
+        btnSearch.textContent = "Search with AI";
+        btnSearch.style.position = "absolute";
+        btnSearch.style.zIndex = "9999";
+        btnSearch.style.padding = "6px 12px";
+        btnSearch.style.backgroundColor = "#0056b3";
+        btnSearch.style.color = "#fff";
+        btnSearch.style.border = "none";
+        btnSearch.style.borderRadius = "6px";
+        btnSearch.style.fontWeight = "600";
+        btnSearch.style.fontSize = "14px";
+        btnSearch.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
+        btnSearch.style.cursor = "pointer";
+        btnSearch.style.transition = "background-color 0.3s ease";
+        btnSearch.style.userSelect = "none";
+        btnSearch.style.whiteSpace = "nowrap";
+        btnSearch.style.marginRight = "8px";
+
+        btnSearch.addEventListener("mouseenter", () => {
+          btnSearch.style.backgroundColor = "#003d80";
+        });
+
+        btnSearch.addEventListener("mouseleave", () => {
+          btnSearch.style.backgroundColor = "#0056b3";
+        });
+
+        document.body.appendChild(btnSearch);
+
+        btnSearch.addEventListener("click", () => {
+          const selectedText = selection.toString();
+          const encodedText = encodeURIComponent(selectedText);
+          window.open(
+            `/?action=ai-search&q=${encodedText}`,
+            "_blank",
+          );
+          btnSearch.style.display = "none";
+          btnAsk.style.display = "none";
+          selection.removeAllRanges();
+        });
+      }
+
+      // Bottone "Ask to AI"
+      let btnAsk = document.getElementById("ask-ai-btn");
+      if (!btnAsk) {
+        btnAsk = document.createElement("button");
+        btnAsk.id = "ask-ai-btn";
+        btnAsk.textContent = "Ask to AI";
+        btnAsk.style.position = "absolute";
+        btnAsk.style.zIndex = "9999";
+        btnAsk.style.padding = "6px 12px";
+        btnAsk.style.backgroundColor = "#28a745";
+        btnAsk.style.color = "#fff";
+        btnAsk.style.border = "none";
+        btnAsk.style.borderRadius = "6px";
+        btnAsk.style.fontWeight = "600";
+        btnAsk.style.fontSize = "14px";
+        btnAsk.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
+        btnAsk.style.cursor = "pointer";
+        btnAsk.style.transition = "background-color 0.3s ease";
+        btnAsk.style.userSelect = "none";
+        btnAsk.style.whiteSpace = "nowrap";
+
+        btnAsk.addEventListener("mouseenter", () => {
+          btnAsk.style.backgroundColor = "#1e7e34";
+        });
+
+        btnAsk.addEventListener("mouseleave", () => {
+          btnAsk.style.backgroundColor = "#28a745";
+        });
+
+        document.body.appendChild(btnAsk);
+
+        btnAsk.addEventListener("click", () => {
+          const selectedText = selection.toString();
+
+          const urlParams = new URLSearchParams(window.location.search);
+          const pageId = urlParams.get("page") || "";
+
+          btnSearch.style.display = "none";
+          btnAsk.style.display = "none";
+          selection.removeAllRanges();
+
+          showAIModal(selectedText, pageId);
+        });
+      }
+
+      btnSearch.style.display = "block";
+      btnAsk.style.display = "block";
+
+      requestAnimationFrame(() => {
+        const scrollTop = window.scrollY || window.pageYOffset;
+        const scrollLeft = window.scrollX || window.pageXOffset;
+
+        const btnHeight = btnSearch.offsetHeight || 34;
+
+        const topPos = scrollTop + rect.top - btnHeight - 12;
+        const leftPos = Math.max(scrollLeft + rect.left, 5);
+
+        btnSearch.style.top = `${topPos}px`;
+        btnSearch.style.left = `${leftPos}px`;
+
+        const btnSearchWidth = btnSearch.offsetWidth || 120;
+        btnAsk.style.top = `${topPos}px`;
+        btnAsk.style.left = `${leftPos + btnSearchWidth + 8}px`;
+      });
+    } else {
+      // Nessuna selezione - nascondi i bottoni
       const btnSearch = document.getElementById("search-ai-btn");
       const btnAsk = document.getElementById("ask-ai-btn");
       if (btnSearch) btnSearch.style.display = "none";
       if (btnAsk) btnAsk.style.display = "none";
-      return;
     }
-
-    // Bottone "Search with AI"
-    let btnSearch = document.getElementById("search-ai-btn");
-    if (!btnSearch) {
-      btnSearch = document.createElement("button");
-      btnSearch.id = "search-ai-btn";
-      btnSearch.textContent = "Search with AI";
-      btnSearch.style.position = "absolute";
-      btnSearch.style.zIndex = "9999";
-      btnSearch.style.padding = "6px 12px";
-      btnSearch.style.backgroundColor = "#0056b3";
-      btnSearch.style.color = "#fff";
-      btnSearch.style.border = "none";
-      btnSearch.style.borderRadius = "6px";
-      btnSearch.style.fontWeight = "600";
-      btnSearch.style.fontSize = "14px";
-      btnSearch.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
-      btnSearch.style.cursor = "pointer";
-      btnSearch.style.transition = "background-color 0.3s ease";
-      btnSearch.style.userSelect = "none";
-      btnSearch.style.whiteSpace = "nowrap";
-      btnSearch.style.marginRight = "8px";
-
-      btnSearch.addEventListener("mouseenter", () => {
-        btnSearch.style.backgroundColor = "#003d80";
-      });
-
-      btnSearch.addEventListener("mouseleave", () => {
-        btnSearch.style.backgroundColor = "#0056b3";
-      });
-
-      document.body.appendChild(btnSearch);
-
-      btnSearch.addEventListener("click", () => {
-        const selectedText = selection.toString();
-        const encodedText = encodeURIComponent(selectedText);
-        window.open(
-          `http://91.98.199.163/api.php?action=ai-search&text=${encodedText}`,
-          "_blank",
-        );
-        btnSearch.style.display = "none";
-        btnAsk.style.display = "none";
-        selection.removeAllRanges();
-      });
-    }
-
-    // Bottone "Ask to AI"
-    let btnAsk = document.getElementById("ask-ai-btn");
-    if (!btnAsk) {
-      btnAsk = document.createElement("button");
-      btnAsk.id = "ask-ai-btn";
-      btnAsk.textContent = "Ask to AI";
-      btnAsk.style.position = "absolute";
-      btnAsk.style.zIndex = "9999";
-      btnAsk.style.padding = "6px 12px";
-      btnAsk.style.backgroundColor = "#28a745";
-      btnAsk.style.color = "#fff";
-      btnAsk.style.border = "none";
-      btnAsk.style.borderRadius = "6px";
-      btnAsk.style.fontWeight = "600";
-      btnAsk.style.fontSize = "14px";
-      btnAsk.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
-      btnAsk.style.cursor = "pointer";
-      btnAsk.style.transition = "background-color 0.3s ease";
-      btnAsk.style.userSelect = "none";
-      btnAsk.style.whiteSpace = "nowrap";
-
-      btnAsk.addEventListener("mouseenter", () => {
-        btnAsk.style.backgroundColor = "#1e7e34";
-      });
-
-      btnAsk.addEventListener("mouseleave", () => {
-        btnAsk.style.backgroundColor = "#28a745";
-      });
-
-      document.body.appendChild(btnAsk);
-
-      btnAsk.addEventListener("click", () => {
-        const selectedText = selection.toString();
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const pageId = urlParams.get("page") || "";
-
-        btnSearch.style.display = "none";
-        btnAsk.style.display = "none";
-        selection.removeAllRanges();
-
-        showAIModal(selectedText, pageId);
-      });
-    }
-
-    btnSearch.style.display = "block";
-    btnAsk.style.display = "block";
-
-    requestAnimationFrame(() => {
-      const scrollTop = window.scrollY || window.pageYOffset;
-      const scrollLeft = window.scrollX || window.pageXOffset;
-
-      const btnHeight = btnSearch.offsetHeight || 34;
-
-      const topPos = scrollTop + rect.top - btnHeight - 12;
-      const leftPos = Math.max(scrollLeft + rect.left, 5);
-
-      btnSearch.style.top = `${topPos}px`;
-      btnSearch.style.left = `${leftPos}px`;
-
-      const btnSearchWidth = btnSearch.offsetWidth || 120;
-      btnAsk.style.top = `${topPos}px`;
-      btnAsk.style.left = `${leftPos + btnSearchWidth + 8}px`;
-    });
-  } else {
-    const btnSearch = document.getElementById("search-ai-btn");
-    const btnAsk = document.getElementById("ask-ai-btn");
-    if (btnSearch) btnSearch.style.display = "none";
-    if (btnAsk) btnAsk.style.display = "none";
-  }
+  }, 10); // Ritardo di 10ms per lasciare tempo alla selezione di aggiornarsi
 });
 
 document.addEventListener("mousedown", (e) => {
   const btnSearch = document.getElementById("search-ai-btn");
   const btnAsk = document.getElementById("ask-ai-btn");
-  if (btnSearch && e.target !== btnSearch && e.target !== btnAsk) {
-    btnSearch.style.display = "none";
+  
+  // Se clicchi sui bottoni, non nasconderli
+  if (e.target === btnSearch || e.target === btnAsk) {
+    return;
   }
-  if (btnAsk && e.target !== btnAsk && e.target !== btnSearch) {
-    btnAsk.style.display = "none";
-  }
+  
+  // Nascondi immediatamente i bottoni quando clicchi altrove
+  if (btnSearch) btnSearch.style.display = "none";
+  if (btnAsk) btnAsk.style.display = "none";
 });
 
 function showAIModal(selectedText, pageId) {
@@ -618,13 +625,14 @@ function addMarkdownStyles() {
   const style = document.createElement('style');
   style.id = 'ai-modal-markdown-styles';
   style.textContent = `
+    /* Nascondi scrollbar del contenuto AI mantenendolo scrollabile */
     #ai-response-text::-webkit-scrollbar {
       display: none;
     }
     
     #ai-response-text {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
+      -ms-overflow-style: none;  /* IE e Edge */
+      scrollbar-width: none;  /* Firefox */
     }
 
     #ai-response-text h1,
