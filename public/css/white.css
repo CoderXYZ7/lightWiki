@@ -1232,7 +1232,8 @@ footer {
 
     .header-logo {
         max-height: 50px; /* Adjust as needed for header height */
-        width: auto;
+        width: auto; /* Allow width to scale proportionally */
+        height: auto; /* Allow height to scale proportionally */
         display: block;
         /* For better alignment with nav elements */
         vertical-align: middle;
