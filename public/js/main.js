@@ -323,17 +323,22 @@ document.addEventListener("mouseup", () => {
     const range = selection.getRangeAt(0);
     const rect = range.getBoundingClientRect();
 
-    // Controlla se la selezione è all'interno di header o footer
-    const container = range.commonAncestorContainer;
-    const parentElement =
-      container.nodeType === 3 ? container.parentElement : container;
-
-    // Escludi selezioni dentro header o footer
-    const isInHeader = parentElement.closest("header");
-    const isInFooter = parentElement.closest("footer");
-
-    // Se la selezione è in header o footer, nascondi i bottoni e esci
-    if (isInHeader || isInFooter) {
+    // Controlla TUTTI i container della selezione (inizio, fine, e comune)
+    const startContainer = range.startContainer;
+    const endContainer = range.endContainer;
+    const commonContainer = range.commonAncestorContainer;
+    
+    const startElement = startContainer.nodeType === 3 ? startContainer.parentElement : startContainer;
+    const endElement = endContainer.nodeType === 3 ? endContainer.parentElement : endContainer;
+    const commonElement = commonContainer.nodeType === 3 ? commonContainer.parentElement : commonContainer;
+    
+    // Verifica se qualsiasi parte della selezione è dentro header o footer
+    const isStartInHeaderOrFooter = startElement.closest('header') || startElement.closest('footer');
+    const isEndInHeaderOrFooter = endElement.closest('header') || endElement.closest('footer');
+    const isCommonInHeaderOrFooter = commonElement.closest('header') || commonElement.closest('footer');
+    
+    // Se qualsiasi parte della selezione tocca header o footer, nascondi i bottoni
+    if (isStartInHeaderOrFooter || isEndInHeaderOrFooter || isCommonInHeaderOrFooter) {
       const btnSearch = document.getElementById("search-ai-btn");
       const btnAsk = document.getElementById("ask-ai-btn");
       if (btnSearch) btnSearch.style.display = "none";
@@ -373,16 +378,17 @@ document.addEventListener("mouseup", () => {
 
       document.body.appendChild(btnSearch);
 
-      btnSearch.addEventListener('click', () => {
-      const selectedText = selection.toString();
-      const encodedText = encodeURIComponent(selectedText);
-      window.open(`/?action=ai-search&q=${encodedText}`, '_blank');
-      btnSearch.style.display = 'none';
-      btnAsk.style.display = 'none';
-      selection.removeAllRanges();
-});
-
-
+      btnSearch.addEventListener("click", () => {
+        const selectedText = selection.toString();
+        const encodedText = encodeURIComponent(selectedText);
+        window.open(
+          `http://91.98.199.163/api.php?action=ai-search&text=${encodedText}`,
+          "_blank",
+        );
+        btnSearch.style.display = "none";
+        btnAsk.style.display = "none";
+        selection.removeAllRanges();
+      });
     }
 
     // Bottone "Ask to AI"
@@ -606,21 +612,19 @@ function showAIModal(selectedText, pageId) {
     });
 }
 
-
 function addMarkdownStyles() {
   if (document.getElementById('ai-modal-markdown-styles')) return;
 
   const style = document.createElement('style');
   style.id = 'ai-modal-markdown-styles';
   style.textContent = `
-    /* Nascondi scrollbar del contenuto AI mantenendolo scrollabile */
     #ai-response-text::-webkit-scrollbar {
       display: none;
     }
     
     #ai-response-text {
-      -ms-overflow-style: none;  /* IE e Edge */
-      scrollbar-width: none;  /* Firefox */
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
 
     #ai-response-text h1,
@@ -732,4 +736,5 @@ function addMarkdownStyles() {
   `;
   document.head.appendChild(style);
 }
+
 
