@@ -81,6 +81,8 @@ class EmbeddingAPI {
         $nearest_blobs = shell_exec("../lightWikiBackEnd/lightwiki_env/bin/python  $this->pythonScriptPath k_nearest $blob 5 $blobs");
         $nearest_blobs = json_decode($nearest_blobs_json, true);
 
+        printf($nearest_blobs["blobs"]);
+
         $infos = [];
         foreach($nearest_blobs["blobs"] as $blob_a){
             $blob_raw = base64_decode($blob_a); // Decodifica da base64 a raw
