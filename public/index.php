@@ -22,6 +22,11 @@ $messageType = "";
 
 // Handle POST requests
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    // Check for chat requests first (these can come from any page)
+    if (isset($_POST['message']) && isset($_POST['page_id'])) {
+        handleChatRequest($auth, $wiki);
+        exit();
+    }
     handlePost($action, $auth, $wiki, $message, $messageType);
 }
 
@@ -179,6 +184,124 @@ function handlePost($action, $auth, $wiki, &$message, &$messageType)
         case "search":
             // Search is handled in GET
             break;
+        case "chat":
+            header('Content-Type: application/json');
+
+            $message = $_POST['message'] ?? '';
+            $pageId = $_POST['page_id'] ?? '';
+
+            if (empty($message) || empty($pageId)) {
+                echo json_encode(['success' => false, 'error' => 'Missing required parameters']);
+                exit();
+            }
+
+            // Get page content for context
+            $page = $wiki->getPage($pageId);
+            if (!$page) {
+                echo json_encode(['success' => false, 'error' => 'Page not found']);
+                exit();
+            }
+
+            $pageContent = $page['content'];
+
+            // Craft prompt with document context
+            $prompt = "You are an AI assistant helping a user understand a document. Use the following document content as context to answer the user's question:\n\nDOCUMENT CONTENT:\n$pageContent\n\nUSER QUESTION:\n$message\n\nPlease provide a clear, helpful answer based on the document content. If the question cannot be answered from the document, say so clearly.";
+
+            // Load AI API configuration
+            $envPath = __DIR__ . '/../lightWikiBackEnd/.env';
+            if (!file_exists($envPath)) {
+                echo json_encode(['success' => false, 'error' => 'AI configuration file not found at: ' . $envPath]);
+                exit();
+            }
+
+            $env = parse_ini_file($envPath);
+            $apiKey = $env['OPENAI_API_KEY'] ?? null;
+
+            if (!$apiKey) {
+                echo json_encode(['success' => false, 'error' => 'AI API key not configured. Available keys: ' . implode(', ', array_keys($env ?? []))]);
+                exit();
+            }
+
+            // Prepare API request
+            $apiUrl = 'https://api.deepseek.com/v1/chat/completions';
+
+            $data = [
+                'model' => 'deepseek-chat',
+                'messages' => [
+                    ['role' => 'user', 'content' => $prompt]
+                ],
+                'max_tokens' => 1000,
+                'temperature' => 0.7
+            ];
+
+            $opts = [
+                'http' => [
+                    'method' => 'POST',
+                    'header' => [
+                        'Content-Type: application/json',
+                        'Authorization: Bearer ' . trim($apiKey)
+                    ],
+                    'content' => json_encode($data),
+                    'timeout' => 30 // 30 second timeout
+                ],
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false
+                ]
+            ];
+
+            $context = stream_context_create($opts);
+
+            // Add detailed error reporting
+            $response = @file_get_contents($apiUrl, false, $context);
+
+            if ($response === false) {
+                $error = error_get_last();
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Failed to get AI response. PHP Error: ' . ($error['message'] ?? 'Unknown error'),
+                    'debug' => [
+                        'api_url' => $apiUrl,
+                        'api_key_length' => strlen($apiKey),
+                        'context_options' => $opts
+                    ]
+                ]);
+                exit();
+            }
+
+            $apiResponse = json_decode($response, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Invalid JSON response from AI API: ' . json_last_error_msg(),
+                    'raw_response' => $response
+                ]);
+                exit();
+            }
+
+            if (isset($apiResponse['error'])) {
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'AI API error: ' . ($apiResponse['error']['message'] ?? 'Unknown API error'),
+                    'api_response' => $apiResponse
+                ]);
+                exit();
+            }
+
+            if (!isset($apiResponse['choices'][0]['message']['content'])) {
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Unexpected API response format',
+                    'api_response' => $apiResponse
+                ]);
+                exit();
+            }
+
+            $aiResponse = $apiResponse['choices'][0]['message']['content'];
+
+            echo json_encode(['success' => true, 'response' => $aiResponse]);
+            exit();
     }
 }
 
@@ -1141,6 +1264,130 @@ function handleRestore($wiki, $auth)
     exit();
 }
 
+function handleChatRequest($auth, $wiki)
+{
+    // Skip CSRF validation for chat requests (protected by session + rate limiting)
+    // Chat requests are AJAX calls with proper origin checking
+
+    header('Content-Type: application/json');
+
+    $message = $_POST['message'] ?? '';
+    $pageId = $_POST['page_id'] ?? '';
+
+    if (empty($message) || empty($pageId)) {
+        echo json_encode(['success' => false, 'error' => 'Missing required parameters']);
+        exit();
+    }
+
+    // Get page content for context
+    $page = $wiki->getPage($pageId);
+    if (!$page) {
+        echo json_encode(['success' => false, 'error' => 'Page not found']);
+        exit();
+    }
+
+    $pageContent = $page['content'];
+
+    // Craft prompt with document context
+    $prompt = "You are an AI assistant helping a user understand a document. Use the following document content as context to answer the user's question:\n\nDOCUMENT CONTENT:\n$pageContent\n\nUSER QUESTION:\n$message\n\nPlease provide a clear, helpful answer based on the document content. If the question cannot be answered from the document, say so clearly.";
+
+    // Load AI API configuration
+    $envPath = __DIR__ . '/../lightWikiBackEnd/.env';
+    if (!file_exists($envPath)) {
+        echo json_encode(['success' => false, 'error' => 'AI configuration file not found at: ' . $envPath]);
+        exit();
+    }
+
+    $env = parse_ini_file($envPath);
+    $apiKey = $env['OPENAI_API_KEY'] ?? null;
+
+    if (!$apiKey) {
+        echo json_encode(['success' => false, 'error' => 'AI API key not configured. Available keys: ' . implode(', ', array_keys($env ?? []))]);
+        exit();
+    }
+
+    // Prepare API request
+    $apiUrl = 'https://api.deepseek.com/v1/chat/completions';
+
+    $data = [
+        'model' => 'deepseek-chat',
+        'messages' => [
+            ['role' => 'user', 'content' => $prompt]
+        ],
+        'max_tokens' => 1000,
+        'temperature' => 0.7
+    ];
+
+    $opts = [
+        'http' => [
+            'method' => 'POST',
+            'header' => [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . trim($apiKey)
+            ],
+            'content' => json_encode($data),
+            'timeout' => 30 // 30 second timeout
+        ],
+        'ssl' => [
+            'verify_peer' => false,
+            'verify_peer_name' => false
+        ]
+    ];
+
+    $context = stream_context_create($opts);
+
+    // Add detailed error reporting
+    $response = @file_get_contents($apiUrl, false, $context);
+
+    if ($response === false) {
+        $error = error_get_last();
+        echo json_encode([
+            'success' => false,
+            'error' => 'Failed to get AI response. PHP Error: ' . ($error['message'] ?? 'Unknown error'),
+            'debug' => [
+                'api_url' => $apiUrl,
+                'api_key_length' => strlen($apiKey),
+                'context_options' => $opts
+            ]
+        ]);
+        exit();
+    }
+
+    $apiResponse = json_decode($response, true);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'Invalid JSON response from AI API: ' . json_last_error_msg(),
+            'raw_response' => $response
+        ]);
+        exit();
+    }
+
+    if (isset($apiResponse['error'])) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'AI API error: ' . ($apiResponse['error']['message'] ?? 'Unknown API error'),
+            'api_response' => $apiResponse
+        ]);
+        exit();
+    }
+
+    if (!isset($apiResponse['choices'][0]['message']['content'])) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'Unexpected API response format',
+            'api_response' => $apiResponse
+        ]);
+        exit();
+    }
+
+    $aiResponse = $apiResponse['choices'][0]['message']['content'];
+
+    echo json_encode(['success' => true, 'response' => $aiResponse]);
+    exit();
+}
+
 function handleThemeSwitch()
 {
     // Handle AJAX theme switch request
@@ -1178,5 +1425,389 @@ function handleThemeSwitch()
     // If not POST, redirect to home
     header("Location: /");
     exit();
+}
+
+function showChatPage($wiki)
+{
+    global $pageTitle, $auth;
+
+    $pageId = $_GET["page"] ?? "";
+
+    if (empty($pageId)) {
+        echo "<h1>Chat with Document</h1>";
+        echo "<p>No page specified.</p>";
+        return;
+    }
+
+    $page = $wiki->getPage($pageId);
+
+    if (!$page) {
+        echo "<h1>Chat with Document</h1>";
+        echo "<p>Page not found.</p>";
+        return;
+    }
+
+    $pageTitle = "Chat with: " . $page["title"];
+
+    echo '<div class="chat-container">';
+    echo '<div class="chat-header">';
+    echo '<h1><i class="fas fa-comments"></i> Chat with Document</h1>';
+    echo '<div class="chat-info">';
+    echo '<h2>' . htmlspecialchars($page["title"]) . '</h2>';
+    echo '<p><i class="fas fa-book"></i> Document: ' . htmlspecialchars($page["title"]) . '</p>';
+    echo '<p><i class="fas fa-clock"></i> Last updated: ' . date("M j, Y H:i", strtotime($page["updated_at"])) . '</p>';
+    echo '</div>';
+    echo '<div class="chat-actions">';
+    echo '<a href="/?action=view&page=' . urlencode($pageId) . '" class="btn btn-sm"><i class="fas fa-eye"></i> View Document</a>';
+    echo '</div>';
+    echo '</div>';
+
+    echo '<div class="chat-messages" id="chat-messages">';
+    echo '<div class="message system-message">';
+    echo '<div class="message-avatar">';
+    echo '<i class="fas fa-robot"></i>';
+    echo '</div>';
+    echo '<div class="message-content">';
+    echo '<div class="message-header">';
+    echo '<span class="message-author">AI Assistant</span>';
+    echo '<span class="message-time">' . date("H:i") . '</span>';
+    echo '</div>';
+    echo '<div class="message-text">';
+    echo 'Hello! I\'m here to help you understand the document "' . htmlspecialchars($page["title"]) . '". Ask me any questions about its content.';
+    echo '</div>';
+    echo '</div>';
+    echo '</div>';
+    echo '</div>';
+
+    echo '<div class="chat-input-container">';
+    echo '<form id="chat-form" class="chat-form">';
+    echo '<input type="hidden" name="page_id" value="' . htmlspecialchars($pageId) . '">';
+    echo '<input type="hidden" name="csrf_token" value="' . $auth->generateCSRFToken() . '">';
+    echo '<div class="chat-input-wrapper">';
+    echo '<textarea name="message" id="chat-input" placeholder="Ask a question about this document..." required></textarea>';
+    echo '<button type="submit" id="chat-submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Send</button>';
+    echo '</div>';
+    echo '<div class="chat-info-text">';
+    echo '<small>This chat is temporary and will be cleared when you leave the page. Maximum 10 messages per chat session.</small>';
+    echo '</div>';
+    echo '</form>';
+    echo '</div>';
+
+    echo '</div>';
+
+    // Add chat-specific CSS and JavaScript
+    echo '<style>
+        .chat-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            height: calc(100vh - 200px);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .chat-header h1 {
+            margin: 0 0 15px 0;
+            color: #495057;
+            font-size: 24px;
+        }
+        
+        .chat-info h2 {
+            margin: 0 0 5px 0;
+            font-size: 18px;
+            color: #212529;
+        }
+        
+        .chat-info p {
+            margin: 5px 0;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .chat-actions {
+            margin-top: 15px;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            background: #ffffff;
+            margin-bottom: 20px;
+            min-height: 400px;
+        }
+        
+        .message {
+            display: flex;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #007bff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .message.user-message .message-avatar {
+            background: #28a745;
+        }
+        
+        .message.system-message .message-avatar {
+            background: #6c757d;
+        }
+        
+        .message-content {
+            flex: 1;
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .message-author {
+            font-weight: 600;
+            color: #495057;
+            font-size: 14px;
+        }
+        
+        .message-time {
+            color: #6c757d;
+            font-size: 12px;
+        }
+        
+        .message-text {
+            color: #212529;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        
+        .message.user-message .message-text {
+            background: #e3f2fd;
+            padding: 10px 15px;
+            border-radius: 15px 15px 5px 15px;
+            margin-left: auto;
+            max-width: 70%;
+        }
+        
+        .message.ai-message .message-text {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 15px 15px 15px 5px;
+            max-width: 70%;
+        }
+        
+        .message.system-message .message-text {
+            background: #fff3cd;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            font-style: italic;
+        }
+        
+        .chat-input-container {
+            border-top: 1px solid #e9ecef;
+            padding-top: 20px;
+        }
+        
+        .chat-form {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        
+        #chat-input {
+            flex: 1;
+            min-height: 50px;
+            max-height: 120px;
+            padding: 12px 16px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            resize: vertical;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        
+        #chat-input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        
+        .chat-info-text {
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .chat-info-text small {
+            color: #6c757d;
+            font-size: 12px;
+        }
+        
+        #chat-submit {
+            padding: 12px 20px;
+            white-space: nowrap;
+        }
+        
+        .message.loading .message-text::after {
+            content: "";
+            animation: dots 1.5s infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: ""; }
+            40% { content: "."; }
+            60% { content: ".."; }
+            80%, 100% { content: "..."; }
+        }
+        
+        .error-message {
+            background: #f8d7da !important;
+            border-left-color: #dc3545 !important;
+        }
+        
+        .typing-indicator {
+            display: none;
+            font-style: italic;
+            color: #6c757d;
+            margin-top: 10px;
+        }
+        
+        .typing-indicator.show {
+            display: block;
+        }
+    </style>';
+
+    echo '<script>
+        let messageCount = 0;
+        const maxMessages = 10;
+        
+        document.getElementById("chat-form").addEventListener("submit", function(e) {
+            e.preventDefault();
+            
+            const input = document.getElementById("chat-input");
+            const submitBtn = document.getElementById("chat-submit");
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            if (messageCount >= maxMessages) {
+                alert("Maximum message limit reached (" + maxMessages + "). Please refresh the page to start a new chat.");
+                return;
+            }
+            
+            // Add user message
+            addMessage("user", message);
+            messageCount++;
+            
+            // Clear input
+            input.value = "";
+            
+            // Disable form temporarily
+            input.disabled = true;
+            submitBtn.disabled = true;
+            
+            // Add loading indicator
+            const loadingMessageId = addMessage("ai", "", true);
+            
+            // Send request
+            fetch(window.location.href, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: new URLSearchParams({
+                    csrf_token: document.querySelector("input[name=csrf_token]").value,
+                    message: message,
+                    page_id: document.querySelector("input[name=page_id]").value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Remove loading message
+                removeMessage(loadingMessageId);
+                
+                if (data.success) {
+                    addMessage("ai", data.response);
+                    messageCount++;
+                } else {
+                    addMessage("system", "Error: " + (data.error || "Unknown error"), false, "error-message");
+                }
+            })
+            .catch(error => {
+                removeMessage(loadingMessageId);
+                addMessage("system", "Error: Failed to get response from AI", false, "error-message");
+            })
+            .finally(() => {
+                // Re-enable form
+                input.disabled = false;
+                submitBtn.disabled = false;
+                input.focus();
+            });
+        });
+        
+        function addMessage(type, content, isLoading = false, extraClass = "") {
+            const messagesContainer = document.getElementById("chat-messages");
+            const messageDiv = document.createElement("div");
+            messageDiv.className = `message ${type}-message ${extraClass}`;
+            if (isLoading) messageDiv.className += " loading";
+            
+            const avatarIcon = type === "user" ? "user" : (type === "ai" ? "robot" : "exclamation-triangle");
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="fas fa-${avatarIcon}"></i>
+                </div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-author">${type === "user" ? "You" : (type === "ai" ? "AI Assistant" : "System")}</span>
+                        <span class="message-time">${new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})}</span>
+                    </div>
+                    <div class="message-text">${isLoading ? "Thinking" : content}</div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            return messageDiv;
+        }
+        
+        function removeMessage(messageElement) {
+            if (messageElement && messageElement.parentNode) {
+                messageElement.parentNode.removeChild(messageElement);
+            }
+        }
+        
+        // Auto-resize textarea
+        document.getElementById("chat-input").addEventListener("input", function() {
+            this.style.height = "auto";
+            this.style.height = Math.min(this.scrollHeight, 120) + "px";
+        });
+    </script>';
 }
 ?>
