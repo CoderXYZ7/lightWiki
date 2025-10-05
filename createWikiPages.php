@@ -17,12 +17,14 @@ if (!$auth->login("admin", "admin123")) {
 }
 
 $pages = [
-    "Home" => "# Welcome NASA
+    "Home" => "# Welcome to LightWiki
 
 <div class='text-center margin-y-2'>
 <h1 class='h1-large'>LightWiki</h1>
 <p class='subtitle'>The free & open-source wiki with over 3000 dimensions!</p>
-<p class='subtitle-small'>24h speed coding project</p><i class='fa-solid fa-gauge-high'></i></div>
+<p class='subtitle-small'>24h speed coding project</p>
+<div style='text-size: 20px'><i class='fa-solid fa-gauge-high fa-bounce'></i></div>
+</div>
 
 
 
